@@ -80,6 +80,7 @@ export interface Client {
 }
 
 export interface HomepageContent {
+  cataloguePdfUrl?: string;
   stats?: StatItem[];
   categoriesTitle?: string;
   categoriesSubtitle?: string;

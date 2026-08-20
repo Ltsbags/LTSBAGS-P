@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Product } from '@/lib/types';
 import { useLanguage } from '@/components/LanguageProvider';
@@ -56,12 +57,14 @@ export default function ProductCard({
       </span>
 
       {/* Product Image Container */}
-      <Link href={`/product/${product.slug}`} className="relative aspect-4/3 overflow-hidden bg-slate-100 dark:bg-slate-800">
-        <img
+      <Link href={`/product/${product.slug}`} className="relative aspect-4/3 overflow-hidden bg-slate-100 dark:bg-slate-800 block">
+        <Image
           src={primaryImage}
           alt={product.imageAltText || product.name}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           referrerPolicy="no-referrer"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
           <span className="text-white text-xs font-bold flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-white/20">

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Send, ArrowRight, Award, Pause, Play } from 'lucide-react';
 import { HeroSlide } from '@/lib/types';
 import QuoteModal from './QuoteModal';
@@ -181,12 +182,14 @@ export default function HeroSlider({
                 aria-hidden={!isActive}
               >
                 {/* Background Image */}
-                <img
+                <Image
                   src={slide.imageUrl}
                   alt={slide.title || 'LTS BAGS Custom Bag Manufacturing'}
-                  loading={index === 0 ? 'eager' : 'lazy'}
+                  fill
+                  priority={index === 0}
+                  sizes="100vw"
                   referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover object-center filter brightness-[0.55] scale-100 transition-transform duration-1000"
+                  className="object-cover object-center filter brightness-[0.55] scale-100 transition-transform duration-1000"
                 />
 
                 {/* Dark Gradient Overlay for Maximum Readability */}
