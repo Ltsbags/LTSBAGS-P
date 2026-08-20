@@ -6,23 +6,51 @@ import { generatePageMetadata } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const category = db.getCategoryBySlug(slug);
+const KNOWN_STATIC_ROUTES = new Set([
+  'about',
+  'admin',
+  'api',
+  'blog',
+  'categories',
+  'category',
+  'clients',
+  'contact',
+  'customization',
+  'factory-tour',
+  'manufacturing',
+  'privacy-policy',
+  'product',
+  'products',
+  'request-a-quote',
+  'robots.txt',
+  'sitemap.xml',
+  'terms',
+]);
+
+export async function generateMetadata({ params }: { params: Promise<{ categorySlug: string }> }) {
+  const { categorySlug } = await params;
+  if (KNOWN_STATIC_ROUTES.has(categorySlug)) return {};
+
+  const category = db.getCategoryBySlug(categorySlug);
   if (!category) return {};
 
   return generatePageMetadata({
     title: category.metaTitle || `${category.name} Manufacturer in Mumbai | Custom & Wholesale`,
     description: category.metaDescription || `Custom bulk manufacturer of ${category.name} in Mumbai, India. Low MOQ, direct factory wholesale pricing, fast sampling and pan-India delivery.`,
     keywords: category.metaKeywords || `${category.name} manufacturer in Mumbai, ${category.name} wholesale Mumbai, custom ${category.name} India, LTS BAGS PRIVATE LIMITED`,
-    path: `/category/${category.slug}`,
+    path: `/${category.slug}`,
     image: category.image,
   });
 }
 
-export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const category = db.getCategoryBySlug(slug);
+export default async function TopLevelCategoryPage({ params }: { params: Promise<{ categorySlug: string }> }) {
+  const { categorySlug } = await params;
+
+  if (KNOWN_STATIC_ROUTES.has(categorySlug)) {
+    notFound();
+  }
+
+  const category = db.getCategoryBySlug(categorySlug);
 
   if (!category) {
     notFound();
@@ -39,4 +67,3 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     />
   );
 }
-

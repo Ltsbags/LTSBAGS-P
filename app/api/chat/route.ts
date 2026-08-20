@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
       email1: 'info@ltsbags.com',
       email2: 'sales@ltsbags.com',
       factoryAddress:
-        'MIDC Industrial Area, Navi Mumbai, Maharashtra, India',
+        'FLOOR- G, A341/2/3, GANESH SAI KRIPA CHS SANT ROHIDAS MARG, MUKUND NAGAR, DHARAVI, MUMBAI 400017, MAHARASHTRA, INDIA',
       workingHours: 'Mon - Sat: 9:00 AM - 7:00 PM IST',
       gstNumber: '27AAGCL1568H1ZC',
       isoCertificate: 'ISO 9001:2015 Certified',
@@ -155,7 +155,7 @@ Tagline: ${contact.tagline || 'Premier OEM/ODM Custom Bag Manufacturer & Global 
 Primary Phone: ${contact.phone1 || '+91 98335 98338'}
 Secondary Phone: ${contact.phone2 || '+91 96199 61971'}
 Sales Email: ${contact.email2 || contact.email1 || 'sales@ltsbags.com'}
-Factory Address: ${contact.factoryAddress || 'MIDC Industrial Area, Navi Mumbai, Maharashtra, India'}
+Factory Address: ${contact.factoryAddress || 'FLOOR- G, A341/2/3, GANESH SAI KRIPA CHS SANT ROHIDAS MARG, MUKUND NAGAR, DHARAVI, MUMBAI 400017, MAHARASHTRA, INDIA'}
 Working Hours: ${contact.workingHours || 'Mon - Sat: 9:00 AM - 7:00 PM IST'}
 Certifications: GST: ${contact.gstNumber || '27AAGCL1568H1ZC'} | ${contact.isoCertificate || 'ISO 9001:2015 Certified'}
 WhatsApp Support: ${contact.socialWhatsapp || contact.phone1 || '+91 98335 98338'}

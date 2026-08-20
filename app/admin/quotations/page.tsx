@@ -724,7 +724,7 @@ export default function AdminQuotationsPage() {
                 <div>
                   <h4 className="font-extrabold text-slate-900 uppercase tracking-wider text-[11px] mb-1">ISSUED BY:</h4>
                   <div className="font-bold text-slate-900 text-sm">LTS BAGS PRIVATE LIMITED</div>
-                  <div className="text-slate-600 mt-1">Plot No. 42, Sector 8, MIDC Industrial Area, Navi Mumbai, Maharashtra 400708</div>
+                  <div className="text-slate-600 mt-1">FLOOR- G, A341/2/3, GANESH SAI KRIPA CHS SANT ROHIDAS MARG, MUKUND NAGAR, DHARAVI, MUMBAI 400017</div>
                   <div className="text-slate-600 mt-0.5">GSTIN: 27AAGCL1568H1ZC • ISO 9001:2015</div>
                   <div className="text-slate-600 mt-0.5">Email: sales@ltsbags.com • Mobile: +91 98335 98338</div>
                 </div>

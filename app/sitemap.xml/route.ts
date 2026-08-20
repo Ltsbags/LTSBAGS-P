@@ -68,6 +68,12 @@ export async function GET() {
         imgXml = `\n    <image:image>\n      <image:loc>${escapeXml(cat.image)}</image:loc>\n      <image:title>${escapeXml(cat.name || 'LTS Bags Category')}</image:title>\n    </image:image>`;
       }
       return `  <url>
+    <loc>${escapeXml(`${baseUrl}/${cat.slug}`)}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>${imgXml}
+  </url>
+  <url>
     <loc>${escapeXml(`${baseUrl}/category/${cat.slug}`)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>

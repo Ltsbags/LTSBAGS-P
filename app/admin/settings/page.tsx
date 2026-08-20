@@ -71,7 +71,7 @@ export default function AdminSettingsPage() {
   const [phone2, setPhone2] = useState('+91 96199 61971');
   const [email1, setEmail1] = useState('info@ltsbags.com');
   const [email2, setEmail2] = useState('sales@ltsbags.com');
-  const [factoryAddress, setFactoryAddress] = useState('Plot No. 42, Sector 8, Industrial Area, MIDC, Navi Mumbai, Maharashtra 400708, India');
+  const [factoryAddress, setFactoryAddress] = useState('FLOOR- G, A341/2/3, GANESH SAI KRIPA CHS SANT ROHIDAS MARG, MUKUND NAGAR, DHARAVI, MUMBAI 400017, MAHARASHTRA, INDIA');
   const [googleMapsUrl, setGoogleMapsUrl] = useState('https://www.google.com/search?kgmid=%2Fg%2F11qpsqysys&hl=en-IN&q=LTS%20BAGS%20PRIVATE%20LIMITED');
   const [workingHours, setWorkingHours] = useState('Mon - Sat: 9:00 AM - 7:00 PM IST');
   const [gstNumber, setGstNumber] = useState('27AAGCL1568H1ZC');

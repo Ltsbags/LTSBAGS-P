@@ -84,7 +84,7 @@ const INITIAL_FACTORY_GALLERY: FactoryGalleryItem[] = [
   {
     id: 'fac-1',
     imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1000',
-    caption: 'Modern ISO-certified industrial manufacturing premises in Navi Mumbai, Maharashtra.',
+    caption: 'Modern ISO-certified industrial manufacturing premises in Dharavi, Mumbai, Maharashtra.',
     department: 'Factory Exterior',
     altText: 'LTS Bags Manufacturing Plant Exterior and Main Logistics Gate',
     displayOrder: 1,
@@ -219,7 +219,7 @@ const INITIAL_SETTINGS: SiteSettings = {
     phone2: '+91 96199 61971',
     email1: 'info@ltsbags.com',
     email2: 'sales@ltsbags.com',
-    factoryAddress: 'Plot No. 42, Sector 8, Industrial Area, MIDC, Navi Mumbai, Maharashtra 400708, India',
+    factoryAddress: 'FLOOR- G, A341/2/3, GANESH SAI KRIPA CHS SANT ROHIDAS MARG, MUKUND NAGAR, DHARAVI, MUMBAI 400017, MAHARASHTRA, INDIA',
     googleMapsUrl: 'https://www.google.com/search?kgmid=%2Fg%2F11qpsqysys&hl=en-IN&q=LTS%20BAGS%20PRIVATE%20LIMITED',
     workingHours: 'Mon - Sat: 9:00 AM - 7:00 PM IST',
     gstNumber: '27AAGCL1568H1ZC',
@@ -438,77 +438,174 @@ const INITIAL_SLIDES: HeroSlide[] = [
 const INITIAL_CATEGORIES: Category[] = [
   {
     id: 'cat-1',
-    name: 'Executive Laptop Bags',
-    slug: 'executive-laptop-bags',
-    description: 'Custom padded laptop bags, executive sleeves, and slim corporate briefcases with custom logo branding.',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Custom B2B Executive Laptop Bags Manufacturer | Wholesale Supply',
-    metaDescription: 'Bulk manufacturer of executive laptop bags and custom briefcases for corporate gifting and employee kits. Custom logo printing & low MOQ.',
-    metaKeywords: 'laptop bags manufacturer, corporate briefcases wholesale, custom logo laptop bag, B2B bag supplier',
+    name: 'Backpack Bags',
+    slug: 'backpack-bags',
+    description: 'Custom backpacks, corporate laptop backpacks, commuter packs, and heavy-duty daypacks with custom 3D embroidery and reinforced stitching.',
+    image: 'https://images.unsplash.com/photo-1546938576-6e6a64f317cc?auto=format&fit=crop&q=80&w=800',
+    metaTitle: 'Backpack Bag Manufacturer in Mumbai | Custom & Wholesale',
+    metaDescription: 'Leading B2B manufacturer of custom backpacks in Mumbai. Padded laptop compartments, 1680D ballistic nylon, 3D embroidery, and direct factory pricing.',
+    metaKeywords: 'backpack manufacturer in Mumbai, custom backpacks India, wholesale laptop backpacks, LTS BAGS PRIVATE LIMITED',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'cat-2',
-    name: 'Corporate Backpacks',
-    slug: 'corporate-backpacks',
-    description: 'Ergonomic business backpacks, anti-theft tech bags, and commuter packs with USB charging ports and custom embroidery.',
-    image: 'https://images.unsplash.com/photo-1546938576-6e6a64f317cc?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Wholesale Corporate Backpacks Manufacturer | Bulk Custom Branding',
-    metaDescription: 'Leading OEM/ODM manufacturer of corporate tech backpacks, anti-theft commuter packs, and customized company event backpacks.',
-    metaKeywords: 'corporate backpacks wholesale, custom business backpack, branded IT backpack, bulk bag manufacturer',
+    name: 'Laptop Bags',
+    slug: 'laptop-bags',
+    description: 'Executive laptop briefcases, messenger bags, and padded sleeves for 13" to 16" laptops with shock-absorbing EVA foam.',
+    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800',
+    metaTitle: 'Laptop Bag Manufacturer in Mumbai | Executive Briefcases Wholesale',
+    metaDescription: 'Bulk manufacturer of executive laptop bags and sleeves for corporate gifting and employee kits. Custom logo debossing, low MOQ, factory direct.',
+    metaKeywords: 'laptop bag manufacturer Mumbai, corporate laptop briefcases, custom laptop sleeves wholesale, B2B bag supplier',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'cat-3',
-    name: 'Duffel & Travel Bags',
-    slug: 'duffel-travel-bags',
-    description: 'Heavy-duty travel duffels, weekender holdalls, and gym fitness duffels crafted for corporate rewards and brand giveaways.',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Custom B2B Travel Duffel Bags Manufacturer | Bulk Supplier',
-    metaDescription: 'High quality wholesale duffel bags and weekender travel bags for sports teams, corporate events, and travel brands.',
-    metaKeywords: 'custom travel duffel bags, wholesale duffel bag manufacturer, corporate sports bag, promotional holdalls',
+    name: 'School Bags',
+    slug: 'school-bags',
+    description: 'Ergonomic school backpacks, multi-compartment student bags, and uniform bags engineered for daily heavy book loads.',
+    image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&q=80&w=800',
+    metaTitle: 'School Bag Manufacturer in Mumbai | Institutional Supply',
+    metaDescription: 'Direct factory supplier of heavy-duty school bags for schools and institutions across India. Reinforced bar-tack stitching, custom crest embroidery.',
+    metaKeywords: 'school bag manufacturer Mumbai, bulk school backpacks, institutional student bags supplier, durable school bags India',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'cat-4',
-    name: 'Eco Canvas & Tote Bags',
-    slug: 'eco-canvas-tote-bags',
-    description: 'Sustainable organic cotton canvas totes, heavy jute shopper bags, and eco-friendly promotional bags for exhibitions.',
-    image: 'https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Eco Canvas Totes & Jute Bag Manufacturer | Wholesale Eco Bags',
-    metaDescription: 'Sustainable B2B manufacturer of canvas tote bags, jute shopper bags, and cotton trade show bags with screen printing.',
-    metaKeywords: 'eco canvas bag manufacturer, wholesale canvas tote, jute bag supplier, promotional eco bags',
+    name: 'Corporate Bags',
+    slug: 'corporate-bags',
+    description: 'Premium corporate gifting bags, conference folders, onboarding backpacks, and executive briefcases for business enterprises.',
+    image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&q=80&w=800',
+    metaTitle: 'Corporate Bag Manufacturer in Mumbai | Employee Gifting & Events',
+    metaDescription: 'Custom corporate bag manufacturer in Mumbai for onboarding kits, annual meets, and client gifts. 3D embroidery, metal badges, fast turnaround.',
+    metaKeywords: 'corporate bag manufacturer Mumbai, employee onboarding bags, custom corporate backpacks, B2B corporate gifting',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'cat-5',
-    name: 'Promotional Drawstring Bags',
-    slug: 'promotional-drawstring-bags',
-    description: 'Lightweight cinch sacks, polyester drawstring backpacks, and event promotional bags with high-definition screen printing.',
+    name: 'Promotional Bags',
+    slug: 'promotional-bags',
+    description: 'High-visibility branded promotional bags, exhibition totes, event drawstring cinch sacks, and marathon giveaway bags.',
     image: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Promotional Drawstring Bags Bulk Manufacturer | Low Cost Giveaways',
-    metaDescription: 'Custom drawstring bags and cinch packs manufactured in bulk for marathons, corporate events, trade shows, and schools.',
-    metaKeywords: 'drawstring bag manufacturer, wholesale cinch sacks, promotional giveaway bags, bulk event bags',
+    metaTitle: 'Promotional Bag Manufacturer in Mumbai | Bulk Event Bags Wholesale',
+    metaDescription: 'Bulk manufacturer of promotional bags and drawstring sacks for trade shows, marathons, and marketing campaigns in Mumbai.',
+    metaKeywords: 'promotional bag manufacturer Mumbai, event bags wholesale, trade show giveaway bags, custom cinch sacks',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'cat-6',
-    name: 'School & College Bags',
-    slug: 'school-college-bags',
-    description: 'Durable multi-compartment student backpacks, institutional bags, and university bookbags engineered for daily heavy load.',
-    image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'School & College Backpacks OEM Manufacturer | Wholesale Supply',
-    metaDescription: 'Bulk manufacturer of durable school bags, institutional backpacks, and college bags for educational institutions and brand distributors.',
-    metaKeywords: 'school bag manufacturer, college backpack wholesale, bulk student bags, institutional luggage supplier',
+    name: 'Travel Bags',
+    slug: 'travel-bags',
+    description: 'Heavy-duty travel holdalls, luggage bags, and weekender duffels designed for corporate travel, sports tours, and leisure.',
+    image: 'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=800',
+    metaTitle: 'Travel Bag Manufacturer in Mumbai | Bulk Luggage & Holdalls',
+    metaDescription: 'Wholesale manufacturer of travel bags and weekender holdalls in Mumbai. High-capacity, tear-proof fabrics, reinforced handles, custom logos.',
+    metaKeywords: 'travel bag manufacturer Mumbai, custom luggage bags wholesale, corporate travel holdall, bulk weekender bags',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cat-7',
+    name: 'Duffle Bags',
+    slug: 'duffle-bags',
+    description: 'Rugged barrel duffels, sports gear bags, and leatherette weekender duffels with separate shoe tunnels and wet pouches.',
+    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800',
+    metaTitle: 'Duffle Bag Manufacturer in Mumbai | Sports & Travel Duffles',
+    metaDescription: 'Custom duffle bag manufacturer in Mumbai. PU leatherette, 1680D nylon, shoe pockets, water-resistant linings for sports clubs and corporate gifts.',
+    metaKeywords: 'duffle bag manufacturer Mumbai, custom sports duffels, wholesale gym duffle, leatherette weekender bags',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cat-8',
+    name: 'Jute Bags',
+    slug: 'jute-bags',
+    description: 'Eco-friendly laminated golden jute shopping bags, trade show carry bags, and sustainable gift packaging totes.',
+    image: 'https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?auto=format&fit=crop&q=80&w=800',
+    metaTitle: 'Jute Bag Manufacturer in Mumbai | Eco-Friendly Shopping Totes',
+    metaDescription: 'Bulk manufacturer of natural golden jute bags and eco totes in Mumbai. High-definition screen printing, cotton rope handles, 100% biodegradable.',
+    metaKeywords: 'jute bag manufacturer Mumbai, eco jute shopping bags, wholesale jute totes, promotional jute bags India',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cat-9',
+    name: 'Tote Bags',
+    slug: 'tote-bags',
+    description: 'Heavy cotton canvas tote bags, grocery shoppers, and organic cotton conference bags with multi-color silk screen printing.',
+    image: 'https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?auto=format&fit=crop&q=80&w=800',
+    metaTitle: 'Cotton Canvas Tote Bag Manufacturer in Mumbai | Wholesale Totes',
+    metaDescription: 'Custom cotton canvas tote bag manufacturer in Mumbai. 8oz to 16oz canvas, eco-friendly inks, reinforced cross-stitched handles for retail and events.',
+    metaKeywords: 'canvas tote bag manufacturer Mumbai, custom tote bags wholesale, cotton shopping bags India, eco canvas totes',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cat-10',
+    name: 'Sports Bags',
+    slug: 'sports-bags',
+    description: 'High-performance team kit bags, cricket bags, athletic holdalls, and tournament gear bags with ventilated compartments.',
+    image: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?auto=format&fit=crop&q=80&w=800',
+    metaTitle: 'Sports Bag Manufacturer in Mumbai | Athletic Kit Bags Wholesale',
+    metaDescription: 'Manufacturer of sports bags, team kit bags, and athletic holdalls in Mumbai. High-tensile ripstop polyester, custom team logo printing.',
+    metaKeywords: 'sports bag manufacturer Mumbai, team kit bags wholesale, athletic gear bags, custom tournament bags',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cat-11',
+    name: 'Gym Bags',
+    slug: 'gym-bags',
+    description: 'Fitness gym bags with isolated shoe compartments, waterproof wet pouches, and water bottle holders for wellness programs.',
+    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800',
+    metaTitle: 'Gym Bag Manufacturer in Mumbai | Fitness Duffels Wholesale',
+    metaDescription: 'Wholesale gym bag manufacturer in Mumbai. Features shoe tunnel, wet towel pouch, anti-odor vents, and custom fitness branding.',
+    metaKeywords: 'gym bag manufacturer Mumbai, fitness duffels wholesale, custom gym bags India, sports workout bags',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cat-12',
+    name: 'College Bags',
+    slug: 'college-bags',
+    description: 'Trendy multi-compartment campus backpacks with laptop sleeves, organizer pockets, and water-repellent fabrics.',
+    image: 'https://images.unsplash.com/photo-1577733966973-d680bffd2e80?auto=format&fit=crop&q=80&w=800',
+    metaTitle: 'College Bag Manufacturer in Mumbai | Campus Backpacks Wholesale',
+    metaDescription: 'Bulk manufacturer of trendy college backpacks and campus bags in Mumbai. Padded laptop sections, durable fabrics, custom institute logos.',
+    metaKeywords: 'college bag manufacturer Mumbai, campus backpacks wholesale, university bags supplier, student backpacks India',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cat-13',
+    name: 'Office Bags',
+    slug: 'office-bags',
+    description: 'Executive messenger bags, document folders, and office briefcases crafted from ballistic nylon and vegan leatherette.',
+    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800',
+    metaTitle: 'Office Bag Manufacturer in Mumbai | Executive Messengers & Folders',
+    metaDescription: 'Custom office bag manufacturer in Mumbai. Sleek document briefcases, executive messenger bags, and vegan leather folders for corporate professionals.',
+    metaKeywords: 'office bag manufacturer Mumbai, executive messenger bags, corporate document folders, business briefcases wholesale',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cat-14',
+    name: 'Custom Bags',
+    slug: 'custom-bags',
+    description: 'Full OEM/ODM made-to-order custom bags developed from your technical drawings, physical samples, or custom design brief.',
+    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800',
+    metaTitle: 'Custom Bag Manufacturer in Mumbai | OEM/ODM Made-to-Order Bags',
+    metaDescription: 'Leading OEM/ODM custom bag manufacturer in Mumbai, India. Complete custom pattern design, material sourcing, prototype sampling, and bulk production.',
+    metaKeywords: 'custom bag manufacturer Mumbai, OEM bag manufacturer India, ODM made to order bags, custom bag factory Dharavi',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
 ];
+
 
 const INITIAL_PRODUCTS: Product[] = [
   {
@@ -737,80 +834,364 @@ const INITIAL_PRODUCTS: Product[] = [
 const INITIAL_BLOGS: Blog[] = [
   {
     id: 'blog-1',
-    title: 'How to Choose the Right Material for Corporate Backpack Manufacturing: 1680D vs 600D vs Leatherette',
-    slug: 'choose-right-material-corporate-backpack-manufacturing',
-    excerpt: 'A complete B2B guide comparing fabric durability, water resistance, weight, and cost for custom corporate bag manufacturing.',
+    title: 'How to Choose the Right Bag Manufacturer in Mumbai',
+    slug: 'how-to-choose-bag-manufacturer-mumbai',
+    excerpt: 'Key criteria for selecting a reliable B2B bag factory in Mumbai: verifying factory facilities, auditing machinery, assessing sample lead times, and reviewing QC protocols.',
     content: `
-# How to Choose the Right Material for Corporate Backpack Manufacturing
+# How to Choose the Right Bag Manufacturer in Mumbai
 
-When ordering custom bags for corporate giveaways, employee onboarding kits, or retail distribution, fabric selection directly dictates durability, appearance, and unit cost.
+Mumbai, particularly the industrial clusters of Dharavi, Kurla, and Bhiwandi, is the epicentre of India's custom bag manufacturing and export ecosystem. However, navigating through hundreds of suppliers, middlemen, and trading companies requires a structured evaluation framework.
 
-Here is a breakdown from our 15+ years of bag manufacturing experience:
+## 1. Differentiate Between Real Manufacturers and Middlemen
+A genuine manufacturer operates an in-house production setup with dedicated fabric-cutting tables, programmable stitching machines, and finishing stations. Middlemen and trading agencies often lack direct control over production schedules, leading to delayed orders and inconsistent quality.
+- **Action Step:** Request a physical factory visit or live video tour of the cutting and stitching floor before releasing payment.
 
-## 1. 1680D Ballistic Nylon: The Executive Standard
-- **Best For:** High-end corporate backpacks, laptop briefcases, premium travel gear.
-- **Key Advantages:** Extremely high tensile strength, scratch-proof weave, luxurious matte sheen, and superior water resistance.
-- **Cost Factor:** Premium tier.
+## 2. In-House Customization and Branding Capabilities
+Corporate gifting and private-label brands require specialized branding methods:
+- **3D Computerized Embroidery:** For tech backpacks and school crests.
+- **Silk Screen & Heat-Transfer Printing:** For promotional tote and drawstring bags.
+- **Debossed Leather Patches & Metal Badges:** For executive briefcases and luxury duffels.
+Ensure the factory manages branding in-house or with dedicated local finishing partners to prevent multi-week delays.
 
-## 2. 600D Polyester: The Versatile Workhorse
-- **Best For:** School bags, promotional backpacks, gym duffels, and mass distribution.
-- **Key Advantages:** Excellent printability, wide color range, lightweight, highly cost-effective.
-- **Cost Factor:** Economical.
+## 3. Sample Prototyping Speed and Physical Sign-Off
+Never approve mass production without inspecting a physical golden sample. Professional Mumbai factories deliver custom samples within 3 to 5 business days, allowing you to test zipper fluidity, seam density, and internal compartment ergonomics.
 
-## 3. PU Vegan Leatherette: Luxury Aesthetic Without Maintenance
-- **Best For:** Executive weekender duffels, luxury document folders, high-status client gifts.
-- **Key Advantages:** Water-repellent, clean debossing finish, smooth texture.
-- **Cost Factor:** Mid-to-High tier.
+## 4. Minimum Order Quantities (MOQ) and Scalability
+Evaluate whether the supplier accommodates tiered production runs. Look for factories offering low initial MOQs (50–100 units) for corporate events, with the infrastructure to scale to 10,000+ units for national campaigns.
 
-## Summary & Recommendation
-For executive onboarding gifts, select **1680D Nylon** with embroidered logos. For marathons or trade shows, **210D or 600D Polyester** delivers maximum brand visibility per dollar.
+## 5. Transparent Production Lead Times & Logistics
+A dedicated factory will clearly outline the production timeline:
+1. Sample Approval: Days 1–4
+2. Material Sourcing & CNC Pattern Cutting: Days 5–8
+3. Assembly Stitching & Bar-Tack Enforcement: Days 9–12
+4. QC Audit, Packaging & Dispatch: Days 13–15
     `,
-    image: 'https://images.unsplash.com/photo-1546938576-6e6a64f317cc?auto=format&fit=crop&q=80&w=1000',
-    author: 'ApexBags Technical Sourcing Team',
-    category: 'Material Sourcing',
-    publishedAt: '2026-07-20T10:00:00.000Z',
-    metaTitle: '1680D vs 600D Polyester vs Leatherette Bag Materials | B2B Guide',
-    metaDescription: 'Compare 1680D ballistic nylon, 600D polyester, and PU leatherette for custom corporate bag manufacturing. Expert material guide.',
-    metaKeywords: 'bag fabric comparison, 1680D ballistic nylon, 600D polyester, corporate bag material selection',
+    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1000',
+    author: 'LTS BAGS Engineering Team',
+    category: 'Procurement Guide',
+    publishedAt: '2026-08-01T10:00:00.000Z',
+    metaTitle: 'How to Choose the Right Bag Manufacturer in Mumbai | B2B Guide',
+    metaDescription: 'Complete checklist for selecting a trusted bag manufacturer in Mumbai: factory audits, sample timelines, branding methods, and QC testing.',
+    metaKeywords: 'bag manufacturer in Mumbai, how to choose bag factory, custom bag manufacturer India, LTS BAGS PRIVATE LIMITED',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'blog-2',
-    title: '5 Crucial Quality Inspection Steps in B2B Custom Bag Manufacturing',
-    slug: '5-quality-inspection-steps-custom-bag-manufacturing',
-    excerpt: 'Learn how factory QC protocols protect bulk bag buyers from stitching defects, zipper jams, and weight capacity failures.',
+    title: '1680D vs 600D vs 1000D Nylon: Which Material is Best for Corporate Bags?',
+    slug: '1680d-vs-600d-vs-1000d-nylon-corporate-bags-material-guide',
+    excerpt: 'Detailed technical comparison of Denier ratings, tensile strength, abrasion resistance, and water repellency for custom corporate backpacks and briefcases.',
     content: `
-# 5 Crucial Quality Inspection Steps in B2B Custom Bag Manufacturing
+# 1680D vs 600D vs 1000D Nylon: Which Material is Best for Corporate Bags?
 
-Quality Assurance (QA) in bulk bag production separates top-tier manufacturers from generic suppliers. At ApexBags, every production lot undergoes 5 mandatory QC checkpoints:
+The "D" in fabric specifications stands for **Denier**, a textile unit representing the linear mass density of fibers (defined as mass in grams per 9,000 meters of thread). A higher denier number indicates a thicker, heavier, and more abrasion-resistant yarn.
 
-## 1. Raw Material Fabric Stress Testing
-Before cutting, fabrics are tested for tear resistance, colorfastness under UV exposure, and hydrostatic water head pressure.
+---
 
-## 2. Precision Laser Cutting Verification
-Automated CNC pattern cutting ensures zero dimension deviation across 10,000+ units.
+### 1. 1680D Ballistic Nylon (The Executive Standard)
+Originally engineered for flak jackets, 1680D nylon features a tight basket-weave construction.
+- **Tensile & Tear Resistance:** Highest in the industry; virtually rip-proof.
+- **Water Repellency:** Laminated with PU/TPU back coatings to shed water droplets.
+- **Aesthetic:** Clean, matte executive texture.
+- **Best Suited For:** Executive laptop backpacks, corporate onboarding bags, and executive messenger briefcases.
 
-## 3. Stitch Density & Bar-Tack Enforcement
-Critical stress points (shoulder strap joints, handle attachments) receive multi-line bar-tack stitching with 8 to 10 stitches per inch using high-tensile nylon thread.
+---
 
-## 4. Zipper Fatigue & Pull Testing
-Zippers undergo 500+ rapid pull cycles and load stress tests to guarantee smooth action under maximum bag expansion.
+### 2. 600D Polyester (The Versatile Workhorse)
+600D is the global industry standard for mass-market bags, school bags, and promotional giveaways.
+- **Weight:** Moderately lightweight, offering high user comfort.
+- **Printability:** Outstanding surface for vibrant multi-color screen printing.
+- **Cost Factor:** 30–40% more cost-effective than high-denier ballistic nylon.
+- **Best Suited For:** School backpacks, gym duffels, trade show merchandise, and sports bags.
 
-## 5. Final Load & Drop Testing
-Finished samples are loaded with up to 25kg weights and subjected to drop tests from 1.5 meters to verify seam integrity.
+---
+
+### 3. 1000D Cordura-Style Fabric (The Rugged Outdoor Choice)
+1000D texturized nylon provides extreme abrasive resistance against concrete, asphalt, and rough surfaces.
+- **Texture:** Slightly rough, textured hand-feel.
+- **Durability:** Unmatched resistance to scraping and outdoor wear.
+- **Best Suited For:** Heavy travel holdalls, equipment cases, and tactical duffels.
+
+---
+
+### Summary Recommendation
+- For **Executive IT Backpacks & Client Gifts**: Choose **1680D Ballistic Nylon**.
+- For **Educational & Institutional School Bags**: Choose **600D to 900D Coated Polyester**.
+- For **Heavy-Duty Travel Holdalls**: Choose **1000D Cordura-Style or 1680D Nylon**.
     `,
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=1000',
-    author: 'Apex Quality Assurance Dept',
+    image: 'https://images.unsplash.com/photo-1546938576-6e6a64f317cc?auto=format&fit=crop&q=80&w=1000',
+    author: 'LTS BAGS Materials Lab',
+    category: 'Material Sourcing',
+    publishedAt: '2026-07-28T09:00:00.000Z',
+    metaTitle: '1680D vs 600D vs 1000D Nylon Comparison | Bag Fabric Guide',
+    metaDescription: 'Technical comparison of 1680D ballistic nylon, 600D polyester, and 1000D Cordura for custom B2B bag manufacturing in India.',
+    metaKeywords: '1680D nylon, 600D polyester, 1000D cordura, bag material guide, corporate backpack fabrics',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'blog-3',
+    title: 'Step-by-Step Guide to Custom Bag Manufacturing in India',
+    slug: 'step-by-step-guide-custom-bag-manufacturing-india',
+    excerpt: 'From initial tech-pack drafting and fabric selection to sample approvals, bulk stitching, QC audits, and pan-India logistics.',
+    content: `
+# Step-by-Step Guide to Custom Bag Manufacturing in India
+
+Custom bag manufacturing requires precise technical planning between the client and the factory. Here is how our OEM/ODM process operates from initial concept to delivery.
+
+## Step 1: Technical Brief & Spec Drafting
+The client provides:
+- Bag type (backpack, duffel, tote, messenger)
+- Target dimensions (Height x Width x Depth in cm)
+- Fabric preferences (1680D nylon, organic canvas, vegan leatherette)
+- Branding artwork (high-res AI/PDF vector format)
+- Target quantity and delivery timeline
+
+## Step 2: Pattern Engineering & Sample Prototyping
+Our master pattern engineers create paper patterns and CNC laser templates. A complete physical prototype is assembled with all zippers, linings, and logo branding within 3 to 5 business days for hands-on inspection.
+
+## Step 3: Fabric Sourcing & Precision Cutting
+Upon sample approval, raw fabric bolts are inspected for color shade uniformity and coated for water resistance. Automated multi-ply cutting tables cut thousands of exact pattern components.
+
+## Step 4: Line Stitching & Bar-Tack Reinforcement
+Assembly occurs across specialized sewing cells:
+- Computerized programmable pattern stitchers for logo patches
+- Heavy-duty walking-foot sewing machines for heavy canvas and ballistic nylon
+- Bar-tack reinforcement on all load-bearing stress points (handles, shoulder straps)
+
+## Step 5: In-Line QC, Finishing & Dispatch
+Every bag is inspected for loose threads, zipper function, and dimensional accuracy. Units are polybagged with desiccant silica gel packets and packed into 5-ply corrugated export cartons for freight delivery.
+    `,
+    image: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&q=80&w=1000',
+    author: 'LTS BAGS Production Management',
+    category: 'Manufacturing Process',
+    publishedAt: '2026-07-24T11:00:00.000Z',
+    metaTitle: 'Step-by-Step Guide to Custom Bag Manufacturing in India',
+    metaDescription: 'A complete walkthrough of custom bag manufacturing in India: design specs, sampling, bulk cutting, stitching lines, and quality control.',
+    metaKeywords: 'custom bag manufacturing process, bag factory workflow India, OEM bag production guide',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'blog-4',
+    title: 'Why Mumbai is the Hub for Bag Manufacturing in India',
+    slug: 'why-mumbai-is-hub-bag-manufacturing-india',
+    excerpt: 'An overview of Mumbai’s deep textile supply chains, skilled artisan ecosystem, direct port connectivity, and fast turnaround advantages.',
+    content: `
+# Why Mumbai is the Hub for Bag Manufacturing in India
+
+Mumbai has earned its reputation as the commercial and manufacturing capital of India for luggage, leather goods, corporate backpacks, and textile bags.
+
+## 1. Deep Ecosystem of Raw Material Sourcing
+Mumbai hosts major textile markets (such as Mangaldas Market, Mulji Jetha Market, and Crawford Market) alongside dedicated hardware suppliers for heavy zippers (YKK), metal pullers, EVA foams, and technical webbing. This eliminates weeks of raw material transit time.
+
+## 2. Generations of Skilled Craftsmanship
+Areas like Dharavi and Kurla represent specialized industrial clusters with generations of skilled pattern masters, cutters, and precision stitchers who excel at working with heavy synthetic fabrics, leatherette, and natural jute.
+
+## 3. World-Class Multimodal Logistics
+With Nhava Sheva (JNPT) port for sea freight and Chhatrapati Shivaji Maharaj International Airport for air cargo, Mumbai-based factories offer unmatched export connectivity to North America, Europe, the Middle East, and Southeast Asia.
+
+## 4. Rapid Turnaround for Corporate Hubs
+Located at the heart of India's corporate enterprises (BKC, Lower Parel, Nariman Point, and Pune IT corridors), Mumbai manufacturers can deliver urgent corporate event orders within days.
+    `,
+    image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1000',
+    author: 'LTS BAGS Industry Insights',
+    category: 'Industry Insights',
+    publishedAt: '2026-07-20T08:30:00.000Z',
+    metaTitle: 'Why Mumbai is the Hub for Bag Manufacturing in India | B2B Insights',
+    metaDescription: 'Discover why Mumbai leads India in bag manufacturing: raw material ecosystems, artisan craftsmanship, port logistics, and fast corporate turnaround.',
+    metaKeywords: 'bag manufacturing hub Mumbai, Dharavi bag factory, Mumbai bag manufacturer, India luggage exporter',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'blog-5',
+    title: 'MOQ, Lead Times, and Pricing: What to Expect from a Bag Factory',
+    slug: 'moq-lead-times-pricing-bag-factory-guide',
+    excerpt: 'Understand how minimum order quantities, production lead times, and tiered volume pricing work when sourcing custom bags directly from a factory.',
+    content: `
+# MOQ, Lead Times, and Pricing: What to Expect from a Bag Factory
+
+When purchasing bags in bulk for corporate gifting, institutional uniforms, or retail distribution, understanding factory operational economics helps you secure the best pricing and delivery terms.
+
+---
+
+### 1. Understanding Minimum Order Quantities (MOQ)
+Factory MOQs are determined by the minimum dye-lot of fabrics, hardware procurement, and machine setup time.
+- **Standard Stock Fabrics (e.g., 600D, 1680D in Black/Navy):** MOQ is typically 50 to 100 units.
+- **Custom Pantoned Dyed Fabrics:** MOQ starts at 500 to 1,000 units.
+- **Fully Custom Molded Hardware:** MOQ is usually 1,000+ units.
+
+---
+
+### 2. Standard Production Lead Times
+- **Physical Sampling:** 3 to 5 business days.
+- **Small to Mid Batches (100–500 units):** 10 to 14 business days.
+- **Large Production Runs (1,000–10,000 units):** 18 to 25 business days.
+- **Fast-Track Expedited Service:** 5 to 7 days for urgent corporate conferences.
+
+---
+
+### 3. How Direct Factory Tiered Pricing Works
+Direct factory pricing eliminates middleman commissions. Price per unit decreases substantially as batch volume increases:
+- **100 units:** Base wholesale tier.
+- **500 units:** ~12–15% cost savings per unit due to bulk cutting efficiency.
+- **1,000+ units:** ~20–25% cost savings from bulk fabric procurement.
+    `,
+    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1000',
+    author: 'LTS BAGS Commercial Desk',
+    category: 'Procurement Guide',
+    publishedAt: '2026-07-16T12:00:00.000Z',
+    metaTitle: 'MOQ, Lead Times & Pricing from a Bag Factory | Buyer Guide',
+    metaDescription: 'Learn what to expect regarding MOQs, manufacturing lead times, and tiered pricing when ordering custom bags from a factory in India.',
+    metaKeywords: 'bag factory MOQ, custom bag lead times, wholesale bag pricing India, bulk bag manufacturing costs',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'blog-6',
+    title: 'Top Customization Options for Corporate Gifting Bags',
+    slug: 'top-customization-options-corporate-gifting-bags',
+    excerpt: 'Explore branding methods for custom corporate bags: 3D embroidery, rubber patches, metal badge engraving, debossing, and custom zipper pullers.',
+    content: `
+# Top Customization Options for Corporate Gifting Bags
+
+The branding method you choose directly defines the perceived value of your corporate gifting bags and employee onboarding merchandise.
+
+---
+
+### 1. High-Density 3D Logo Embroidery
+- **Best For:** Corporate tech backpacks, sports duffels, and school crests.
+- **Look & Feel:** Raised, textured, multi-color thread work that never fades or peels over years of heavy daily use.
+
+---
+
+### 2. Molded Rubber & PVC Badges
+- **Best For:** Commuter backpacks, sports holdalls, and trendy youth brands.
+- **Look & Feel:** Contemporary, weather-proof, and flexible. Allows sharp micro-details and 3D relief effects.
+
+---
+
+### 3. Laser-Etched Metal Badges
+- **Best For:** Executive laptop bags, premium briefcases, and VIP leadership gifts.
+- **Look & Feel:** High-end brushed metal plate (matte black, silver, gunmetal, or gold) laser-engraved with your company insignia.
+
+---
+
+### 4. Blind Debossing & Foil Stamping
+- **Best For:** Vegan PU leatherette duffels, executive organizers, and portfolios.
+- **Look & Feel:** Subtle, elegant, heat-pressed indentation giving a discreet luxury aesthetic.
+
+---
+
+### 5. Custom Metal Zipper Pullers & Lining Fabrics
+- **Custom Pullers:** Zinc-alloy zipper pullers molded with your corporate logo.
+- **Custom Interior Lining:** All-over subtle monochrome printed company monogram lining for bespoke brand identity.
+    `,
+    image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=1000',
+    author: 'LTS BAGS Design Studio',
+    category: 'Branding & Design',
+    publishedAt: '2026-07-12T14:00:00.000Z',
+    metaTitle: 'Top Customization Options for Corporate Bags | LTS BAGS',
+    metaDescription: 'Compare 3D embroidery, metal badges, rubber patches, and debossing for custom corporate gifting bags and employee welcome kits.',
+    metaKeywords: 'corporate bag customization, 3D logo embroidery bags, custom metal badges, branded corporate backpacks',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'blog-7',
+    title: 'How to Order School Bags in Bulk: Complete Buyer’s Guide',
+    slug: 'how-to-order-school-bags-in-bulk-buyers-guide',
+    excerpt: 'A comprehensive institutional procurement guide on stress testing, ergonomic back padding, fabric durability, and school crest embroidery.',
+    content: `
+# How to Order School Bags in Bulk: Complete Buyer’s Guide
+
+Ordering school bags for academic institutions, coaching centers, and educational trusts requires prioritizing structural durability, student ergonomics, and strict delivery schedules ahead of the academic term.
+
+## 1. Ergonomic Spinal Support for Growing Students
+School bags must support significant textbook weight. Look for:
+- S-shaped contoured shoulder straps padded with high-density EVA foam.
+- Breathable 3D air-mesh back panels to prevent sweating.
+- Adjustable sternum chest straps to distribute weight across the torso.
+
+## 2. Fabric Specifications & Abrasion Resistance
+- Use **600D to 1000D high-density coated polyester** that resists tearing and abrasion when dragged across playground surfaces.
+- Ensure the base panel features double-layered fabric or a molded rubber skid plate.
+
+## 3. Stress-Point Bar-Tack Reinforcement
+The top grab handle and upper shoulder strap anchors bear the highest load. Ensure your manufacturer applies heavy-duty multi-stitch bar-tacking tested to hold at least 15 to 20 kg.
+
+## 4. Uniform Matching & School Crest Embroidery
+Provide vector artwork for your school crest. Computerized multi-head embroidery ensures exact color reproduction and razor-sharp lettering across thousands of units.
+
+## 5. Planning Lead Times for Academic Season
+Peak school manufacturing season runs from January to May. Place bulk orders at least 30 to 45 days in advance to ensure on-time delivery before school reopening.
+    `,
+    image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&q=80&w=1000',
+    author: 'LTS BAGS Institutional Division',
+    category: 'Institutional Supply',
+    publishedAt: '2026-07-08T09:00:00.000Z',
+    metaTitle: 'How to Order School Bags in Bulk | School Buyer Guide',
+    metaDescription: 'Essential guide for schools and institutions purchasing bags in bulk: ergonomic requirements, fabric choices, stress-point stitching, and planning lead times.',
+    metaKeywords: 'bulk school bags, school bag manufacturer Mumbai, wholesale student backpacks, institutional bag supplier',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'blog-8',
+    title: 'Quality Control Checklist for B2B Bag Manufacturing',
+    slug: 'quality-control-checklist-b2b-bag-manufacturing',
+    excerpt: 'Detailed AQL 2.5 quality control checklist covering tensile seam tests, zipper cycle stress, drop tests, and barcode packaging inspections.',
+    content: `
+# Quality Control Checklist for B2B Bag Manufacturing
+
+To ensure zero defect rates across thousands of units, professional bag manufacturers enforce multi-stage Quality Assurance (QA) and Quality Control (QC) protocols based on international AQL 2.5 standards.
+
+---
+
+### Stage 1: Inbound Raw Material Inspection
+- [x] **Tensile & Tear Strength:** Fabric rolls tested under tension before cutting.
+- [x] **Colorfastness & UV Rating:** Verified against shade fading from sun exposure and washing.
+- [x] **Water Resistance:** Hydrostatic head pressure test on PU/TPU coated backings.
+
+---
+
+### Stage 2: In-Process Assembly Audit
+- [x] **Pattern Alignment:** CNC cut pieces verified against technical drawings.
+- [x] **Stitch Density:** 8 to 10 stitches per inch using high-tensile bonded nylon thread.
+- [x] **Bar-Tack Enforcement:** Visual and mechanical pull verification on all handle and strap anchors.
+
+---
+
+### Stage 3: Hardware & Zipper Functionality
+- [x] **Zipper Cycling:** Smooth opening and closing under maximum compartment expansion without teeth snagging.
+- [x] **Buckle & D-Ring Load:** Plastic and metal hardware tested against sudden impact and 25kg tension.
+
+---
+
+### Stage 4: Finished Bag Drop & Load Testing
+- [x] **20kg Dynamic Drop Test:** Bag loaded with 20kg weight and dropped from 1.2 meters to ensure zero seam slippage.
+- [x] **Handle Jerk Test:** 1,000 continuous machine-driven vertical jerks simulating daily commute strain.
+
+---
+
+### Stage 5: Final Packaging & Export Audit
+- [x] **Clean Finishing:** Removal of all loose thread ends and fabric dust.
+- [x] **Protective Packaging:** Individual poly-bagging with moisture-absorbing silica gel.
+- [x] **Carton Integrity:** 5-ply heavy corrugated cartons strapped with security tape.
+    `,
+    image: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?auto=format&fit=crop&q=80&w=1000',
+    author: 'LTS BAGS QC Laboratory',
     category: 'Manufacturing QC',
-    publishedAt: '2026-07-15T09:30:00.000Z',
-    metaTitle: '5 Steps in Custom Bag Quality Control Inspection | ApexBags Factory',
-    metaDescription: 'Discover how quality inspection is conducted in bag manufacturing plants: fabric testing, bar-tack stitching, zipper stress, load drop tests.',
-    metaKeywords: 'bag quality inspection, custom bag QC, manufacturing standards, wholesale luggage testing',
+    publishedAt: '2026-07-04T11:30:00.000Z',
+    metaTitle: 'Quality Control Checklist for B2B Bag Manufacturing | LTS BAGS',
+    metaDescription: 'Discover the AQL 2.5 quality control checklist used in professional bag manufacturing: tensile tests, zipper cycling, load drop tests, packaging audits.',
+    metaKeywords: 'bag quality control, bag manufacturing QC checklist, AQL 2.5 bag testing, wholesale luggage inspection',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
 ];
+
 
 const INITIAL_ENQUIRIES: Enquiry[] = [
   {
@@ -1011,6 +1392,33 @@ function ensureDataFile(): DatabaseSchema {
     const raw = fs.readFileSync(DB_FILE, 'utf-8');
     const parsed = JSON.parse(raw) as DatabaseSchema;
     let dirty = false;
+
+    // Ensure all 14 categories exist
+    if (!parsed.categories || parsed.categories.length < INITIAL_CATEGORIES.length) {
+      const existingSlugs = new Set((parsed.categories || []).map(c => c.slug));
+      const merged = [...(parsed.categories || [])];
+      for (const initCat of INITIAL_CATEGORIES) {
+        if (!existingSlugs.has(initCat.slug)) {
+          merged.push(initCat);
+          dirty = true;
+        }
+      }
+      parsed.categories = merged;
+    }
+
+    // Ensure all 8 blogs exist
+    if (!parsed.blogs || parsed.blogs.length < INITIAL_BLOGS.length) {
+      const existingBlogSlugs = new Set((parsed.blogs || []).map(b => b.slug));
+      const mergedBlogs = [...(parsed.blogs || [])];
+      for (const initBlog of INITIAL_BLOGS) {
+        if (!existingBlogSlugs.has(initBlog.slug)) {
+          mergedBlogs.push(initBlog);
+          dirty = true;
+        }
+      }
+      parsed.blogs = mergedBlogs;
+    }
+
     if (!parsed.slides || parsed.slides.length === 0) {
       parsed.slides = INITIAL_SLIDES;
       dirty = true;
@@ -1042,6 +1450,7 @@ function ensureDataFile(): DatabaseSchema {
       quotations: INITIAL_QUOTATIONS,
       payments: INITIAL_PAYMENTS,
       media: INITIAL_MEDIA,
+      settings: INITIAL_SETTINGS,
     };
   }
 }
@@ -1057,6 +1466,33 @@ function saveData(data: DatabaseSchema): void {
   }
 }
 
+const CATEGORY_SLUG_ALIASES: Record<string, string> = {
+  'backpacks': 'backpack-bags',
+  'corporate-backpacks': 'backpack-bags',
+  'backpack': 'backpack-bags',
+  'laptop-bag': 'laptop-bags',
+  'executive-laptop-bags': 'laptop-bags',
+  'school-college-bags': 'school-bags',
+  'school-bag': 'school-bags',
+  'corporate-bag': 'corporate-bags',
+  'promotional-drawstring-bags': 'promotional-bags',
+  'promotional-bag': 'promotional-bags',
+  'duffel-travel-bags': 'travel-bags',
+  'travel-bag': 'travel-bags',
+  'duffel-bags': 'duffle-bags',
+  'duffels': 'duffle-bags',
+  'eco-canvas-tote-bags': 'tote-bags',
+  'canvas-totes': 'tote-bags',
+  'totes': 'tote-bags',
+  'tote-bag': 'tote-bags',
+  'sports-bag': 'sports-bags',
+  'gym-bag': 'gym-bags',
+  'college-bag': 'college-bags',
+  'office-bag': 'office-bags',
+  'custom-bag': 'custom-bags',
+  'oem-bags': 'custom-bags',
+};
+
 export const db = {
   // Categories
   getCategories(): Category[] {
@@ -1065,7 +1501,18 @@ export const db = {
   },
   getCategoryBySlug(slug: string): Category | undefined {
     const data = ensureDataFile();
-    return data.categories.find((c) => c.slug === slug);
+    const normalized = slug.toLowerCase().trim();
+    const directMatch = data.categories.find((c) => c.slug === normalized);
+    if (directMatch) return directMatch;
+
+    const targetSlug = CATEGORY_SLUG_ALIASES[normalized];
+    if (targetSlug) {
+      return data.categories.find((c) => c.slug === targetSlug);
+    }
+
+    return data.categories.find((c) => 
+      c.slug.includes(normalized) || normalized.includes(c.slug) || c.name.toLowerCase().includes(normalized)
+    );
   },
   saveCategory(category: Partial<Category> & { name: string }): Category {
     const data = ensureDataFile();

@@ -29,7 +29,7 @@ export default function Footer() {
     phone1: '+91 9833598338',
     phone2: '+91 9619961971',
     email1: 'info@ltsbags.com',
-    factoryAddress: 'Mumbai, Maharashtra, India',
+    factoryAddress: 'FLOOR- G, A341/2/3, GANESH SAI KRIPA CHS SANT ROHIDAS MARG, MUKUND NAGAR, DHARAVI, MUMBAI 400017',
     googleMapsUrl: 'https://www.google.com/search?kgmid=%2Fg%2F11qpsqysys&hl=en-IN&q=LTS%20BAGS%20PRIVATE%20LIMITED',
     workingHours: 'Mon - Sat: 9:00 AM - 7:00 PM IST',
     gstNumber: '27AAGCL1568H1ZC',
@@ -147,6 +147,10 @@ export default function Footer() {
                   GSTIN: {contact.gstNumber}
                 </li>
               )}
+              <li className="flex items-start gap-2 pt-1 text-[11px] leading-snug">
+                <MapPin className="w-3.5 h-3.5 text-[#72AFDB] shrink-0 mt-0.5" />
+                <span>{contact.factoryAddress}</span>
+              </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-[#72AFDB]" />
                 <a href="tel:+919833598338" className="hover:text-white">+91 9833598338</a>

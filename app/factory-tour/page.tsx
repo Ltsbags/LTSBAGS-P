@@ -271,7 +271,7 @@ export default function FactoryTourPage() {
               Schedule an On-Site Factory Audit or Sample Review
             </h2>
             <p className="text-slate-300 text-sm max-w-xl mx-auto leading-relaxed">
-              We welcome corporate procurement managers, brand merchandisers, and institutional buyers to inspect our production lines in Navi Mumbai.
+              We welcome corporate procurement managers, brand merchandisers, and institutional buyers to inspect our production lines in Dharavi, Mumbai.
             </p>
             <div className="flex flex-wrap justify-center gap-4 pt-2">
               <Link

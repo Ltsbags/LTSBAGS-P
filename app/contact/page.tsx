@@ -265,7 +265,7 @@ export default function ContactPage() {
     phone1: '+91 98335 98338',
     phone2: '+91 96199 61971',
     email1: 'info@ltsbags.com',
-    factoryAddress: 'Plot No. 42, Sector 8, Industrial Area, MIDC, Navi Mumbai, Maharashtra 400708, India',
+    factoryAddress: 'FLOOR- G, A341/2/3, GANESH SAI KRIPA CHS SANT ROHIDAS MARG, MUKUND NAGAR, DHARAVI, MUMBAI 400017, MAHARASHTRA, INDIA',
     googleMapsUrl: 'https://www.google.com/search?kgmid=%2Fg%2F11qpsqysys&hl=en-IN&q=LTS%20BAGS%20PRIVATE%20LIMITED',
     workingHours: 'Mon - Sat: 9:00 AM - 7:00 PM IST',
     gstNumber: '27AAGCL1568H1ZC',
