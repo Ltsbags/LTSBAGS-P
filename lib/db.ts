@@ -1,7 +1,32 @@
 import 'server-only';
 import fs from 'fs';
 import path from 'path';
-import { Category, Product, Blog, Enquiry, SiteSettings, HeroSlide, Quotation, Payment, MediaAsset, Client, LanguageConfig, EntityTranslation, LanguageSettings, CompanyMetrics, Certification, FactoryGalleryItem, FactoryDepartment } from './types';
+import crypto from 'crypto';
+import { 
+  Category, 
+  Product, 
+  Blog, 
+  Enquiry, 
+  SiteSettings, 
+  HeroSlide, 
+  Quotation, 
+  Payment, 
+  MediaAsset, 
+  Client, 
+  LanguageConfig, 
+  EntityTranslation, 
+  LanguageSettings, 
+  CompanyMetrics, 
+  Certification, 
+  FactoryGalleryItem, 
+  FactoryDepartment,
+  AdminUser,
+  AdminSession,
+  AuditLog,
+  FaqItem,
+  TestimonialItem,
+  NavigationMenuConfig
+} from './types';
 import { INITIAL_LANGUAGES } from './i18n/languages';
 import { INITIAL_TRANSLATIONS_MAP } from './i18n/translations';
 
@@ -21,6 +46,12 @@ interface DatabaseSchema {
   clients?: Client[];
   languageSettings?: LanguageSettings;
   entityTranslations?: EntityTranslation[];
+  users?: AdminUser[];
+  sessions?: AdminSession[];
+  auditLogs?: AuditLog[];
+  faqs?: FaqItem[];
+  testimonials?: TestimonialItem[];
+  navigation?: NavigationMenuConfig;
 }
 
 const INITIAL_METRICS: CompanyMetrics = {
@@ -103,7 +134,7 @@ const INITIAL_FACTORY_GALLERY: FactoryGalleryItem[] = [
   },
   {
     id: 'fac-3',
-    imageUrl: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&q=80&w=1000',
+    imageUrl: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&q=80&w=1000',
     caption: 'Multi-ply automated laser & CNC fabric cutting table for millimeter-precise pattern pieces.',
     department: 'Cutting Department',
     altText: 'Automated CNC Fabric Cutting Machines at LTS Bags Factory',
@@ -113,7 +144,7 @@ const INITIAL_FACTORY_GALLERY: FactoryGalleryItem[] = [
   },
   {
     id: 'fac-4',
-    imageUrl: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=1000',
+    imageUrl: 'https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&q=80&w=1000',
     caption: 'Heavy-duty direct-drive programmable sewing machines and computer bar-tack stations.',
     department: 'Stitching Department',
     altText: 'High-speed automated sewing line for heavy 1680D nylon and canvas bags',
@@ -962,7 +993,7 @@ Assembly occurs across specialized sewing cells:
 ## Step 5: In-Line QC, Finishing & Dispatch
 Every bag is inspected for loose threads, zipper function, and dimensional accuracy. Units are polybagged with desiccant silica gel packets and packed into 5-ply corrugated export cartons for freight delivery.
     `,
-    image: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&q=80&w=1000',
+    image: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&q=80&w=1000',
     author: 'LTS BAGS Production Management',
     category: 'Manufacturing Process',
     publishedAt: '2026-07-24T11:00:00.000Z',
@@ -1369,6 +1400,207 @@ const INITIAL_MEDIA: MediaAsset[] = [
   },
 ];
 
+const DEFAULT_ADMIN_SALT = 'lts_salt_9833598338';
+const DEFAULT_ADMIN_HASH = crypto.pbkdf2Sync('admin123', DEFAULT_ADMIN_SALT, 100000, 64, 'sha512').toString('hex');
+
+const INITIAL_USERS: AdminUser[] = [
+  {
+    id: 'user-super-admin-1',
+    name: 'LTS BAGS Super Admin',
+    email: 'admin@ltsbags.com',
+    passwordHash: DEFAULT_ADMIN_HASH,
+    salt: DEFAULT_ADMIN_SALT,
+    role: 'SUPER_ADMIN',
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'user-content-mgr-2',
+    name: 'Content & Catalog Manager',
+    email: 'content@ltsbags.com',
+    passwordHash: DEFAULT_ADMIN_HASH,
+    salt: DEFAULT_ADMIN_SALT,
+    role: 'CONTENT_MANAGER',
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'user-sales-mgr-3',
+    name: 'B2B Sales & RFQ Manager',
+    email: 'sales.lead@ltsbags.com',
+    passwordHash: DEFAULT_ADMIN_HASH,
+    salt: DEFAULT_ADMIN_SALT,
+    role: 'SALES_MANAGER',
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+const INITIAL_FAQS: FaqItem[] = [
+  {
+    id: 'faq-1',
+    question: 'What is the Minimum Order Quantity (MOQ) for custom bag manufacturing?',
+    answer: 'Our standard Minimum Order Quantity (MOQ) starts from 50 to 100 units for corporate backpacks, executive laptop bags, and travel duffels with custom company logo embroidery or screen printing. For promotional drawstring bags and tote bags, the MOQ is 200 to 500 units.',
+    category: 'Ordering & MOQ',
+    displayOrder: 1,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'faq-2',
+    question: 'How long does physical sample development and mass production take?',
+    answer: 'Pre-production physical sample turnaround is 3 to 5 business days after artwork approval. Once the physical sample is signed off, standard bulk manufacturing takes 10 to 18 business days depending on order volume (up to 50,000 units). Express expedited production is available for urgent events.',
+    category: 'Production & Delivery',
+    displayOrder: 2,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'faq-3',
+    question: 'What customization and branding options are available?',
+    answer: 'We provide end-to-end custom branding: Computerized High-Density 3D Embroidery, Multi-Color Screen Printing, Laser-Etched Metal Plates, Heat-Debossed Leatherette Badges, High-Frequency Rubber Patches, Custom Molded Zipper Pullers, and Custom Monogram Interior Lining Fabric.',
+    category: 'Customization & Branding',
+    displayOrder: 3,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'faq-4',
+    question: 'Which raw materials do you use for durable corporate bags?',
+    answer: 'We maintain extensive inventory of premium fabrics including 1680D Ballistic Nylon, 1000D Cordura-grade Polyester, 600D Diamond Ripstop, Vegan PU Leatherette, GOTS-Certified Organic Canvas, Juco, and Waterproof TPU coated textiles. All hardware uses rust-proof zinc alloy and YKK / heavy-duty SBS zippers.',
+    category: 'Materials & Quality',
+    displayOrder: 4,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'faq-5',
+    question: 'Do you deliver across India and handle international export shipping?',
+    answer: 'Yes. We deliver pan-India via express surface and air freight with live dispatch tracking (Mumbai, Delhi NCR, Bengaluru, Hyderabad, Chennai, Pune, Kolkata, Ahmedabad). We also handle export documentation, sea containers, and air cargo for global clients in UAE, USA, Europe, and Africa.',
+    category: 'Shipping & Logistics',
+    displayOrder: 5,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'faq-6',
+    question: 'Can we visit your manufacturing facility in Dharavi, Mumbai?',
+    answer: 'Yes, corporate procurement teams, institutions, and buying agents are welcome to visit our manufacturing floor and showroom at FLOOR- G, A341/2/3, GANESH SAI KRIPA CHS SANT ROHIDAS MARG, MUKUND NAGAR, DHARAVI, MUMBAI 400017, MAHARASHTRA, INDIA. Please schedule an appointment with our sales team.',
+    category: 'Factory & Company',
+    displayOrder: 6,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+const INITIAL_TESTIMONIALS: TestimonialItem[] = [
+  {
+    id: 'test-1',
+    name: 'Rajesh Sharma',
+    role: 'VP Procurement & Talent Engagement',
+    company: 'Infosys Limited',
+    content: 'LTS BAGS manufactured 2,500 executive 1680D nylon laptop backpacks for our annual corporate onboarding. Stitching quality, EVA back support, and 3D embroidery detail were exceptional. Delivered 5 days ahead of schedule.',
+    review: 'LTS BAGS manufactured 2,500 executive 1680D nylon laptop backpacks for our annual corporate onboarding. Stitching quality, EVA back support, and 3D embroidery detail were exceptional. Delivered 5 days ahead of schedule.',
+    rating: 5,
+    source: 'Verified Customer',
+    verificationStatus: 'VERIFIED',
+    publishStatus: 'PUBLISHED',
+    displayOrder: 1,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'test-2',
+    name: 'Ananya Deshmukh',
+    role: 'Corporate Procurement Manager',
+    company: 'TCS Innovation Labs',
+    content: 'Outstanding build quality and zipper durability! We ordered 800 weekender travel duffel bags for our international leadership retreat. Highly professional communication and transparent factory pricing.',
+    review: 'Outstanding build quality and zipper durability! We ordered 800 weekender travel duffel bags for our international leadership retreat. Highly professional communication and transparent factory pricing.',
+    rating: 5,
+    source: 'Verified Customer',
+    verificationStatus: 'VERIFIED',
+    publishStatus: 'PUBLISHED',
+    displayOrder: 2,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'test-3',
+    name: 'Vikram Mehta',
+    role: 'Marketing Director',
+    company: 'Reliance Retail Merchandising',
+    content: 'We sourced 15,000 organic cotton canvas totes for a national eco promotional campaign. The reactive screen printing crispness and seam load strength were flawless. LTS BAGS is our trusted bulk manufacturing partner.',
+    review: 'We sourced 15,000 organic cotton canvas totes for a national eco promotional campaign. The reactive screen printing crispness and seam load strength were flawless. LTS BAGS is our trusted bulk manufacturing partner.',
+    rating: 5,
+    source: 'Verified Customer',
+    verificationStatus: 'VERIFIED',
+    publishStatus: 'PUBLISHED',
+    displayOrder: 3,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'test-4',
+    name: 'Priya Sundaram',
+    role: 'Director of Operations',
+    company: 'Horizon International School',
+    content: 'We ordered 3,500 customized student backpacks with ergonomic spinal padding and embroidered school crests. Zero defects reported across all grade batches. Outstanding institutional supplier in Mumbai.',
+    review: 'We ordered 3,500 customized student backpacks with ergonomic spinal padding and embroidered school crests. Zero defects reported across all grade batches. Outstanding institutional supplier in Mumbai.',
+    rating: 5,
+    source: 'Direct Feedback',
+    verificationStatus: 'VERIFIED',
+    publishStatus: 'PUBLISHED',
+    displayOrder: 4,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+const INITIAL_NAVIGATION: NavigationMenuConfig = {
+  headerNav: [
+    { id: 'nav-prod', label: 'All Bags & Catalog', url: '/products', displayOrder: 1, isEnabled: true },
+    { id: 'nav-cat', label: 'Categories', url: '/categories', displayOrder: 2, isEnabled: true },
+    { id: 'nav-cust', label: 'Custom Branding', url: '/customization', displayOrder: 3, isEnabled: true },
+    { id: 'nav-mfg', label: 'Manufacturing & QC', url: '/manufacturing', displayOrder: 4, isEnabled: true },
+    { id: 'nav-fac', label: 'Factory Tour', url: '/factory-tour', displayOrder: 5, isEnabled: true },
+    { id: 'nav-abt', label: 'About Factory', url: '/about', displayOrder: 6, isEnabled: true },
+    { id: 'nav-blg', label: 'B2B Insights', url: '/blog', displayOrder: 7, isEnabled: true },
+    { id: 'nav-cnt', label: 'Contact & RFQ', url: '/contact', displayOrder: 8, isEnabled: true },
+  ],
+  footerNav: [
+    { id: 'fnav-rfq', label: 'Request Factory Quotation', url: '/contact', displayOrder: 1, isEnabled: true },
+    { id: 'fnav-corp', label: 'Corporate Laptop Backpacks', url: '/category/laptop-bags', displayOrder: 2, isEnabled: true },
+    { id: 'fnav-duf', label: 'Travel & Gym Duffels', url: '/category/travel-bags', displayOrder: 3, isEnabled: true },
+    { id: 'fnav-tote', label: 'Eco Canvas Totes', url: '/category/tote-bags', displayOrder: 4, isEnabled: true },
+    { id: 'fnav-mat', label: 'Material Selection Guide', url: '/blog/1680d-vs-600d-vs-1000d-nylon-corporate-bags-material-guide', displayOrder: 5, isEnabled: true },
+    { id: 'fnav-qc', label: 'AQL 2.5 Quality Inspection', url: '/blog/quality-control-checklist-b2b-bag-manufacturing', displayOrder: 6, isEnabled: true },
+    { id: 'fnav-fac', label: 'Factory Infrastructure', url: '/factory-tour', displayOrder: 7, isEnabled: true },
+  ],
+  quickLinks: [
+    { id: 'qlink-1', label: 'Direct WhatsApp Quotation', url: 'https://wa.me/919833598338?text=Hello%20LTS%20Bags,%20I%20need%20a%20wholesale%20quote', displayOrder: 1, isEnabled: true, isExternal: true },
+    { id: 'qlink-2', label: 'Download Product Catalogue (PDF)', url: '/catalogue.pdf', displayOrder: 2, isEnabled: true },
+    { id: 'qlink-3', label: 'Schedule Factory Visit in Mumbai', url: '/contact', displayOrder: 3, isEnabled: true },
+  ],
+  importantLinks: [
+    { id: 'imp-1', label: 'Privacy Policy', url: '/privacy-policy', displayOrder: 1, isEnabled: true },
+    { id: 'imp-2', label: 'Terms of Supply & Warranty', url: '/terms', displayOrder: 2, isEnabled: true },
+    { id: 'imp-3', label: 'Sitemap XML', url: '/sitemap.xml', displayOrder: 3, isEnabled: true },
+  ],
+};
+
 function ensureDataFile(): DatabaseSchema {
   try {
     if (!fs.existsSync(DATA_DIR)) {
@@ -1385,6 +1617,12 @@ function ensureDataFile(): DatabaseSchema {
         quotations: INITIAL_QUOTATIONS,
         payments: INITIAL_PAYMENTS,
         media: INITIAL_MEDIA,
+        users: INITIAL_USERS,
+        faqs: INITIAL_FAQS,
+        testimonials: INITIAL_TESTIMONIALS,
+        navigation: INITIAL_NAVIGATION,
+        auditLogs: [],
+        sessions: [],
       };
       fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf-8');
       return initialData;
@@ -1393,30 +1631,148 @@ function ensureDataFile(): DatabaseSchema {
     const parsed = JSON.parse(raw) as DatabaseSchema;
     let dirty = false;
 
-    // Ensure all 14 categories exist
-    if (!parsed.categories || parsed.categories.length < INITIAL_CATEGORIES.length) {
-      const existingSlugs = new Set((parsed.categories || []).map(c => c.slug));
-      const merged = [...(parsed.categories || [])];
-      for (const initCat of INITIAL_CATEGORIES) {
-        if (!existingSlugs.has(initCat.slug)) {
-          merged.push(initCat);
-          dirty = true;
-        }
-      }
-      parsed.categories = merged;
+    // Ensure users exist
+    if (!parsed.users || parsed.users.length === 0) {
+      parsed.users = INITIAL_USERS;
+      dirty = true;
     }
 
-    // Ensure all 8 blogs exist
-    if (!parsed.blogs || parsed.blogs.length < INITIAL_BLOGS.length) {
-      const existingBlogSlugs = new Set((parsed.blogs || []).map(b => b.slug));
-      const mergedBlogs = [...(parsed.blogs || [])];
-      for (const initBlog of INITIAL_BLOGS) {
-        if (!existingBlogSlugs.has(initBlog.slug)) {
-          mergedBlogs.push(initBlog);
-          dirty = true;
-        }
+    // Ensure FAQs exist
+    if (!parsed.faqs || parsed.faqs.length === 0) {
+      parsed.faqs = INITIAL_FAQS;
+      dirty = true;
+    }
+
+    // Ensure Testimonials exist
+    if (!parsed.testimonials || parsed.testimonials.length === 0) {
+      parsed.testimonials = INITIAL_TESTIMONIALS;
+      dirty = true;
+    }
+
+    // Ensure Navigation exists
+    if (!parsed.navigation) {
+      parsed.navigation = INITIAL_NAVIGATION;
+      dirty = true;
+    }
+
+    // Ensure sessions and audit logs array
+    if (!parsed.sessions) {
+      parsed.sessions = [];
+      dirty = true;
+    }
+    if (!parsed.auditLogs) {
+      parsed.auditLogs = [];
+      dirty = true;
+    }
+
+    // Ensure all categories exist & have strictly unique IDs and slugs
+    const sanitizedCategories: Category[] = [];
+    const seenCatSlugs = new Set<string>();
+    const seenCatIds = new Set<string>();
+
+    // First process existing categories
+    for (const c of (parsed.categories || [])) {
+      const slug = c.slug?.toLowerCase().trim();
+      if (!slug || seenCatSlugs.has(slug)) continue;
+      seenCatSlugs.add(slug);
+
+      let finalId = c.id;
+      if (!finalId || seenCatIds.has(finalId)) {
+        finalId = `cat-${slug}`;
+        dirty = true;
       }
-      parsed.blogs = mergedBlogs;
+      seenCatIds.add(finalId);
+      sanitizedCategories.push({ ...c, id: finalId, slug });
+    }
+
+    // Merge any missing initial categories
+    for (const initCat of INITIAL_CATEGORIES) {
+      const slug = initCat.slug.toLowerCase().trim();
+      if (!seenCatSlugs.has(slug)) {
+        let finalId = initCat.id;
+        if (seenCatIds.has(finalId)) {
+          finalId = `cat-${slug}`;
+        }
+        seenCatSlugs.add(slug);
+        seenCatIds.add(finalId);
+        sanitizedCategories.push({ ...initCat, id: finalId, slug });
+        dirty = true;
+      }
+    }
+    if (parsed.categories?.length !== sanitizedCategories.length || dirty) {
+      parsed.categories = sanitizedCategories;
+      dirty = true;
+    }
+
+    // Ensure all blogs exist & have strictly unique IDs and slugs
+    const sanitizedBlogs: Blog[] = [];
+    const seenBlogSlugs = new Set<string>();
+    const seenBlogIds = new Set<string>();
+
+    for (const b of (parsed.blogs || [])) {
+      const slug = b.slug?.toLowerCase().trim();
+      if (!slug || seenBlogSlugs.has(slug)) continue;
+      seenBlogSlugs.add(slug);
+
+      let finalId = b.id;
+      if (!finalId || seenBlogIds.has(finalId)) {
+        finalId = `blog-${slug}`;
+        dirty = true;
+      }
+      seenBlogIds.add(finalId);
+      sanitizedBlogs.push({ ...b, id: finalId, slug });
+    }
+
+    for (const initBlog of INITIAL_BLOGS) {
+      const slug = initBlog.slug.toLowerCase().trim();
+      if (!seenBlogSlugs.has(slug)) {
+        let finalId = initBlog.id;
+        if (seenBlogIds.has(finalId)) {
+          finalId = `blog-${slug}`;
+        }
+        seenBlogSlugs.add(slug);
+        seenBlogIds.add(finalId);
+        sanitizedBlogs.push({ ...initBlog, id: finalId, slug });
+        dirty = true;
+      }
+    }
+    if (parsed.blogs?.length !== sanitizedBlogs.length || dirty) {
+      parsed.blogs = sanitizedBlogs;
+      dirty = true;
+    }
+
+    // Ensure products have unique IDs
+    const sanitizedProducts: Product[] = [];
+    const seenProdSlugs = new Set<string>();
+    const seenProdIds = new Set<string>();
+    for (const p of (parsed.products || [])) {
+      const slug = p.slug?.toLowerCase().trim();
+      if (!slug || seenProdSlugs.has(slug)) continue;
+      seenProdSlugs.add(slug);
+      let finalId = p.id;
+      if (!finalId || seenProdIds.has(finalId)) {
+        finalId = `prod-${slug}`;
+        dirty = true;
+      }
+      seenProdIds.add(finalId);
+      sanitizedProducts.push({ ...p, id: finalId, slug });
+    }
+    for (const initProd of INITIAL_PRODUCTS) {
+      const slug = initProd.slug.toLowerCase().trim();
+      if (!seenProdSlugs.has(slug)) {
+        let finalId = initProd.id;
+        if (seenProdIds.has(finalId)) {
+          finalId = `prod-${slug}`;
+        }
+        seenProdSlugs.add(slug);
+        seenProdIds.add(finalId);
+        sanitizedProducts.push({ ...initProd, id: finalId, slug });
+        dirty = true;
+      }
+    }
+    if (parsed.products?.length !== sanitizedProducts.length || dirty) {
+      parsed.products = sanitizedProducts;
+      dirty = true;
     }
 
     if (!parsed.slides || parsed.slides.length === 0) {
@@ -1498,6 +1854,10 @@ export const db = {
   getCategories(): Category[] {
     const data = ensureDataFile();
     return data.categories;
+  },
+  getCategoryById(id: string): Category | undefined {
+    const data = ensureDataFile();
+    return data.categories.find((c) => c.id === id);
   },
   getCategoryBySlug(slug: string): Category | undefined {
     const data = ensureDataFile();
@@ -1641,6 +2001,10 @@ export const db = {
     const data = ensureDataFile();
     return data.blogs;
   },
+  getBlogById(id: string): Blog | undefined {
+    const data = ensureDataFile();
+    return data.blogs.find((b) => b.id === id);
+  },
   getBlogBySlug(slug: string): Blog | undefined {
     const data = ensureDataFile();
     return data.blogs.find((b) => b.slug === slug);
@@ -1699,6 +2063,10 @@ export const db = {
     const data = ensureDataFile();
     return data.enquiries.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   },
+  getEnquiryById(id: string): Enquiry | undefined {
+    const data = ensureDataFile();
+    return data.enquiries.find((e) => e.id === id);
+  },
   createEnquiry(enquiry: Omit<Enquiry, 'id' | 'status' | 'createdAt' | 'updatedAt'>): Enquiry {
     const data = ensureDataFile();
     const now = new Date().toISOString();
@@ -1713,11 +2081,13 @@ export const db = {
     saveData(data);
     return newEnq;
   },
-  updateEnquiryStatus(id: string, status: Enquiry['status']): Enquiry | undefined {
+  updateEnquiryStatus(id: string, status: Enquiry['status'], notes?: string, assignedTo?: string): Enquiry | undefined {
     const data = ensureDataFile();
     const item = data.enquiries.find((e) => e.id === id);
     if (item) {
       item.status = status;
+      if (notes !== undefined) item.notes = notes;
+      if (assignedTo !== undefined) item.assignedTo = assignedTo;
       item.updatedAt = new Date().toISOString();
       saveData(data);
       return item;
@@ -2266,6 +2636,397 @@ export const db = {
       return true;
     }
     return false;
+  },
+
+  // Admin Users Management
+  getAdminUsers(): AdminUser[] {
+    const data = ensureDataFile();
+    return (data.users || INITIAL_USERS).map((u) => ({
+      ...u,
+      // Never leak passwordHash or salt in general listings
+      passwordHash: '[PROTECTED]',
+      salt: '[PROTECTED]',
+    }));
+  },
+
+  getAdminUserById(id: string): AdminUser | undefined {
+    const data = ensureDataFile();
+    return (data.users || INITIAL_USERS).find((u) => u.id === id);
+  },
+
+  getAdminUserByEmail(email: string): AdminUser | undefined {
+    const data = ensureDataFile();
+    const normalized = email.toLowerCase().trim();
+    return (data.users || INITIAL_USERS).find((u) => u.email.toLowerCase().trim() === normalized);
+  },
+
+  saveAdminUser(userData: Partial<AdminUser> & { email: string; name: string; role: AdminUser['role'] }): AdminUser {
+    const data = ensureDataFile();
+    if (!data.users) data.users = [...INITIAL_USERS];
+    const now = new Date().toISOString();
+    const existingIndex = userData.id ? data.users.findIndex((u) => u.id === userData.id) : -1;
+
+    if (existingIndex >= 0) {
+      const existing = data.users[existingIndex];
+      const updated: AdminUser = {
+        ...existing,
+        ...userData,
+        passwordHash: userData.passwordHash || existing.passwordHash,
+        salt: userData.salt || existing.salt,
+        updatedAt: now,
+      };
+      data.users[existingIndex] = updated;
+      saveData(data);
+      return { ...updated, passwordHash: '[PROTECTED]', salt: '[PROTECTED]' };
+    } else {
+      const salt = userData.salt || crypto.randomBytes(16).toString('hex');
+      const hash = userData.passwordHash || crypto.pbkdf2Sync('admin123', salt, 100000, 64, 'sha512').toString('hex');
+      const newUser: AdminUser = {
+        id: 'user-' + Date.now(),
+        name: userData.name,
+        email: userData.email.toLowerCase().trim(),
+        passwordHash: hash,
+        salt: salt,
+        role: userData.role,
+        isActive: userData.isActive !== undefined ? userData.isActive : true,
+        createdAt: now,
+        updatedAt: now,
+      };
+      data.users.push(newUser);
+      saveData(data);
+      return { ...newUser, passwordHash: '[PROTECTED]', salt: '[PROTECTED]' };
+    }
+  },
+
+  updateAdminPassword(userId: string, newHash: string, newSalt: string): boolean {
+    const data = ensureDataFile();
+    if (!data.users) data.users = [...INITIAL_USERS];
+    const userIndex = data.users.findIndex((u) => u.id === userId);
+    if (userIndex >= 0) {
+      data.users[userIndex].passwordHash = newHash;
+      data.users[userIndex].salt = newSalt;
+      data.users[userIndex].updatedAt = new Date().toISOString();
+      saveData(data);
+      return true;
+    }
+    return false;
+  },
+
+  deleteAdminUser(id: string): boolean {
+    const data = ensureDataFile();
+    if (!data.users) data.users = [...INITIAL_USERS];
+    const userToDelete = data.users.find((u) => u.id === id);
+    if (!userToDelete) return false;
+    // Protect the primary super admin from deletion
+    if (userToDelete.email === 'admin@ltsbags.com') return false;
+
+    const lenBefore = data.users.length;
+    data.users = data.users.filter((u) => u.id !== id);
+    if (data.users.length !== lenBefore) {
+      saveData(data);
+      return true;
+    }
+    return false;
+  },
+
+  // Sessions
+  createSession(session: AdminSession): AdminSession {
+    const data = ensureDataFile();
+    if (!data.sessions) data.sessions = [];
+    // Keep sessions array clean (max 500)
+    if (data.sessions.length > 500) {
+      const now = Date.now();
+      data.sessions = data.sessions.filter((s) => new Date(s.expiresAt).getTime() > now);
+    }
+    data.sessions.push(session);
+    saveData(data);
+    return session;
+  },
+
+  getSessionByToken(token: string): AdminSession | undefined {
+    const data = ensureDataFile();
+    if (!data.sessions) return undefined;
+    return data.sessions.find((s) => s.token === token);
+  },
+
+  deleteSession(token: string): boolean {
+    const data = ensureDataFile();
+    if (!data.sessions) return false;
+    const lenBefore = data.sessions.length;
+    data.sessions = data.sessions.filter((s) => s.token !== token);
+    if (data.sessions.length !== lenBefore) {
+      saveData(data);
+      return true;
+    }
+    return false;
+  },
+
+  // Audit Logs
+  createAuditLog(log: Omit<AuditLog, 'id' | 'createdAt'>): AuditLog {
+    const data = ensureDataFile();
+    if (!data.auditLogs) data.auditLogs = [];
+    const newLog: AuditLog = {
+      id: 'log-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+      ...log,
+      createdAt: new Date().toISOString(),
+    };
+    data.auditLogs.unshift(newLog);
+    // Keep max 2,000 logs
+    if (data.auditLogs.length > 2000) {
+      data.auditLogs = data.auditLogs.slice(0, 2000);
+    }
+    saveData(data);
+    return newLog;
+  },
+
+  getAuditLogs(limit = 100, action?: string, resource?: string): AuditLog[] {
+    const data = ensureDataFile();
+    let logs = data.auditLogs || [];
+    if (action) {
+      logs = logs.filter((l) => l.action.toLowerCase().includes(action.toLowerCase()));
+    }
+    if (resource) {
+      logs = logs.filter((l) => l.resource.toLowerCase().includes(resource.toLowerCase()));
+    }
+    return logs.slice(0, limit);
+  },
+
+  // FAQs
+  getFaqs(onlyActive = false): FaqItem[] {
+    const data = ensureDataFile();
+    const faqs = data.faqs || INITIAL_FAQS;
+    const list = onlyActive ? faqs.filter((f) => f.isActive) : faqs;
+    return [...list].sort((a, b) => a.displayOrder - b.displayOrder);
+  },
+
+  getFaqById(id: string): FaqItem | undefined {
+    const data = ensureDataFile();
+    return (data.faqs || INITIAL_FAQS).find((f) => f.id === id);
+  },
+
+  saveFaq(faqData: Partial<FaqItem> & { question: string; answer: string }): FaqItem {
+    const data = ensureDataFile();
+    if (!data.faqs) data.faqs = [...INITIAL_FAQS];
+    const now = new Date().toISOString();
+    const index = faqData.id ? data.faqs.findIndex((f) => f.id === faqData.id) : -1;
+
+    if (index >= 0) {
+      const updated: FaqItem = {
+        ...data.faqs[index],
+        ...faqData,
+        updatedAt: now,
+      };
+      data.faqs[index] = updated;
+      saveData(data);
+      return updated;
+    } else {
+      const maxOrder = data.faqs.reduce((max, f) => (f.displayOrder > max ? f.displayOrder : max), 0);
+      const newFaq: FaqItem = {
+        id: 'faq-' + Date.now(),
+        question: faqData.question,
+        answer: faqData.answer,
+        category: faqData.category || 'General',
+        displayOrder: faqData.displayOrder !== undefined ? faqData.displayOrder : maxOrder + 1,
+        isActive: faqData.isActive !== undefined ? faqData.isActive : true,
+        createdAt: now,
+        updatedAt: now,
+      };
+      data.faqs.push(newFaq);
+      saveData(data);
+      return newFaq;
+    }
+  },
+
+  deleteFaq(id: string): boolean {
+    const data = ensureDataFile();
+    if (!data.faqs) data.faqs = [...INITIAL_FAQS];
+    const lenBefore = data.faqs.length;
+    data.faqs = data.faqs.filter((f) => f.id !== id);
+    if (data.faqs.length !== lenBefore) {
+      saveData(data);
+      return true;
+    }
+    return false;
+  },
+
+  // Testimonials
+  getTestimonials(onlyPublished = false): TestimonialItem[] {
+    const data = ensureDataFile();
+    const testimonials = data.testimonials || INITIAL_TESTIMONIALS;
+    const list = onlyPublished 
+      ? testimonials.filter((t) => t.publishStatus !== 'DRAFT' && t.isActive !== false) 
+      : testimonials;
+    return [...list].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  },
+
+  getTestimonialById(id: string): TestimonialItem | undefined {
+    const data = ensureDataFile();
+    return (data.testimonials || INITIAL_TESTIMONIALS).find((t) => t.id === id);
+  },
+
+  saveTestimonial(tData: Partial<TestimonialItem> & { name: string; company: string; content?: string; review?: string }): TestimonialItem {
+    const data = ensureDataFile();
+    if (!data.testimonials) data.testimonials = [...INITIAL_TESTIMONIALS];
+    const now = new Date().toISOString();
+    const index = tData.id ? data.testimonials.findIndex((t) => t.id === tData.id) : -1;
+    const reviewText = tData.content || tData.review || '';
+
+    if (index >= 0) {
+      const updated: TestimonialItem = {
+        ...data.testimonials[index],
+        ...tData,
+        content: reviewText,
+        review: reviewText,
+        updatedAt: now,
+      };
+      data.testimonials[index] = updated;
+      saveData(data);
+      return updated;
+    } else {
+      const maxOrder = data.testimonials.reduce((max, t) => ((t.displayOrder || 0) > max ? (t.displayOrder || 0) : max), 0);
+      const newTest: TestimonialItem = {
+        id: 'test-' + Date.now(),
+        name: tData.name,
+        role: tData.role || 'Procurement Specialist',
+        company: tData.company,
+        content: reviewText,
+        review: reviewText,
+        rating: tData.rating || 5,
+        avatarUrl: tData.avatarUrl || tData.photoUrl || '',
+        photoUrl: tData.photoUrl || tData.avatarUrl || '',
+        source: tData.source || 'Verified Customer',
+        verificationStatus: tData.verificationStatus || 'VERIFIED',
+        publishStatus: tData.publishStatus || 'PUBLISHED',
+        displayOrder: tData.displayOrder !== undefined ? tData.displayOrder : maxOrder + 1,
+        isActive: tData.isActive !== undefined ? tData.isActive : true,
+        createdAt: now,
+        updatedAt: now,
+      };
+      data.testimonials.push(newTest);
+      saveData(data);
+      return newTest;
+    }
+  },
+
+  deleteTestimonial(id: string): boolean {
+    const data = ensureDataFile();
+    if (!data.testimonials) data.testimonials = [...INITIAL_TESTIMONIALS];
+    const lenBefore = data.testimonials.length;
+    data.testimonials = data.testimonials.filter((t) => t.id !== id);
+    if (data.testimonials.length !== lenBefore) {
+      saveData(data);
+      return true;
+    }
+    return false;
+  },
+
+  // Navigation Menus
+  getNavigation(): NavigationMenuConfig {
+    const data = ensureDataFile();
+    return data.navigation || INITIAL_NAVIGATION;
+  },
+
+  saveNavigation(navConfig: NavigationMenuConfig): NavigationMenuConfig {
+    const data = ensureDataFile();
+    data.navigation = {
+      ...navConfig,
+      updatedAt: new Date().toISOString(),
+    };
+    saveData(data);
+    return data.navigation;
+  },
+
+  // Product Advanced Actions
+  duplicateProduct(id: string): Product | undefined {
+    const data = ensureDataFile();
+    const source = data.products.find((p) => p.id === id);
+    if (!source) return undefined;
+
+    const now = new Date().toISOString();
+    const newId = 'prod-' + Date.now();
+    const newSlug = `${source.slug}-copy-${Math.random().toString(36).substring(2, 6)}`;
+    const duplicate: Product = {
+      ...source,
+      id: newId,
+      name: `${source.name} (Copy)`,
+      slug: newSlug,
+      status: 'DRAFT',
+      isFeatured: false,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    data.products.push(duplicate);
+    saveData(data);
+    return duplicate;
+  },
+
+  duplicateBlog(id: string): Blog | undefined {
+    const data = ensureDataFile();
+    const source = data.blogs.find((b) => b.id === id);
+    if (!source) return undefined;
+
+    const now = new Date().toISOString();
+    const newId = 'blog-' + Date.now();
+    const newSlug = `${source.slug}-copy-${Math.random().toString(36).substring(2, 6)}`;
+    const duplicate: Blog = {
+      ...source,
+      id: newId,
+      title: `${source.title} (Draft Copy)`,
+      slug: newSlug,
+      status: 'DRAFT',
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    data.blogs.push(duplicate);
+    saveData(data);
+    return duplicate;
+  },
+
+  // Backup & Snapshot
+  createBackupSnapshot(): { timestamp: string; data: DatabaseSchema } {
+    const data = ensureDataFile();
+    // Strip sensitive passwords from backup export
+    const safeData: DatabaseSchema = {
+      ...data,
+      users: (data.users || []).map((u) => ({ ...u, passwordHash: '[REDACTED]', salt: '[REDACTED]' })),
+      sessions: [],
+    };
+    return {
+      timestamp: new Date().toISOString(),
+      data: safeData,
+    };
+  },
+
+  restoreFromBackup(backupJson: DatabaseSchema): boolean {
+    try {
+      const current = ensureDataFile();
+      const merged: DatabaseSchema = {
+        ...current,
+        categories: backupJson.categories || current.categories,
+        products: backupJson.products || current.products,
+        blogs: backupJson.blogs || current.blogs,
+        enquiries: backupJson.enquiries || current.enquiries,
+        settings: backupJson.settings || current.settings,
+        slides: backupJson.slides || current.slides,
+        quotations: backupJson.quotations || current.quotations,
+        payments: backupJson.payments || current.payments,
+        media: backupJson.media || current.media,
+        faqs: backupJson.faqs || current.faqs,
+        testimonials: backupJson.testimonials || current.testimonials,
+        navigation: backupJson.navigation || current.navigation,
+        // preserve current active users and sessions to avoid admin lockout
+        users: current.users,
+        sessions: current.sessions,
+        auditLogs: current.auditLogs,
+      };
+      saveData(merged);
+      return true;
+    } catch (err) {
+      console.error('Failed to restore backup:', err);
+      return false;
+    }
   },
 };
 

@@ -1,3 +1,40 @@
+export type AdminRole = 'SUPER_ADMIN' | 'CONTENT_MANAGER' | 'SALES_MANAGER' | 'EDITOR' | 'SEO_SPECIALIST';
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  salt: string;
+  role: AdminRole;
+  isActive: boolean;
+  lastLogin?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminSession {
+  token: string;
+  userId: string;
+  expiresAt: string;
+  ipAddress?: string;
+  userAgent?: string;
+  createdAt: string;
+}
+
+export interface AuditLog {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  action: string;
+  resource: string;
+  resourceId?: string;
+  details?: Record<string, any>;
+  ipAddress: string;
+  createdAt: string;
+}
+
 export interface BankDetails {
   accountName?: string;
   bankName?: string;
@@ -10,17 +47,26 @@ export interface BankDetails {
 
 export interface CompanyContactInfo {
   companyName?: string;
+  legalCompanyName?: string;
   tagline?: string;
+  businessDescription?: string;
   logoUrl?: string;
   phone1?: string;
   phone2?: string;
+  whatsapp?: string;
   email1?: string;
   email2?: string;
   factoryAddress?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
   googleMapsUrl?: string;
+  googleBusinessProfileUrl?: string;
   workingHours?: string;
   gstNumber?: string;
   isoCertificate?: string;
+  cinNumber?: string;
   socialLinkedin?: string;
   socialFacebook?: string;
   socialInstagram?: string;
@@ -52,17 +98,61 @@ export interface ProcessStepItem {
 }
 export type HomepageProcessStep = ProcessStepItem;
 
+export type TestimonialSource = 'Google Review' | 'Verified Customer' | 'Direct Feedback' | 'Other';
+export type TestimonialVerificationStatus = 'VERIFIED' | 'UNVERIFIED';
+export type TestimonialPublishStatus = 'PUBLISHED' | 'DRAFT';
+
 export interface TestimonialItem {
   id: string;
   name: string;
-  role: string;
+  role?: string;
   company: string;
   content: string;
+  review?: string;
   rating: number;
   avatarUrl?: string;
+  photoUrl?: string;
+  source?: TestimonialSource;
+  verificationStatus?: TestimonialVerificationStatus;
+  publishStatus?: TestimonialPublishStatus;
+  displayOrder?: number;
   isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 export type Testimonial = TestimonialItem;
+
+export interface FaqItem {
+  id: string;
+  question: string;
+  answer: string;
+  category: string;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NavLinkItem {
+  id: string;
+  label: string;
+  url: string;
+  displayOrder: number;
+  isEnabled: boolean;
+  isExternal?: boolean;
+  targetBlank?: boolean;
+  badge?: string;
+  children?: NavLinkItem[];
+}
+export type NavigationMenuItem = NavLinkItem;
+
+export interface NavigationMenuConfig {
+  headerNav: NavLinkItem[];
+  footerNav: NavLinkItem[];
+  quickLinks: NavLinkItem[];
+  importantLinks: NavLinkItem[];
+  updatedAt?: string;
+}
 
 export interface ClientLogoItem {
   id: string;
@@ -83,6 +173,10 @@ export interface Client {
 
 export interface HomepageContent {
   cataloguePdfUrl?: string;
+  heroHeading?: string;
+  heroDescription?: string;
+  heroCtaText?: string;
+  heroCtaUrl?: string;
   stats?: StatItem[];
   categoriesTitle?: string;
   categoriesSubtitle?: string;
@@ -98,6 +192,10 @@ export interface HomepageContent {
   testimonialsSubtitle?: string;
   testimonials?: TestimonialItem[];
   clientLogos?: ClientLogoItem[];
+  manufacturingTitle?: string;
+  manufacturingDescription?: string;
+  customizationTitle?: string;
+  customizationDescription?: string;
   ctaTitle?: string;
   ctaDescription?: string;
   ctaButtonText?: string;
@@ -133,17 +231,17 @@ export interface FooterContent {
 }
 
 export interface CompanyMetrics {
-  yearsExperience?: string; // e.g. "15+ Years"
-  factoryArea?: string; // e.g. "25,000+ Sq. Ft."
-  dailyCapacity?: string; // e.g. "10,000+ Bags/Day"
-  monthlyCapacity?: string; // e.g. "250,000+ Bags/Month"
-  workforce?: string; // e.g. "150+ Skilled Artisans"
-  minOrderQuantity?: string; // e.g. "50 - 100 Units"
-  onTimeDeliveryRate?: string; // e.g. "99.8%"
-  countriesServed?: string; // e.g. "15+ Countries"
-  certificationsList?: string; // e.g. "ISO 9001:2015"
+  yearsExperience?: string;
+  factoryArea?: string;
+  dailyCapacity?: string;
+  monthlyCapacity?: string;
+  workforce?: string;
+  minOrderQuantity?: string;
+  onTimeDeliveryRate?: string;
+  countriesServed?: string;
+  certificationsList?: string;
   certifications?: string;
-  qualityStandards?: string; // e.g. "AQL 2.5 Strict Inspection"
+  qualityStandards?: string;
   clientSectionMode?: 'CLIENTS' | 'INDUSTRIES_SERVED';
   clientSectionTitle?: string;
 }
@@ -174,15 +272,20 @@ export interface FactoryGalleryItem {
   updatedAt?: string;
 }
 
+export type CertificationStatus = 'VERIFIED' | 'PENDING_VERIFICATION' | 'EXPIRED';
+
 export interface Certification {
   id: string;
   name: string;
   issuingOrganization: string;
+  issuingAuthority?: string;
   certificateNumber: string;
   issueDate: string; // YYYY-MM-DD
   expiryDate: string; // YYYY-MM-DD
   imageUrl?: string;
   pdfUrl?: string;
+  verificationUrl?: string;
+  status?: CertificationStatus;
   description: string;
   displayOrder: number;
   isActive: boolean;
@@ -199,9 +302,18 @@ export interface SiteSettings {
   metrics?: CompanyMetrics;
   certifications?: Certification[];
   factoryGallery?: FactoryGalleryItem[];
+  navigation?: NavigationMenuConfig;
   homepage?: HomepageContent;
   about?: AboutPageContent;
   footer?: FooterContent;
+  seoDefaults?: {
+    defaultMetaTitle?: string;
+    defaultMetaDescription?: string;
+    defaultKeywords?: string;
+    siteUrl?: string;
+    ogImage?: string;
+    twitterHandle?: string;
+  };
   updatedAt?: string;
 }
 
@@ -225,6 +337,11 @@ export interface Category {
   slug: string;
   description: string;
   image: string;
+  bannerImage?: string;
+  featuredImage?: string;
+  parentCategory?: string;
+  sortOrder?: number;
+  isActive?: boolean;
   metaTitle: string;
   metaDescription: string;
   metaKeywords: string;
@@ -237,28 +354,50 @@ export interface ProductSpecification {
   value: string;
 }
 
+export type ProductStatus = 'PUBLISHED' | 'DRAFT' | 'ARCHIVED';
+
 export interface Product {
   id: string;
   name: string;
   slug: string;
+  sku?: string;
   categoryId: string;
   categoryName?: string;
+  subcategory?: string;
   images: string[];
+  featuredImage?: string;
+  videoUrl?: string;
   shortDesc: string;
   fullDesc: string;
   features: string[];
   materials: string;
+  size?: string;
+  capacity?: string;
+  weight?: string;
+  colors?: string[];
   moq: number;
+  customizationOptions?: string[];
+  printingOptions?: string[];
+  embroideryOptions?: string[];
+  applications?: string[];
+  packagingInformation?: string;
+  price?: number;
+  isPriceOnRequest?: boolean;
+  priceDisplay?: string;
   specifications: ProductSpecification[];
   isFeatured: boolean;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: 'ACTIVE' | 'INACTIVE' | 'PUBLISHED' | 'DRAFT' | 'ARCHIVED';
+  sortOrder?: number;
   metaTitle: string;
   metaDescription: string;
   metaKeywords: string;
   imageAltText: string;
+  canonicalUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
+
+export type BlogStatus = 'PUBLISHED' | 'DRAFT' | 'ARCHIVED';
 
 export interface Blog {
   id: string;
@@ -267,12 +406,18 @@ export interface Blog {
   excerpt: string;
   content: string;
   image: string;
+  featuredImage?: string;
   author: string;
   category: string;
+  tags?: string[];
   publishedAt: string;
+  status?: BlogStatus;
   metaTitle: string;
   metaDescription: string;
   metaKeywords: string;
+  canonicalUrl?: string;
+  ogImage?: string;
+  altText?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -280,13 +425,18 @@ export interface Blog {
 export type EnquiryStatus =
   | 'NEW'
   | 'CONTACTED'
+  | 'QUOTATION'
+  | 'SAMPLE'
+  | 'NEGOTIATION'
+  | 'CONFIRMED'
+  | 'PRODUCTION'
+  | 'COMPLETED'
+  | 'CANCELLED'
   | 'QUOTE_SENT'
   | 'SAMPLE_REQUESTED'
   | 'SAMPLE_SENT'
-  | 'NEGOTIATION'
   | 'ORDER_CONFIRMED'
   | 'CLOSED'
-  | 'CANCELLED'
   | 'IN_PROGRESS'
   | 'QUOTED';
 
@@ -305,13 +455,17 @@ export interface RfqProductItem {
 export interface Enquiry {
   id: string;
   name: string;
+  customerName?: string;
   company: string;
+  companyName?: string;
   email: string;
   mobile: string;
+  phone?: string;
   whatsapp?: string;
   country?: string;
   productRequirement: string;
   productId?: string;
+  product?: string;
   category?: string;
   quantity: number;
   targetPrice?: string;
@@ -322,15 +476,19 @@ export interface Enquiry {
   printingType?: string;
   embroideryType?: string;
   sampleRequired?: boolean;
+  requiredDate?: string;
   deliveryDate?: string;
   deliveryLocation?: string;
   deliveryAddress?: string;
   referenceImageUrl?: string;
+  uploadedFileUrl?: string;
   message: string;
   items?: RfqProductItem[];
   status: EnquiryStatus;
-  source?: 'FORM' | 'AI_CHATBOT' | 'SAMPLE_REQUEST' | 'WHATSAPP_LEAD';
+  source?: 'FORM' | 'AI_CHATBOT' | 'SAMPLE_REQUEST' | 'WHATSAPP_LEAD' | 'DIRECT' | 'CATALOGUE_DOWNLOAD';
   internalNotes?: string;
+  notes?: string;
+  assignedStaff?: string;
   assignedTo?: string;
   createdAt: string;
   updatedAt: string;
@@ -342,13 +500,13 @@ export interface QuotationItem {
   description?: string;
   quantity: number;
   unitPrice: number;
-  gstPercent: number; // e.g. 18
+  gstPercent: number;
   amount: number;
 }
 
 export interface Quotation {
   id: string;
-  quoteNumber: string; // e.g., QT-2026-101
+  quoteNumber: string;
   enquiryId?: string;
   clientName: string;
   companyName: string;
@@ -369,14 +527,14 @@ export interface Quotation {
 
 export interface Payment {
   id: string;
-  paymentNumber: string; // e.g. PAY-2026-001
+  paymentNumber: string;
   quotationId?: string;
   quoteNumber?: string;
   clientName: string;
   companyName: string;
   amount: number;
   paymentMethod: 'BANK_TRANSFER' | 'UPI' | 'CHEQUE' | 'CREDIT_CARD' | 'CASH';
-  transactionRef: string; // UTR or Cheque No or Txn ID
+  transactionRef: string;
   paymentDate: string;
   status: 'PENDING' | 'VERIFIED' | 'FAILED';
   notes?: string;
@@ -391,7 +549,9 @@ export interface MediaAsset {
   category: 'PRODUCTS' | 'HERO' | 'FACTORY' | 'CERTIFICATES' | 'LOGOS' | 'GENERAL';
   fileSize?: string;
   dimensions?: string;
+  mimeType?: string;
   altText?: string;
+  caption?: string;
   createdAt: string;
 }
 
@@ -431,4 +591,3 @@ export interface LanguageSettings {
   defaultLanguage: string;
   uiTranslations: Record<string, Record<string, string>>;
 }
-

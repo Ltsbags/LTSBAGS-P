@@ -2,22 +2,26 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAdminAuth } from '@/lib/useAdminAuth';
 
 export default function AdminRootPage() {
   const router = useRouter();
+  const { user, loading } = useAdminAuth({ requireAuth: false });
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('apex_admin_logged_in') === 'true';
-    if (isLoggedIn) {
-      router.replace('/admin/dashboard');
-    } else {
-      router.replace('/admin/login');
+    if (!loading) {
+      if (user) {
+        router.replace('/admin/dashboard');
+      } else {
+        router.replace('/admin/login');
+      }
     }
-  }, [router]);
+  }, [user, loading, router]);
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400 text-xs">
-      Loading LTS BAGS Admin Portal...
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400 text-xs gap-3">
+      <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+      <span>Loading LTS BAGS Admin Portal...</span>
     </div>
   );
 }

@@ -8,8 +8,7 @@ import {
   clearLoginRateLimit, 
   getClientIp, 
   getUserAgent,
-  logAuditActivity,
-  getAuthenticatedAdmin
+  logAuditActivity 
 } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
@@ -31,7 +30,7 @@ export async function POST(req: NextRequest) {
     if (!rateCheck.allowed) {
       return NextResponse.json(
         { 
-          error: `Too many failed login attempts. Account temporarily locked. Please retry in ${rateCheck.waitSeconds} seconds.` 
+          error: `Too many failed login attempts. Account temporarily locked for security. Please try again in ${rateCheck.waitSeconds} seconds.` 
         },
         { status: 429 }
       );
@@ -44,7 +43,7 @@ export async function POST(req: NextRequest) {
         { 
           error: fail.locked 
             ? `Too many failed attempts. Locked for ${fail.waitSeconds} seconds.` 
-            : `Invalid credentials. (${fail.remainingAttempts} attempts remaining)` 
+            : `Invalid admin credentials. (${fail.remainingAttempts} attempts remaining before lockout)` 
         },
         { status: 401 }
       );
@@ -57,14 +56,16 @@ export async function POST(req: NextRequest) {
         { 
           error: fail.locked 
             ? `Too many failed attempts. Account locked for ${fail.waitSeconds} seconds.` 
-            : `Invalid credentials. (${fail.remainingAttempts} attempts remaining)` 
+            : `Invalid admin credentials. (${fail.remainingAttempts} attempts remaining)` 
         },
         { status: 401 }
       );
     }
 
+    // Success - Clear failed attempts
     clearLoginRateLimit(rateKey);
 
+    // Create session token (7 days expiry)
     const token = generateSessionToken();
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -77,6 +78,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     });
 
+    // Update last login
     db.saveAdminUser({
       id: user.id,
       name: user.name,
@@ -85,12 +87,13 @@ export async function POST(req: NextRequest) {
       lastLogin: new Date().toISOString(),
     });
 
+    // Log audit
     logAuditActivity(
       { id: user.id, name: user.name, email: user.email },
       'ADMIN_LOGIN',
       'AUTH',
       user.id,
-      { ip },
+      { ip, userAgent: userAgent.substring(0, 100) },
       ip
     );
 
@@ -104,32 +107,26 @@ export async function POST(req: NextRequest) {
 
     const response = NextResponse.json({
       success: true,
-      token,
       user: safeUser,
+      token,
       expiresAt,
     });
 
+    // Set secure HTTP-Only cookie
     response.cookies.set('lts_admin_session', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 7 * 24 * 60 * 60,
+      maxAge: 7 * 24 * 60 * 60, // 7 days
     });
 
     return response;
   } catch (error) {
-    console.error('Login error:', error);
-    return NextResponse.json({ error: 'Authentication processing failed' }, { status: 500 });
-  }
-}
-
-export async function GET(req: NextRequest) {
-  try {
-    const stats = db.getStats();
-    return NextResponse.json(stats);
-  } catch (error) {
-    console.error('Stats error:', error);
-    return NextResponse.json({ error: 'Failed to retrieve stats' }, { status: 500 });
+    console.error('Admin login error:', error);
+    return NextResponse.json(
+      { error: 'An unexpected authentication error occurred.' },
+      { status: 500 }
+    );
   }
 }

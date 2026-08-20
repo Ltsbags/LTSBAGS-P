@@ -58,14 +58,14 @@ export default function FactoryGallerySection() {
     },
     {
       id: 'fac-3',
-      imageUrl: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&q=80&w=1000',
+      imageUrl: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&q=80&w=1000',
       caption: 'Automated CNC multi-layer laser cutting for millimeter-exact fabric pattern pieces.',
       category: 'Cutting',
       altText: 'Automated Fabric Cutting Table at LTS Bags Facility',
     },
     {
       id: 'fac-4',
-      imageUrl: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=1000',
+      imageUrl: 'https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&q=80&w=1000',
       caption: 'Heavy-duty programmable bar-tack sewing stations for reinforced shoulder straps.',
       category: 'Stitching',
       altText: 'Heavy Duty Sewing Machines and Stitching Line',
