@@ -1,0 +1,95 @@
+// Prisma Schema for B2B Bag Manufacturing Platform
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Category {
+  id              String    @id @default(uuid())
+  name            String
+  slug            String    @unique
+  description     String?
+  image           String?
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  products        Product[]
+}
+
+model Product {
+  id              String   @id @default(uuid())
+  name            String
+  slug            String   @unique
+  categoryId      String
+  category        Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  images          String[] // Array of image URLs
+  shortDesc       String
+  fullDesc        String
+  features        String[] // List of key feature bullet points
+  materials       String   // e.g. "1680D Ballistic Nylon, PU Leather, Metal Hardware"
+  moq             Int      @default(100) // Minimum Order Quantity
+  specifications  Json?    // Key-value pairs for technical specs (Dimensions, Capacity, Weight, etc.)
+  isFeatured      Boolean  @default(false)
+  status          String   @default("ACTIVE") // ACTIVE, INACTIVE
+  
+  // SEO Fields
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?
+  imageAltText    String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  enquiries       Enquiry[]
+}
+
+model Blog {
+  id              String   @id @default(uuid())
+  title           String
+  slug            String   @unique
+  excerpt         String
+  content         String
+  image           String?
+  author          String   @default("ApexBags Editorial")
+  category        String   @default("Industry Insights")
+  publishedAt     DateTime @default(now())
+  
+  // SEO Fields
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Enquiry {
+  id                 String   @id @default(uuid())
+  name               String
+  company            String
+  email              String
+  mobile             String
+  productRequirement String   // Name or category of required product
+  productId          String?
+  product            Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  quantity           Int?     @default(100)
+  message            String
+  status             String   @default("NEW") // NEW, IN_PROGRESS, QUOTED, CLOSED
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model AdminUser {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // Hashed password
+  name      String
+  role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
+}

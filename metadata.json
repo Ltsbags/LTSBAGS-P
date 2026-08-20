@@ -1,0 +1,6 @@
+{
+  "name": "LTS BAGS PRIVATE LIMITED - B2B Bag Manufacturer",
+  "description": "Premier International B2B Bag Manufacturer & Wholesale Exporter in Mumbai, India. OEM & ODM Custom Bags, Corporate Backpacks, Laptop Briefcases, Travel Duffels, Eco Totes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

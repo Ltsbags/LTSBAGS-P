@@ -1,0 +1,84 @@
+{
+  "entities": {
+    "product": {
+      "title": "Product",
+      "description": "Custom bag product entity",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "categoryId": { "type": "string" },
+        "categoryName": { "type": "string" },
+        "moq": { "type": "number" },
+        "materials": { "type": "string" },
+        "shortDesc": { "type": "string" },
+        "fullDesc": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "isFeatured": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "slug", "categoryId", "moq"]
+    },
+    "category": {
+      "title": "Category",
+      "description": "Bag category entity",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" }
+      },
+      "required": ["id", "name", "slug"]
+    },
+    "enquiry": {
+      "title": "Enquiry",
+      "description": "Customer lead enquiry entity",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "company": { "type": "string" },
+        "email": { "type": "string" },
+        "mobile": { "type": "string" },
+        "productRequirement": { "type": "string" },
+        "quantity": { "type": "number" },
+        "message": { "type": "string" },
+        "source": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "quantity"]
+    },
+    "settings": {
+      "title": "SiteSettings",
+      "description": "Website and company settings entity",
+      "type": "object",
+      "properties": {
+        "companyName": { "type": "string" },
+        "tagline": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/product" },
+      "description": "Catalog products collection"
+    },
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/category" },
+      "description": "Product categories collection"
+    },
+    "/enquiries/{enquiryId}": {
+      "schema": { "$ref": "#/entities/enquiry" },
+      "description": "Customer leads collection"
+    },
+    "/settings/{settingsId}": {
+      "schema": { "$ref": "#/entities/settings" },
+      "description": "Global website configuration"
+    }
+  }
+}

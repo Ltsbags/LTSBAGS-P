@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 480" width="100%" height="100%">
+  <!-- Background transparent -->
+  <g transform="translate(130, 20)">
+    <!-- Grey 'L' stem and base -->
+    <path fill="#64748B" d="M0,0 h50 v170 h40 v45 H0 Z" />
+    <!-- Sky Blue 'B' loops -->
+    <path fill="#3B82F6" d="M50,0 h85 c40,0 70,26 70,60 c0,22 -14,42 -35,52 c26,10 42,32 42,58 c0,38 -34,68 -76,68 H50 v-45 h80 c20,0 34,-13 34,-29 c0,-16 -14,-29 -34,-29 H50 v-38 h75 c16,0 30,-11 30,-26 c0,-15 -14,-26 -30,-26 H50 Z" />
+  </g>
+  
+  <!-- Registered ® Symbol -->
+  <g transform="translate(435, 305)">
+    <circle cx="12" cy="12" r="11" fill="none" stroke="#3B82F6" stroke-width="2.5" />
+    <text x="12" y="16" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="900" fill="#3B82F6" text-anchor="middle">R</text>
+  </g>
+
+  <!-- Typography -->
+  <g transform="translate(15, 415)">
+    <!-- LTS in Steel Grey -->
+    <text x="0" y="0" font-family="'Segoe UI', Roboto, Arial, sans-serif" font-size="96" font-weight="900" fill="#64748B" letter-spacing="4">LTS</text>
+    <!-- BAGS in Sky Blue -->
+    <text x="215" y="0" font-family="'Segoe UI', Roboto, Arial, sans-serif" font-size="96" font-weight="900" fill="#3B82F6" letter-spacing="4">BAGS</text>
+  </g>
+</svg>

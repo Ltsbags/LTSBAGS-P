@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Products: Publicly readable for customer catalog & AI bot
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Categories: Publicly readable
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Enquiries: Anyone can create a lead/enquiry from the website chatbot or quote form
+    match /enquiries/{enquiryId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // Settings & Content: Publicly readable
+    match /settings/{settingsId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
