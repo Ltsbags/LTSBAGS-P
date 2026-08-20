@@ -1,135 +1,135 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
   FileText, 
-  Sparkles, 
-  Package, 
-  CheckCircle2, 
-  CreditCard, 
+  DollarSign, 
+  CheckCircle, 
+  Factory, 
+  ShieldCheck, 
   Truck, 
-  MessageSquare,
-  ArrowRight,
-  ShieldCheck,
-  Clock,
-  Send
+  Send,
+  ArrowRight
 } from 'lucide-react';
+import QuoteModal from './QuoteModal';
 
 export default function HowToOrderSection() {
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
+
   const steps = [
     {
-      num: '01',
-      title: 'Submit RFQ & Design Specs',
-      desc: 'Share your bag model, target fabric (1680D nylon, canvas, PU), custom logo branding preference, target price, and estimated order volume (MOQ: 50–100 units).',
-      badge: 'Step 1: Consultation',
+      stepNumber: '01',
+      title: 'Requirement',
+      description: 'Share your product style, required quantity, target material, and logo artwork.',
       icon: FileText,
     },
     {
-      num: '02',
-      title: 'Formal Quote & Digital Tech Mockup',
-      desc: 'Our commercial team prepares an itemized factory quotation with volume tier discounts and a digital 2D/3D mockup showing exact logo placement within 24 business hours.',
-      badge: 'Step 2: Quotation',
-      icon: MessageSquare,
+      stepNumber: '02',
+      title: 'Quotation',
+      description: 'Receive transparent factory unit pricing based on quantity tier and customization specs.',
+      icon: DollarSign,
     },
     {
-      num: '03',
-      title: 'Physical Golden Sample Approval',
-      desc: 'We manufacture and courier a physical pre-production sample bag with your actual embroidery/silicone badge for physical inspection of stitching and zippers.',
-      badge: 'Step 3: Sample Verification',
-      icon: Package,
+      stepNumber: '03',
+      title: 'Sample Approval',
+      description: 'Review and approve the physical pre-production golden sample before mass production.',
+      icon: CheckCircle,
     },
     {
-      num: '04',
-      title: 'Bulk Production & QC Dispatch',
-      desc: 'Upon sample approval and production advance, our automated factory completes precision cutting, bar-tack stitching, 100% AQL 2.5 QC, and door delivery across India & global ports.',
-      badge: 'Step 4: Fulfillment',
+      stepNumber: '04',
+      title: 'Bulk Production',
+      description: 'Bulk CNC cutting, stitching, and logo application begin upon sample sign-off.',
+      icon: Factory,
+    },
+    {
+      stepNumber: '05',
+      title: 'Quality Check',
+      description: '100% inspection for seam strength, zipper action, stress load, and alignment accuracy.',
+      icon: ShieldCheck,
+    },
+    {
+      stepNumber: '06',
+      title: 'Dispatch',
+      description: 'Carton packaging, moisture protection, and door-to-door delivery across India & global export.',
       icon: Truck,
     },
   ];
 
   return (
-    <section className="py-16 sm:py-20 bg-slate-900 text-white relative overflow-hidden border-t border-b border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
+    <section className="py-20 bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800 transition-colors duration-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 font-mono text-xs uppercase tracking-widest font-bold">
-            <Clock className="w-3.5 h-3.5 text-sky-400" />
-            <span>B2B Procurement Process</span>
-          </div>
-          <h2 className="text-2xl sm:text-4xl font-black tracking-tight font-serif">
-            How to Order Bulk Custom Bags
+        <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
+          <span className="text-[#72AFDB] font-bold text-xs uppercase tracking-widest font-mono bg-[#72AFDB]/10 px-3.5 py-1 rounded-full border border-[#72AFDB]/30">
+            Simplified Ordering
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 font-sans">
+            How to Place a Bulk Bag Order (6 Steps)
           </h2>
-          <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
-            Our streamlined 4-step OEM/ODM manufacturing workflow guarantees transparency, millimeter-exact quality, and on-time dispatch for corporate buyers.
+          <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+            A seamless, transparent B2B workflow designed to eliminate misunderstandings and guarantee on-time delivery.
           </p>
         </div>
 
-        {/* Steps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {steps.map((s, idx) => {
-            const Icon = s.icon;
+        {/* 6 Steps Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-14">
+          {steps.map((step) => {
+            const Icon = step.icon;
             return (
               <div
-                key={idx}
-                className="bg-slate-950/80 rounded-2xl p-6 border border-slate-800 hover:border-sky-500/50 transition-all duration-300 flex flex-col justify-between space-y-4 group hover:shadow-xl hover:shadow-sky-500/5"
+                key={step.stepNumber}
+                className="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/80 hover:border-[#72AFDB] hover:shadow-lg transition-all duration-300 flex flex-col justify-between group"
               >
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-3xl font-black font-mono text-sky-400 group-hover:scale-110 transition-transform">
-                      {s.num}
+                    <span className="font-mono text-3xl font-black text-[#72AFDB]">
+                      {step.stepNumber}
                     </span>
-                    <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-sky-400 group-hover:bg-sky-500 group-hover:text-slate-950 transition-colors">
-                      <Icon className="w-5 h-5" />
+                    <div className="w-12 h-12 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 shadow-xs group-hover:bg-[#72AFDB] group-hover:text-white transition-colors">
+                      <Icon className="w-6 h-6" />
                     </div>
                   </div>
 
-                  <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider block">
-                    {s.badge}
-                  </span>
-
-                  <h3 className="text-base font-bold text-white font-serif leading-snug">
-                    {s.title}
-                  </h3>
-
-                  <p className="text-slate-400 text-xs leading-relaxed">
-                    {s.desc}
-                  </p>
+                  <div>
+                    <h3 className="font-bold text-slate-900 dark:text-slate-100 text-lg font-sans group-hover:text-[#72AFDB] transition-colors">
+                      {step.title}
+                    </h3>
+                    <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-2 leading-relaxed">
+                      {step.description}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-900 flex items-center text-[11px] text-slate-500 group-hover:text-sky-400 font-medium">
-                  <span>Guaranteed SLA Delivery</span>
-                  <CheckCircle2 className="w-3.5 h-3.5 ml-auto text-emerald-400" />
+                <div className="pt-4 mt-4 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between text-xs text-[#72AFDB] font-semibold">
+                  <span>Step {step.stepNumber} of 06</span>
+                  <span className="text-slate-400">Direct Process</span>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* CTA Bar */}
-        <div className="bg-gradient-to-r from-sky-950/60 via-slate-950 to-indigo-950/60 p-6 sm:p-8 rounded-2xl border border-sky-900/40 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-1 text-center sm:text-left">
-            <h4 className="text-lg font-bold text-white font-serif">
-              Ready to start with a Pre-Production Sample?
-            </h4>
-            <p className="text-slate-400 text-xs">
-              Fast sample dispatch within 3–5 working days with your corporate logo.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href="/request-a-quote"
-              className="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-sky-500/20 transition-all font-sans"
-            >
-              <Send className="w-4 h-4" />
-              <span>Request Formal Quote & Sample</span>
-            </Link>
-          </div>
+        {/* Action Button */}
+        <div className="text-center">
+          <button
+            onClick={() => setQuoteModalOpen(true)}
+            className="inline-flex items-center gap-2 bg-[#72AFDB] hover:bg-[#5C9BC7] text-white font-bold px-8 py-4 rounded-xl text-sm transition-all shadow-md cursor-pointer hover:scale-105"
+          >
+            <Send className="w-4 h-4" />
+            <span>Start Step 01: Share Your Requirement</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
 
       </div>
+
+      <QuoteModal
+        isOpen={quoteModalOpen}
+        onClose={() => setQuoteModalOpen(false)}
+        preselectedProduct="Bulk Bag Manufacturing Order"
+      />
     </section>
   );
 }

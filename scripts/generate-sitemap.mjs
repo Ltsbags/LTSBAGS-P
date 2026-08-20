@@ -53,7 +53,19 @@ async function generateSitemap() {
     console.warn('⚠️ db.json not found at', dbFile);
   }
 
-  const baseUrl = (process.env.APP_URL || 'https://ltsbags.com').replace(/\/+$/, '');
+  function cleanSiteUrl(rawUrl) {
+    if (!rawUrl) return 'https://ltsbags.com';
+    let cleaned = String(rawUrl).trim();
+    // Fix accidental duplicate 'bags' typo (e.g., ltsbagsbags.com -> ltsbags.com)
+    cleaned = cleaned.replace(/ltsbagsbags\.com/gi, 'ltsbags.com');
+    // If mumbaibags.com was mistakenly set
+    cleaned = cleaned.replace(/mumbaibags\.com/gi, 'ltsbags.com');
+    // Strip trailing slashes
+    cleaned = cleaned.replace(/\/+$/, '');
+    return cleaned || 'https://ltsbags.com';
+  }
+
+  const baseUrl = cleanSiteUrl(process.env.SITE_URL || process.env.APP_URL);
   const now = formatDate(new Date());
 
   // 1. Static Key Pages with priorities and change frequencies

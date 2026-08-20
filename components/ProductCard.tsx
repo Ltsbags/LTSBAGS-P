@@ -142,20 +142,34 @@ export default function ProductCard({
         </div>
 
         {/* Action Buttons */}
-        <div className="pt-2 flex items-center gap-2">
-          <Link
-            href={`/product/${product.slug}`}
-            className="flex-1 py-2 px-3 border border-slate-300 dark:border-slate-700 hover:border-slate-800 dark:hover:border-slate-300 text-slate-800 dark:text-slate-200 font-semibold text-xs rounded-lg text-center transition-colors"
+        <div className="pt-2 flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/product/${product.slug}`}
+              className="flex-1 py-2 px-3 border border-slate-300 dark:border-slate-700 hover:border-slate-800 dark:hover:border-slate-300 text-slate-800 dark:text-slate-200 font-semibold text-xs rounded-lg text-center transition-colors"
+            >
+              {t('common.viewDetails', 'Specs & Details')}
+            </Link>
+            <button
+              onClick={handleEnquireClick}
+              className="flex-1 py-2 px-3 bg-slate-900 dark:bg-sky-600 hover:bg-sky-600 dark:hover:bg-sky-500 text-white font-bold text-xs rounded-lg shadow-xs transition-colors flex items-center justify-center gap-1 cursor-pointer"
+            >
+              <Package className="w-3.5 h-3.5" />
+              {t('common.requestBulkQuote', 'Enquire Now')}
+            </button>
+          </div>
+          
+          <a
+            href={`https://wa.me/919833598338?text=${encodeURIComponent(
+              `Hello LTS Bags, I want to enquire about bulk manufacturing for ${product.name} (MOQ: ${product.moq} units).`
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-1.5 px-3 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-emerald-700 dark:text-emerald-300 font-bold text-xs rounded-lg border border-emerald-200 dark:border-emerald-800 text-center transition-colors flex items-center justify-center gap-1.5"
           >
-            {t('common.viewDetails', 'Specs & Details')}
-          </Link>
-          <button
-            onClick={handleEnquireClick}
-            className="flex-1 py-2 px-3 bg-slate-900 dark:bg-sky-600 hover:bg-sky-600 dark:hover:bg-sky-500 text-white font-bold text-xs rounded-lg shadow-xs transition-colors flex items-center justify-center gap-1"
-          >
-            <Package className="w-3.5 h-3.5" />
-            {t('common.requestBulkQuote', 'Enquire Now')}
-          </button>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Enquire on WhatsApp</span>
+          </a>
         </div>
 
       </div>

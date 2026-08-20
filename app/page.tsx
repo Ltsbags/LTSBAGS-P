@@ -11,6 +11,7 @@ import FactoryGallerySection from '@/components/FactoryGallerySection';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import ManufacturingProcess from '@/components/ManufacturingProcess';
 import CustomizationSection from '@/components/CustomizationSection';
+import HowToOrderSection from '@/components/HowToOrderSection';
 import ClientLogosSection from '@/components/ClientLogosSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import CatalogueSection from '@/components/CatalogueSection';
@@ -172,10 +173,13 @@ export default function HomePage() {
         {/* 8. MANUFACTURING PROCESS (FROM DESIGN TO DELIVERY - 9 STEPS) */}
         <ManufacturingProcess />
 
-        {/* 9. CUSTOMIZATION SECTION (CUSTOMIZE YOUR BAGS - 10 OPTIONS & CTA) */}
+        {/* 9. CUSTOMIZATION SECTION (12 OPTIONS) */}
         <CustomizationSection />
 
-        {/* 10. CLIENT LOGOS / TRUSTED BY BUSINESSES */}
+        {/* 10. BULK ORDER PROCESS (6 STEPS) */}
+        <HowToOrderSection />
+
+        {/* 11. CLIENT LOGOS / TRUSTED BY BUSINESSES */}
         <ClientLogosSection />
 
         {/* 11. TESTIMONIALS SECTION */}

@@ -115,16 +115,30 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
           </div>
 
           {/* Action CTAs */}
-          <div className="pt-4 border-t border-slate-100 space-y-3">
-            <button
-              onClick={() => setQuoteModalOpen(true)}
-              className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 text-sm"
-            >
-              <Send className="w-4 h-4" />
-              <span>Request Wholesale Quote & Sample Batch</span>
-            </button>
-            <p className="text-[11px] text-slate-500 text-center">
-              ⚡ Receive official PDF price quote within 24 hours. Factory direct prices.
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <button
+                onClick={() => setQuoteModalOpen(true)}
+                className="flex-1 w-full bg-[#72AFDB] hover:bg-[#5C9BC7] text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 text-sm cursor-pointer"
+              >
+                <Send className="w-4 h-4" />
+                <span>Request Wholesale Quote</span>
+              </button>
+
+              <a
+                href={`https://wa.me/919833598338?text=${encodeURIComponent(
+                  `Hello LTS Bags, I want to enquire about bulk manufacturing for ${product.name} (MOQ: ${product.moq} units).`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 text-sm text-center"
+              >
+                <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                <span>Chat on WhatsApp</span>
+              </a>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 text-center">
+              ⚡ Receive official PDF price quote within 24 hours. Factory direct prices. Note: MOQ may vary depending on design, material and customization requirements.
             </p>
           </div>
 

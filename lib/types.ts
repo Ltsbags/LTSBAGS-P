@@ -60,7 +60,9 @@ export interface TestimonialItem {
   content: string;
   rating: number;
   avatarUrl?: string;
+  isActive?: boolean;
 }
+export type Testimonial = TestimonialItem;
 
 export interface ClientLogoItem {
   id: string;
@@ -192,6 +194,7 @@ export interface SiteSettings {
   logoUrl?: string;
   logoText?: string;
   logoSubtitle?: string;
+  cataloguePdfUrl?: string;
   contactInfo?: CompanyContactInfo;
   metrics?: CompanyMetrics;
   certifications?: Certification[];

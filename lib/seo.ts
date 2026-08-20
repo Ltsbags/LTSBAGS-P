@@ -1,12 +1,29 @@
 import { Metadata } from 'next';
 
-const SITE_URL = process.env.APP_URL || 'https://ltsbags.com';
+function cleanSiteUrl(rawUrl?: string): string {
+  if (!rawUrl) return 'https://ltsbags.com';
+  let cleaned = rawUrl.trim();
+  // Fix accidental duplicate 'bags' typo (e.g., ltsbagsbags.com -> ltsbags.com)
+  cleaned = cleaned.replace(/ltsbagsbags\.com/gi, 'ltsbags.com');
+  // If mumbaibags.com was mistakenly set
+  cleaned = cleaned.replace(/mumbaibags\.com/gi, 'ltsbags.com');
+  // Strip trailing slashes
+  cleaned = cleaned.replace(/\/+$/, '');
+  return cleaned || 'https://ltsbags.com';
+}
+
+const SITE_URL = cleanSiteUrl(process.env.SITE_URL || process.env.APP_URL);
+const INDEXING_ENABLED = process.env.INDEXING_ENABLED !== 'false';
 const SITE_NAME = 'LTS BAGS PRIVATE LIMITED';
-const DEFAULT_TITLE = 'LTS BAGS PRIVATE LIMITED - Premier Custom B2B Bag Manufacturer & Wholesale Supplier';
-const DEFAULT_DESC = 'LTS BAGS PRIVATE LIMITED is a leading OEM & ODM manufacturer of corporate backpacks, executive laptop bags, travel duffels, and eco canvas bags with custom logo printing and direct factory pricing.';
+const DEFAULT_TITLE = 'LTS BAGS PRIVATE LIMITED | Custom Bag Manufacturer in Mumbai, India';
+const DEFAULT_DESC = 'Custom bag manufacturer in Mumbai, India. Manufacturing backpacks, school bags, laptop bags, corporate bags, travel bags, duffle bags, tote bags, jute bags, promotional bags and custom bags for bulk orders with OEM/ODM customization and direct factory pricing.';
 
 export function getBaseUrl(): string {
   return SITE_URL;
+}
+
+export function isIndexingEnabled(): boolean {
+  return INDEXING_ENABLED;
 }
 
 export function generatePageMetadata({
@@ -42,7 +59,7 @@ export function generatePageMetadata({
   return {
     title: fullTitle,
     description: fullDesc,
-    keywords: keywords || 'LTS BAGS PRIVATE LIMITED, bag manufacturer, B2B custom bags, wholesale corporate backpacks, OEM bag supplier, laptop bag factory',
+    keywords: keywords || 'LTS BAGS PRIVATE LIMITED, bag manufacturer in Mumbai, custom bag manufacturer, wholesale corporate backpacks, OEM bag supplier, laptop bag factory Mumbai, custom bags India',
     alternates: {
       canonical: canonicalUrl,
       languages: languageAlternates,
@@ -69,16 +86,39 @@ export function generatePageMetadata({
       description: fullDesc,
       images: [image],
     },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
+    robots: INDEXING_ENABLED
+      ? {
+          index: true,
+          follow: true,
+          googleBot: {
+            index: true,
+            follow: true,
+            'max-video-preview': -1,
+            'max-image-preview': 'large',
+            'max-snippet': -1,
+          },
+        }
+      : {
+          index: false,
+          follow: false,
+          googleBot: {
+            index: false,
+            follow: false,
+          },
+        },
+  };
+}
+
+export function generateWebSiteSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'LTS BAGS PRIVATE LIMITED',
+    url: SITE_URL,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${SITE_URL}/products?search={search_term_string}`,
+      'query-input': 'required name=search_term_string',
     },
   };
 }
