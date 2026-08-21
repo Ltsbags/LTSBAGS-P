@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { requireAdminAuth } from '@/lib/auth';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const auth = await requireAdminAuth(req, ['SUPER_ADMIN', 'SALES_MANAGER']);
+    if (auth.errorResponse || !auth.user) {
+      return auth.errorResponse || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const enquiries = db.getEnquiries();
     return NextResponse.json(enquiries);
   } catch (error) {
