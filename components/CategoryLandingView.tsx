@@ -378,7 +378,7 @@ export default function CategoryLandingView({ category, products, allCategories 
     .slice(0, 6);
 
   const whatsappMessage = encodeURIComponent(
-    `Hello LTS BAGS PRIVATE LIMITED (MumbaiBags.com), I am interested in bulk order / custom manufacturing for: ${category.name}. Please share catalogue and pricing.`
+    `Hello LTS BAGS PRIVATE LIMITED (ltsbags.com), I am interested in bulk order / custom manufacturing for: ${category.name}. Please share catalogue and pricing.`
   );
 
   return (

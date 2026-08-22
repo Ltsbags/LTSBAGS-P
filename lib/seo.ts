@@ -1,10 +1,12 @@
 import { Metadata } from 'next';
+import { db } from './db';
 
 function cleanSiteUrl(rawUrl?: string): string {
   if (!rawUrl) return 'https://ltsbags.com';
   let cleaned = rawUrl.trim();
-  // Fix accidental duplicate typos
+  // Fix accidental duplicate typos or previous domain
   cleaned = cleaned.replace(/ltsbagsbags\.com/gi, 'ltsbags.com');
+  cleaned = cleaned.replace(/mumbaibags\.com/gi, 'ltsbags.com');
   // Strip trailing slashes
   cleaned = cleaned.replace(/\/+$/, '');
   return cleaned || 'https://ltsbags.com';
@@ -12,7 +14,7 @@ function cleanSiteUrl(rawUrl?: string): string {
 
 const SITE_URL = cleanSiteUrl(process.env.SITE_URL || process.env.APP_URL);
 const INDEXING_ENABLED = process.env.INDEXING_ENABLED !== 'false';
-const SITE_NAME = 'LTS BAGS PRIVATE LIMITED | MumbaiBags.com';
+const SITE_NAME = 'LTS BAGS PRIVATE LIMITED | LTS Bags';
 const DEFAULT_TITLE = 'Bag Manufacturer in Mumbai | Custom & Wholesale Bags';
 const DEFAULT_DESC = 'Mumbai-based bag manufacturer offering custom backpacks, laptop bags, school bags, corporate bags, travel duffels, eco canvas totes and promotional bags for bulk orders with OEM/ODM customization and direct factory pricing.';
 
@@ -84,6 +86,18 @@ export function generatePageMetadata({
       description: fullDesc,
       images: [image],
     },
+    metadataBase: new URL(SITE_URL),
+    verification: {
+      google: (() => {
+        try {
+          const dbVerification = db.getSettings()?.seoDefaults?.googleSiteVerification;
+          if (dbVerification && dbVerification.trim()) return dbVerification.trim();
+        } catch (e) {
+          // ignore
+        }
+        return process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || process.env.GOOGLE_SITE_VERIFICATION || undefined;
+      })(),
+    },
     robots: INDEXING_ENABLED
       ? {
           index: true,
@@ -111,7 +125,7 @@ export function generateWebSiteSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'LTS BAGS PRIVATE LIMITED | MumbaiBags.com',
+    name: 'LTS BAGS PRIVATE LIMITED | LTS Bags',
     url: SITE_URL,
     potentialAction: {
       '@type': 'SearchAction',
@@ -126,7 +140,7 @@ export function generateOrganizationSchema() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'LTS BAGS PRIVATE LIMITED',
-    alternateName: 'MumbaiBags.com',
+    alternateName: 'LTS Bags',
     url: SITE_URL,
     logo: `${SITE_URL}/logo.png`,
     description: DEFAULT_DESC,
@@ -143,7 +157,6 @@ export function generateOrganizationSchema() {
     },
     sameAs: [
       'https://www.google.com/search?kgmid=%2Fg%2F11qpsqysys&hl=en-IN&q=LTS%20BAGS%20PRIVATE%20LIMITED',
-      'https://mumbaibags.com',
       'https://ltsbags.com',
     ],
   };
@@ -154,7 +167,7 @@ export function generateLocalBusinessSchema() {
     '@context': 'https://schema.org',
     '@type': ['LocalBusiness', 'Manufacturer'],
     name: 'LTS BAGS PRIVATE LIMITED',
-    alternateName: 'MumbaiBags.com',
+    alternateName: 'LTS Bags',
     image: `${SITE_URL}/logo.png`,
     url: SITE_URL,
     telephone: '+91 98335 98338',

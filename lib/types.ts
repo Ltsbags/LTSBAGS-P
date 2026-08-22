@@ -313,6 +313,8 @@ export interface SiteSettings {
     siteUrl?: string;
     ogImage?: string;
     twitterHandle?: string;
+    googleSiteVerification?: string;
+    googleAnalyticsId?: string;
   };
   updatedAt?: string;
 }

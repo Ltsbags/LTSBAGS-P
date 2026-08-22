@@ -36,7 +36,8 @@ import {
   ExternalLink,
   RefreshCw,
   Search,
-  Code
+  Code,
+  Copy
 } from 'lucide-react';
 import { SiteSettings, StatItem, FeatureItem, ProcessStepItem, TestimonialItem, ClientLogoItem } from '@/lib/types';
 
@@ -125,6 +126,19 @@ export default function AdminSettingsPage() {
   const [footerQuickLinksTitle, setFooterQuickLinksTitle] = useState('Quick Navigation');
   const [footerCategoriesTitle, setFooterCategoriesTitle] = useState('Bag Categories');
   const [footerContactTitle, setFooterContactTitle] = useState('Manufacturing Unit');
+
+  // SEO & Webmaster Verification
+  const [googleSiteVerification, setGoogleSiteVerification] = useState('');
+  const [googleAnalyticsId, setGoogleAnalyticsId] = useState('');
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string, fieldId: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedField(fieldId);
+      setTimeout(() => setCopiedField(null), 2500);
+    }
+  };
 
   // UI state
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -228,6 +242,11 @@ export default function AdminSettingsPage() {
             if (m.qualityStandards) setQualityStandards(m.qualityStandards);
             if (m.clientSectionMode) setClientSectionMode(m.clientSectionMode);
             if (m.clientSectionTitle) setClientSectionTitle(m.clientSectionTitle);
+          }
+
+          if (data.seoDefaults) {
+            if (data.seoDefaults.googleSiteVerification) setGoogleSiteVerification(data.seoDefaults.googleSiteVerification);
+            if (data.seoDefaults.googleAnalyticsId) setGoogleAnalyticsId(data.seoDefaults.googleAnalyticsId);
           }
         }
       })
@@ -363,6 +382,16 @@ export default function AdminSettingsPage() {
         qualityStandards,
         clientSectionMode,
         clientSectionTitle,
+      },
+      seoDefaults: {
+        siteUrl: 'https://ltsbags.com',
+        googleSiteVerification: (() => {
+          const raw = googleSiteVerification.trim();
+          // Extract content value if the user accidentally pasted the whole <meta> tag
+          const metaMatch = raw.match(/content=["']([^"']+)["']/i);
+          return metaMatch ? metaMatch[1] : raw;
+        })(),
+        googleAnalyticsId: googleAnalyticsId.trim(),
       },
       updatedAt: new Date().toISOString(),
     };
@@ -1575,101 +1604,174 @@ export default function AdminSettingsPage() {
             </div>
           )}
 
-          {/* TAB 9: SEO & XML Sitemap */}
+          {/* TAB 9: SEO, Google Search Console & XML Sitemap */}
           {activeTab === 'seo' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-8 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-6">
-                <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900 font-serif flex items-center gap-2">
-                      <Globe className="w-5 h-5 text-sky-600" /> Search Engine Sitemap &amp; Indexing
-                    </h3>
-                    <p className="text-slate-500 text-xs">
-                      Automatically generated XML Sitemap for Google, Bing, and search engine crawlers.
-                    </p>
-                  </div>
-                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border border-emerald-200">
-                    Live XML Ready
-                  </span>
-                </div>
-
-                {/* Sitemap URLs Box */}
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-700">Official Live Sitemap Endpoint:</span>
-                    <a
-                      href="/sitemap.xml"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs font-bold text-sky-600 hover:underline flex items-center gap-1"
-                    >
-                      <span>Open /sitemap.xml</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                  <div className="font-mono text-xs bg-slate-900 text-emerald-400 p-3 rounded-lg border border-slate-800 break-all select-all flex items-center justify-between">
-                    <span>{typeof window !== 'undefined' ? `${window.location.origin}/sitemap.xml` : 'https://ltsbags.com/sitemap.xml'}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-200">
-                    <span className="text-xs font-bold text-slate-700">Robots.txt Configuration:</span>
-                    <a
-                      href="/robots.txt"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs font-bold text-sky-600 hover:underline flex items-center gap-1"
-                    >
-                      <span>Open /robots.txt</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                </div>
-
-                {/* Actions & Regeneration */}
-                <div className="p-5 bg-sky-50/50 border border-sky-100 rounded-xl space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="lg:col-span-8 space-y-6">
+                
+                {/* Google Search Console & Webmaster Verification */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-6">
+                  <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900">Regenerate &amp; Sync Sitemap.xml</h4>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        Scans all active products, category pages, blog articles, and core landing pages to rebuild the XML index.
+                      <h3 className="text-lg font-bold text-slate-900 font-serif flex items-center gap-2">
+                        <Search className="w-5 h-5 text-sky-600" /> Google Search Console &amp; Verification
+                      </h3>
+                      <p className="text-slate-500 text-xs">
+                        Verify site ownership in Google Search Console and track search engine indexing for <code className="font-mono text-sky-700">https://ltsbags.com</code>.
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={handleGenerateSitemap}
-                      disabled={isGeneratingSitemap}
-                      className="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-5 py-3 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 shrink-0 disabled:opacity-50"
-                    >
-                      <RefreshCw className={`w-4 h-4 ${isGeneratingSitemap ? 'animate-spin' : ''}`} />
-                      <span>{isGeneratingSitemap ? 'Generating Index...' : 'Regenerate Sitemap Now'}</span>
-                    </button>
+                    <span className="bg-sky-100 text-sky-800 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border border-sky-200">
+                      SEO Webmaster
+                    </span>
                   </div>
 
-                  {sitemapStats && (
-                    <div className="bg-white p-3.5 rounded-lg border border-sky-200 text-xs text-slate-700 space-y-1.5 animate-in fade-in duration-200">
-                      <div className="font-bold text-emerald-600 flex items-center gap-1.5">
-                        <CheckCircle2 className="w-4 h-4" /> Latest Sitemap Build Successful
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {/* Google Site Verification */}
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Google Search Console Verification (HTML Tag or Code)
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={googleSiteVerification}
+                          onChange={(e) => setGoogleSiteVerification(e.target.value)}
+                          placeholder="e.g. google1234567890abcdef or <meta name='google-site-verification' content='...' />"
+                          className="w-full font-mono text-xs px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
+                        />
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 font-mono text-[11px]">
-                        <div className="bg-slate-50 p-2 rounded border">Products: <span className="font-bold text-sky-700">{sitemapStats.counts?.products || 0}</span></div>
-                        <div className="bg-slate-50 p-2 rounded border">Categories: <span className="font-bold text-sky-700">{sitemapStats.counts?.categories || 0}</span></div>
-                        <div className="bg-slate-50 p-2 rounded border">Blogs: <span className="font-bold text-sky-700">{sitemapStats.counts?.blogs || 0}</span></div>
-                        <div className="bg-slate-50 p-2 rounded border">Total URLs: <span className="font-bold text-emerald-700">{sitemapStats.totalUrls || 0}</span></div>
-                      </div>
+                      <p className="text-[11px] text-slate-500">
+                        Paste the verification string from Search Console or the entire <code className="text-slate-700 bg-slate-100 px-1 py-0.5 rounded">&lt;meta name=&quot;google-site-verification&quot; content=&quot;...&quot; /&gt;</code> tag. It will be injected automatically into the site <code className="text-slate-700">&lt;head&gt;</code>.
+                      </p>
                     </div>
-                  )}
+
+                    {/* Google Analytics GA4 Measurement ID */}
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Google Analytics 4 (GA4) / GTM ID (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={googleAnalyticsId}
+                        onChange={(e) => setGoogleAnalyticsId(e.target.value)}
+                        placeholder="e.g. G-XXXXXXXXXX"
+                        className="w-full font-mono text-xs px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                {/* Developer CLI Commands */}
-                <div className="space-y-2">
-                  <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <Code className="w-3.5 h-3.5 text-slate-500" /> CLI Script Commands
-                  </h4>
-                  <div className="bg-slate-900 text-slate-300 font-mono text-xs p-3.5 rounded-xl border border-slate-800 space-y-1.5">
-                    <div className="text-slate-400"># Run automated sitemap build script:</div>
-                    <div className="text-emerald-400">npm run sitemap</div>
-                    <div className="text-slate-400 pt-1"># Or direct node execution:</div>
-                    <div className="text-sky-300">node scripts/generate-sitemap.mjs</div>
+                {/* Search Engine Sitemap & Indexing */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-6">
+                  <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900 font-serif flex items-center gap-2">
+                        <Globe className="w-5 h-5 text-emerald-600" /> Search Engine Sitemap &amp; Indexing
+                      </h3>
+                      <p className="text-slate-500 text-xs">
+                        Automatically generated XML Sitemap for Google, Bing, and search engine crawlers.
+                      </p>
+                    </div>
+                    <span className="bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border border-emerald-200">
+                      Live XML Ready
+                    </span>
+                  </div>
+
+                  {/* Sitemap URLs Box with 1-Click Copy */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-700">Official Live Sitemap Endpoint:</span>
+                      <a
+                        href="/sitemap.xml"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-bold text-sky-600 hover:underline flex items-center gap-1"
+                      >
+                        <span>Open /sitemap.xml</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                    <div className="font-mono text-xs bg-slate-900 text-emerald-400 p-3 rounded-lg border border-slate-800 break-all select-all flex items-center justify-between gap-3">
+                      <span>https://ltsbags.com/sitemap.xml</span>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard('https://ltsbags.com/sitemap.xml', 'sitemap')}
+                        className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-2.5 py-1 rounded border border-slate-700 flex items-center gap-1 shrink-0 transition-colors"
+                      >
+                        {copiedField === 'sitemap' ? (
+                          <>
+                            <Check className="w-3 h-3 text-emerald-400" />
+                            <span className="text-emerald-400 font-bold">Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3 h-3" />
+                            <span>Copy URL</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+                      <span className="text-xs font-bold text-slate-700">Robots.txt Configuration:</span>
+                      <a
+                        href="/robots.txt"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-bold text-sky-600 hover:underline flex items-center gap-1"
+                      >
+                        <span>Open /robots.txt</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Actions & Regeneration */}
+                  <div className="p-5 bg-sky-50/50 border border-sky-100 rounded-xl space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-900">Regenerate &amp; Sync Sitemap.xml</h4>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          Scans all active products, category pages, blog articles, and core landing pages to rebuild the XML index.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleGenerateSitemap}
+                        disabled={isGeneratingSitemap}
+                        className="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-5 py-3 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 shrink-0 disabled:opacity-50"
+                      >
+                        <RefreshCw className={`w-4 h-4 ${isGeneratingSitemap ? 'animate-spin' : ''}`} />
+                        <span>{isGeneratingSitemap ? 'Generating Index...' : 'Regenerate Sitemap Now'}</span>
+                      </button>
+                    </div>
+
+                    {sitemapStats && (
+                      <div className="bg-white p-3.5 rounded-lg border border-sky-200 text-xs text-slate-700 space-y-1.5 animate-in fade-in duration-200">
+                        <div className="font-bold text-emerald-600 flex items-center gap-1.5">
+                          <CheckCircle2 className="w-4 h-4" /> Latest Sitemap Build Successful
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 font-mono text-[11px]">
+                          <div className="bg-slate-50 p-2 rounded border">Products: <span className="font-bold text-sky-700">{sitemapStats.counts?.products || 0}</span></div>
+                          <div className="bg-slate-50 p-2 rounded border">Categories: <span className="font-bold text-sky-700">{sitemapStats.counts?.categories || 0}</span></div>
+                          <div className="bg-slate-50 p-2 rounded border">Blogs: <span className="font-bold text-sky-700">{sitemapStats.counts?.blogs || 0}</span></div>
+                          <div className="bg-slate-50 p-2 rounded border">Total URLs: <span className="font-bold text-emerald-700">{sitemapStats.totalUrls || 0}</span></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Developer CLI Commands */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                      <Code className="w-3.5 h-3.5 text-slate-500" /> CLI Script Commands
+                    </h4>
+                    <div className="bg-slate-900 text-slate-300 font-mono text-xs p-3.5 rounded-xl border border-slate-800 space-y-1.5">
+                      <div className="text-slate-400"># Run automated sitemap build script:</div>
+                      <div className="text-emerald-400">npm run sitemap</div>
+                      <div className="text-slate-400 pt-1"># Or direct node execution:</div>
+                      <div className="text-sky-300">node scripts/generate-sitemap.mjs</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1678,13 +1780,42 @@ export default function AdminSettingsPage() {
               <div className="lg:col-span-4 space-y-4">
                 <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-3">
                   <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                    <Search className="w-4 h-4 text-sky-600" /> Google Search Console
+                    <Search className="w-4 h-4 text-sky-600" /> Google Search Console Setup Steps
                   </h4>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    Submit your sitemap URL in Google Search Console under <span className="font-bold text-slate-800">Index &gt; Sitemaps</span> to ensure new B2B products and bag models are indexed within 24–48 hours.
-                  </p>
+                  <div className="text-xs text-slate-600 space-y-2.5 leading-relaxed">
+                    <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 space-y-1">
+                      <strong className="text-slate-800 block">Step 1: Open Google Search Console</strong>
+                      <p className="text-[11px]">Go to <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" className="text-sky-600 font-semibold underline inline-flex items-center gap-0.5">search.google.com <ExternalLink className="w-2.5 h-2.5" /></a> and sign in with your Google account.</p>
+                    </div>
+
+                    <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 space-y-1">
+                      <strong className="text-slate-800 block">Step 2: Add Property</strong>
+                      <p className="text-[11px]">Choose <strong>URL prefix</strong> and enter:</p>
+                      <div className="font-mono text-[11px] bg-slate-900 text-emerald-300 px-2 py-1 rounded flex items-center justify-between">
+                        <span>https://ltsbags.com</span>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard('https://ltsbags.com', 'domain')}
+                          className="text-[10px] text-slate-300 hover:text-white bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700"
+                        >
+                          {copiedField === 'domain' ? 'Copied' : 'Copy'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 space-y-1">
+                      <strong className="text-slate-800 block">Step 3: Verify Ownership</strong>
+                      <p className="text-[11px]">Select <strong>HTML tag</strong> method, copy the verification code/tag and paste it into the <em>Google Search Console Verification</em> box on the left, then click <strong>Save All Website Content</strong>.</p>
+                    </div>
+
+                    <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 space-y-1">
+                      <strong className="text-slate-800 block">Step 4: Submit Sitemap</strong>
+                      <p className="text-[11px]">In Search Console left menu, click <strong>Indexing &gt; Sitemaps</strong>, type <code className="font-mono bg-white px-1 py-0.5 rounded border text-sky-700 font-bold">sitemap.xml</code> and click <strong>Submit</strong>.</p>
+                    </div>
+                  </div>
+
                   <div className="text-[11px] bg-amber-50 text-amber-800 p-2.5 rounded-lg border border-amber-200">
-                    💡 <strong>Automatic Updates:</strong> Whenever you add or edit products in the Admin Catalog, the dynamic sitemap at <code className="font-mono">/sitemap.xml</code> reflects changes immediately in real-time.
+                    💡 <strong>Real-time Updates:</strong> Whenever you add or edit products in the Admin Catalog, the live dynamic sitemap at <code className="font-mono">/sitemap.xml</code> updates immediately.
                   </div>
                 </div>
               </div>

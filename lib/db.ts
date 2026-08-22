@@ -242,6 +242,11 @@ const INITIAL_SETTINGS: SiteSettings = {
   metrics: INITIAL_METRICS,
   certifications: INITIAL_CERTIFICATIONS,
   factoryGallery: INITIAL_FACTORY_GALLERY,
+  seoDefaults: {
+    siteUrl: 'https://ltsbags.com',
+    googleSiteVerification: '',
+    googleAnalyticsId: '',
+  },
   contactInfo: {
     companyName: 'LTS BAGS PRIVATE LIMITED',
     tagline: 'Premier OEM/ODM Custom Bag Manufacturer & Global Exporter',
@@ -2159,6 +2164,7 @@ export const db = {
       },
       about: { ...INITIAL_SETTINGS.about, ...(raw.about || {}) },
       footer: { ...INITIAL_SETTINGS.footer, ...(raw.footer || {}) },
+      seoDefaults: { ...INITIAL_SETTINGS.seoDefaults, ...(raw.seoDefaults || {}) },
     };
 
     // Auto-clean old relative /uploads/ paths that break in Cloud Run static server

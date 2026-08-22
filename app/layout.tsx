@@ -5,10 +5,14 @@ import AiChatbot from '@/components/AiChatbot';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { LanguageProvider } from '@/components/LanguageProvider';
 import MetricoolTracker from '@/components/MetricoolTracker';
+import { generatePageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'LTS BAGS PRIVATE LIMITED - Custom B2B Bag Manufacturer & Wholesale Supplier',
-  description: 'Premier custom B2B bag manufacturer & wholesale supplier for corporate backpacks, laptop briefcases, travel duffels, and eco totes.',
+  ...generatePageMetadata({
+    title: 'LTS BAGS PRIVATE LIMITED - Custom B2B Bag Manufacturer & Wholesale Supplier',
+    description: 'Premier custom B2B bag manufacturer & wholesale supplier for corporate backpacks, laptop briefcases, travel duffels, and eco totes.',
+    path: '',
+  }),
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {

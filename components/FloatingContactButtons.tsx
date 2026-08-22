@@ -43,7 +43,7 @@ export default function FloatingContactButtons() {
 
   const whatsappNumberClean = (contact.socialWhatsapp || primaryPhoneClean).replace(/[^\d]/g, '');
   const whatsappUrl = `https://wa.me/${whatsappNumberClean}?text=${encodeURIComponent(
-    'Hello LTS BAGS PRIVATE LIMITED (MumbaiBags.com), I am looking for custom bag manufacturing and bulk wholesale pricing.'
+    'Hello LTS BAGS PRIVATE LIMITED (ltsbags.com), I am looking for custom bag manufacturing and bulk wholesale pricing.'
   )}`;
 
   return (
