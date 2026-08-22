@@ -1,13 +1,13 @@
 import { Metadata } from 'next';
 
 function cleanSiteUrl(rawUrl?: string): string {
-  if (!rawUrl) return 'https://mumbaibags.com';
+  if (!rawUrl) return 'https://ltsbags.com';
   let cleaned = rawUrl.trim();
   // Fix accidental duplicate typos
   cleaned = cleaned.replace(/ltsbagsbags\.com/gi, 'ltsbags.com');
   // Strip trailing slashes
   cleaned = cleaned.replace(/\/+$/, '');
-  return cleaned || 'https://mumbaibags.com';
+  return cleaned || 'https://ltsbags.com';
 }
 
 const SITE_URL = cleanSiteUrl(process.env.SITE_URL || process.env.APP_URL);
