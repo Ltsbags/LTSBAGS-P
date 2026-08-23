@@ -12,8 +12,8 @@ function cleanSiteUrl(rawUrl?: string): string {
   return cleaned || 'https://ltsbags.com';
 }
 
-const SITE_URL = cleanSiteUrl(process.env.SITE_URL || process.env.APP_URL);
-const INDEXING_ENABLED = process.env.INDEXING_ENABLED !== 'false';
+const SITE_URL = 'https://ltsbags.com';
+const INDEXING_ENABLED = true;
 const SITE_NAME = 'LTS BAGS PRIVATE LIMITED | LTS Bags';
 const DEFAULT_TITLE = 'Bag Manufacturer in Mumbai | Custom & Wholesale Bags';
 const DEFAULT_DESC = 'Mumbai-based bag manufacturer offering custom backpacks, laptop bags, school bags, corporate bags, travel duffels, eco canvas totes and promotional bags for bulk orders with OEM/ODM customization and direct factory pricing.';
@@ -23,7 +23,7 @@ export function getBaseUrl(): string {
 }
 
 export function isIndexingEnabled(): boolean {
-  return INDEXING_ENABLED;
+  return true;
 }
 
 export function generatePageMetadata({
