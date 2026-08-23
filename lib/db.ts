@@ -1606,7 +1606,13 @@ const INITIAL_NAVIGATION: NavigationMenuConfig = {
   ],
 };
 
+let inMemoryCache: DatabaseSchema | null = null;
+
 function ensureDataFile(): DatabaseSchema {
+  if (inMemoryCache) {
+    return inMemoryCache;
+  }
+
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -1629,10 +1635,14 @@ function ensureDataFile(): DatabaseSchema {
         auditLogs: [],
         sessions: [],
       };
-      fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf-8');
+      saveData(initialData);
+      inMemoryCache = initialData;
       return initialData;
     }
     const raw = fs.readFileSync(DB_FILE, 'utf-8');
+    if (!raw || !raw.trim()) {
+      throw new Error('Empty database file encountered');
+    }
     const parsed = JSON.parse(raw) as DatabaseSchema;
     let dirty = false;
 
@@ -1796,13 +1806,16 @@ function ensureDataFile(): DatabaseSchema {
       parsed.media = INITIAL_MEDIA;
       dirty = true;
     }
+    
+    inMemoryCache = parsed;
+
     if (dirty) {
       saveData(parsed);
     }
     return parsed;
   } catch (error) {
-    console.error('Error reading DB file, using initial data:', error);
-    return {
+    console.error('Error reading DB file, using fallback initial data safely:', error);
+    const fallbackData: DatabaseSchema = {
       categories: INITIAL_CATEGORIES,
       products: INITIAL_PRODUCTS,
       blogs: INITIAL_BLOGS,
@@ -1812,18 +1825,29 @@ function ensureDataFile(): DatabaseSchema {
       payments: INITIAL_PAYMENTS,
       media: INITIAL_MEDIA,
       settings: INITIAL_SETTINGS,
+      users: INITIAL_USERS,
+      faqs: INITIAL_FAQS,
+      testimonials: INITIAL_TESTIMONIALS,
+      navigation: INITIAL_NAVIGATION,
+      auditLogs: [],
+      sessions: [],
     };
+    inMemoryCache = fallbackData;
+    return fallbackData;
   }
 }
 
 function saveData(data: DatabaseSchema): void {
   try {
+    inMemoryCache = data;
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    const tempFile = path.join(DATA_DIR, `db.tmp.${Date.now()}.${Math.random().toString(36).substring(2, 7)}`);
+    fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf-8');
+    fs.renameSync(tempFile, DB_FILE);
   } catch (error) {
-    console.error('Error saving DB file:', error);
+    console.error('Error saving DB file atomically:', error);
   }
 }
 
@@ -1862,12 +1886,15 @@ export const db = {
   },
   getCategoryById(id: string): Category | undefined {
     const data = ensureDataFile();
-    return data.categories.find((c) => c.id === id);
+    const directMatch = data.categories.find((c) => c.id === id);
+    if (directMatch) return directMatch;
+    // Fallback if caller passed a slug
+    return data.categories.find((c) => c.slug === id.toLowerCase().trim());
   },
   getCategoryBySlug(slug: string): Category | undefined {
     const data = ensureDataFile();
     const normalized = slug.toLowerCase().trim();
-    const directMatch = data.categories.find((c) => c.slug === normalized);
+    const directMatch = data.categories.find((c) => c.slug === normalized || c.id === slug);
     if (directMatch) return directMatch;
 
     const targetSlug = CATEGORY_SLUG_ALIASES[normalized];

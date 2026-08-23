@@ -86,7 +86,13 @@ export function generatePageMetadata({
       description: fullDesc,
       images: [image],
     },
-    metadataBase: new URL(SITE_URL),
+    metadataBase: (() => {
+      try {
+        return new URL(SITE_URL);
+      } catch {
+        return new URL('https://ltsbags.com');
+      }
+    })(),
     verification: {
       google: (() => {
         try {
