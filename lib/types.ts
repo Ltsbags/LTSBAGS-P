@@ -341,12 +341,16 @@ export interface Category {
   image: string;
   bannerImage?: string;
   featuredImage?: string;
+  parentId?: string;
+  parentSlug?: string;
   parentCategory?: string;
   sortOrder?: number;
   isActive?: boolean;
   metaTitle: string;
   metaDescription: string;
   metaKeywords: string;
+  subcategories?: Category[];
+  level?: 'MAIN' | 'SUB' | number;
   createdAt: string;
   updatedAt: string;
 }

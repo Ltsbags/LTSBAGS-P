@@ -28,6 +28,8 @@ import {
 
 interface CategoryLandingViewProps {
   category: Category;
+  parentCategory?: Category;
+  subcategories?: Category[];
   products: Product[];
   allCategories: Category[];
 }
@@ -362,19 +364,32 @@ function getCategoryDetails(slug: string, catName: string): CategoryDetailMeta {
   };
 }
 
-export default function CategoryLandingView({ category, products, allCategories }: CategoryLandingViewProps) {
+export default function CategoryLandingView({ 
+  category, 
+  parentCategory,
+  subcategories,
+  products, 
+  allCategories 
+}: CategoryLandingViewProps) {
   const details = getCategoryDetails(category.slug, category.name);
   const baseUrl = getBaseUrl();
   
-  const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Products', url: '/products' },
-    { name: category.name, url: `/category/${category.slug}` },
-  ]);
+  const breadcrumbItems = parentCategory
+    ? [
+        { name: 'Products', url: '/products' },
+        { name: parentCategory.name, url: `/products/${parentCategory.slug}` },
+        { name: category.name, url: `/products/${parentCategory.slug}/${category.slug}` },
+      ]
+    : [
+        { name: 'Products', url: '/products' },
+        { name: category.name, url: `/products/${category.slug}` },
+      ];
 
+  const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
   const faqSchema = generateFaqSchema(details.faqs);
 
   const relatedCategories = allCategories
-    .filter((c) => c.id !== category.id)
+    .filter((c) => c.id !== category.id && !c.parentId)
     .slice(0, 6);
 
   const whatsappMessage = encodeURIComponent(
@@ -392,12 +407,7 @@ export default function CategoryLandingView({ category, products, allCategories 
         {/* 1. HERO HEADER WITH NATURAL SEO H1 */}
         <section className="bg-slate-900 text-white py-12 sm:py-16 border-b border-slate-800 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <Breadcrumbs
-              items={[
-                { name: 'Products', url: '/products' },
-                { name: category.name, url: `/category/${category.slug}` },
-              ]}
-            />
+            <Breadcrumbs items={breadcrumbItems} />
             
             <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               <div className="lg:col-span-8 space-y-4">
@@ -406,17 +416,17 @@ export default function CategoryLandingView({ category, products, allCategories 
                 </span>
                 
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white font-sans leading-tight">
-                  {details.h1}
+                  {category.metaTitle ? category.metaTitle.split('|')[0].trim() : details.h1}
                 </h1>
                 
                 <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
-                  {details.leadParagraph}
+                  {category.description || details.leadParagraph}
                 </p>
 
                 {/* Key Quick Badges */}
                 <div className="pt-2 flex flex-wrap items-center gap-2.5 sm:gap-3 text-xs">
                   <span className="flex items-center gap-1.5 font-semibold bg-slate-800/90 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700">
-                    <ShieldCheck className="w-4 h-4 text-[#72AFDB]" /> Direct Mumbai Factory Rates
+                    <ShieldCheck className="w-4 h-4 text-[#72AFDB]" /> Direct Factory Rates
                   </span>
                   <span className="flex items-center gap-1.5 font-semibold bg-slate-800/90 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700">
                     <Package className="w-4 h-4 text-amber-400" /> Low MOQ: {details.moq}
@@ -461,7 +471,7 @@ export default function CategoryLandingView({ category, products, allCategories 
                 <div className="rounded-2xl overflow-hidden border border-slate-700 aspect-4/3 shadow-2xl relative bg-slate-800">
                   <Image
                     src={category.image}
-                    alt={`${category.name} manufacturing plant at LTS BAGS Mumbai`}
+                    alt={`${category.name} manufacturing plant at LTS BAGS`}
                     fill
                     sizes="(max-width: 1024px) 100vw, 33vw"
                     priority
@@ -479,6 +489,54 @@ export default function CategoryLandingView({ category, products, allCategories 
 
           </div>
         </section>
+
+        {/* SUBCATEGORIES STRIP / CARDS (IF PRESENT) */}
+        {subcategories && subcategories.length > 0 && (
+          <section className="py-10 bg-slate-100 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                    {parentCategory ? `Other ${parentCategory.name} Types` : `Explore ${category.name} Subcategories`}
+                  </h2>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                    {parentCategory ? 'Browse specific categories within this collection' : 'Specialized manufacturing types available for bulk and OEM orders'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {subcategories.map((sub) => {
+                  const parentSlug = parentCategory ? parentCategory.slug : category.slug;
+                  const isActive = sub.slug === category.slug;
+                  return (
+                    <Link
+                      key={sub.id}
+                      href={`/products/${parentSlug}/${sub.slug}`}
+                      className={`group p-3 rounded-xl border text-center transition-all flex flex-col items-center justify-between ${
+                        isActive
+                          ? 'bg-[#72AFDB] text-white border-[#72AFDB] shadow-md shadow-[#72AFDB]/20'
+                          : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:border-[#72AFDB] hover:shadow-xs'
+                      }`}
+                    >
+                      <div className="w-full aspect-video rounded-lg overflow-relative overflow-hidden mb-2 bg-slate-100 dark:bg-slate-800 relative">
+                        <Image
+                          src={sub.image || category.image}
+                          alt={sub.name}
+                          fill
+                          sizes="150px"
+                          className="object-cover group-hover:scale-105 transition-transform"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+                      <span className="text-xs font-bold leading-snug line-clamp-2">{sub.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* 2. AVAILABLE PRODUCT MODELS */}
         <section className="py-16 bg-slate-50 dark:bg-slate-950 border-b border-slate-200/80 dark:border-slate-800 transition-colors duration-200">

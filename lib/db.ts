@@ -28,6 +28,7 @@ import {
 } from './types';
 import { INITIAL_LANGUAGES } from './i18n/languages';
 import { INITIAL_TRANSLATIONS_MAP } from './i18n/translations';
+import { COMPLETE_CATEGORIES_DATA } from './categories-data';
 
 const DATA_DIR = path.join(process.cwd(), '.data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
@@ -470,176 +471,7 @@ const INITIAL_SLIDES: HeroSlide[] = [
   },
 ];
 
-const INITIAL_CATEGORIES: Category[] = [
-  {
-    id: 'cat-1',
-    name: 'Backpack Bags',
-    slug: 'backpack-bags',
-    description: 'Custom backpacks, corporate laptop backpacks, commuter packs, and heavy-duty daypacks with custom 3D embroidery and reinforced stitching.',
-    image: 'https://images.unsplash.com/photo-1546938576-6e6a64f317cc?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Backpack Bag Manufacturer in Mumbai | Custom & Wholesale',
-    metaDescription: 'Leading B2B manufacturer of custom backpacks in Mumbai. Padded laptop compartments, 1680D ballistic nylon, 3D embroidery, and direct factory pricing.',
-    metaKeywords: 'backpack manufacturer in Mumbai, custom backpacks India, wholesale laptop backpacks, LTS BAGS PRIVATE LIMITED',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-2',
-    name: 'Laptop Bags',
-    slug: 'laptop-bags',
-    description: 'Executive laptop briefcases, messenger bags, and padded sleeves for 13" to 16" laptops with shock-absorbing EVA foam.',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Laptop Bag Manufacturer in Mumbai | Executive Briefcases Wholesale',
-    metaDescription: 'Bulk manufacturer of executive laptop bags and sleeves for corporate gifting and employee kits. Custom logo debossing, low MOQ, factory direct.',
-    metaKeywords: 'laptop bag manufacturer Mumbai, corporate laptop briefcases, custom laptop sleeves wholesale, B2B bag supplier',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-3',
-    name: 'School Bags',
-    slug: 'school-bags',
-    description: 'Ergonomic school backpacks, multi-compartment student bags, and uniform bags engineered for daily heavy book loads.',
-    image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'School Bag Manufacturer in Mumbai | Institutional Supply',
-    metaDescription: 'Direct factory supplier of heavy-duty school bags for schools and institutions across India. Reinforced bar-tack stitching, custom crest embroidery.',
-    metaKeywords: 'school bag manufacturer Mumbai, bulk school backpacks, institutional student bags supplier, durable school bags India',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-4',
-    name: 'Corporate Bags',
-    slug: 'corporate-bags',
-    description: 'Premium corporate gifting bags, conference folders, onboarding backpacks, and executive briefcases for business enterprises.',
-    image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Corporate Bag Manufacturer in Mumbai | Employee Gifting & Events',
-    metaDescription: 'Custom corporate bag manufacturer in Mumbai for onboarding kits, annual meets, and client gifts. 3D embroidery, metal badges, fast turnaround.',
-    metaKeywords: 'corporate bag manufacturer Mumbai, employee onboarding bags, custom corporate backpacks, B2B corporate gifting',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-5',
-    name: 'Promotional Bags',
-    slug: 'promotional-bags',
-    description: 'High-visibility branded promotional bags, exhibition totes, event drawstring cinch sacks, and marathon giveaway bags.',
-    image: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Promotional Bag Manufacturer in Mumbai | Bulk Event Bags Wholesale',
-    metaDescription: 'Bulk manufacturer of promotional bags and drawstring sacks for trade shows, marathons, and marketing campaigns in Mumbai.',
-    metaKeywords: 'promotional bag manufacturer Mumbai, event bags wholesale, trade show giveaway bags, custom cinch sacks',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-6',
-    name: 'Travel Bags',
-    slug: 'travel-bags',
-    description: 'Heavy-duty travel holdalls, luggage bags, and weekender duffels designed for corporate travel, sports tours, and leisure.',
-    image: 'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Travel Bag Manufacturer in Mumbai | Bulk Luggage & Holdalls',
-    metaDescription: 'Wholesale manufacturer of travel bags and weekender holdalls in Mumbai. High-capacity, tear-proof fabrics, reinforced handles, custom logos.',
-    metaKeywords: 'travel bag manufacturer Mumbai, custom luggage bags wholesale, corporate travel holdall, bulk weekender bags',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-7',
-    name: 'Duffle Bags',
-    slug: 'duffle-bags',
-    description: 'Rugged barrel duffels, sports gear bags, and leatherette weekender duffels with separate shoe tunnels and wet pouches.',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Duffle Bag Manufacturer in Mumbai | Sports & Travel Duffles',
-    metaDescription: 'Custom duffle bag manufacturer in Mumbai. PU leatherette, 1680D nylon, shoe pockets, water-resistant linings for sports clubs and corporate gifts.',
-    metaKeywords: 'duffle bag manufacturer Mumbai, custom sports duffels, wholesale gym duffle, leatherette weekender bags',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-8',
-    name: 'Jute Bags',
-    slug: 'jute-bags',
-    description: 'Eco-friendly laminated golden jute shopping bags, trade show carry bags, and sustainable gift packaging totes.',
-    image: 'https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Jute Bag Manufacturer in Mumbai | Eco-Friendly Shopping Totes',
-    metaDescription: 'Bulk manufacturer of natural golden jute bags and eco totes in Mumbai. High-definition screen printing, cotton rope handles, 100% biodegradable.',
-    metaKeywords: 'jute bag manufacturer Mumbai, eco jute shopping bags, wholesale jute totes, promotional jute bags India',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-9',
-    name: 'Tote Bags',
-    slug: 'tote-bags',
-    description: 'Heavy cotton canvas tote bags, grocery shoppers, and organic cotton conference bags with multi-color silk screen printing.',
-    image: 'https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Cotton Canvas Tote Bag Manufacturer in Mumbai | Wholesale Totes',
-    metaDescription: 'Custom cotton canvas tote bag manufacturer in Mumbai. 8oz to 16oz canvas, eco-friendly inks, reinforced cross-stitched handles for retail and events.',
-    metaKeywords: 'canvas tote bag manufacturer Mumbai, custom tote bags wholesale, cotton shopping bags India, eco canvas totes',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-10',
-    name: 'Sports Bags',
-    slug: 'sports-bags',
-    description: 'High-performance team kit bags, cricket bags, athletic holdalls, and tournament gear bags with ventilated compartments.',
-    image: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Sports Bag Manufacturer in Mumbai | Athletic Kit Bags Wholesale',
-    metaDescription: 'Manufacturer of sports bags, team kit bags, and athletic holdalls in Mumbai. High-tensile ripstop polyester, custom team logo printing.',
-    metaKeywords: 'sports bag manufacturer Mumbai, team kit bags wholesale, athletic gear bags, custom tournament bags',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-11',
-    name: 'Gym Bags',
-    slug: 'gym-bags',
-    description: 'Fitness gym bags with isolated shoe compartments, waterproof wet pouches, and water bottle holders for wellness programs.',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Gym Bag Manufacturer in Mumbai | Fitness Duffels Wholesale',
-    metaDescription: 'Wholesale gym bag manufacturer in Mumbai. Features shoe tunnel, wet towel pouch, anti-odor vents, and custom fitness branding.',
-    metaKeywords: 'gym bag manufacturer Mumbai, fitness duffels wholesale, custom gym bags India, sports workout bags',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-12',
-    name: 'College Bags',
-    slug: 'college-bags',
-    description: 'Trendy multi-compartment campus backpacks with laptop sleeves, organizer pockets, and water-repellent fabrics.',
-    image: 'https://images.unsplash.com/photo-1577733966973-d680bffd2e80?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'College Bag Manufacturer in Mumbai | Campus Backpacks Wholesale',
-    metaDescription: 'Bulk manufacturer of trendy college backpacks and campus bags in Mumbai. Padded laptop sections, durable fabrics, custom institute logos.',
-    metaKeywords: 'college bag manufacturer Mumbai, campus backpacks wholesale, university bags supplier, student backpacks India',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-13',
-    name: 'Office Bags',
-    slug: 'office-bags',
-    description: 'Executive messenger bags, document folders, and office briefcases crafted from ballistic nylon and vegan leatherette.',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Office Bag Manufacturer in Mumbai | Executive Messengers & Folders',
-    metaDescription: 'Custom office bag manufacturer in Mumbai. Sleek document briefcases, executive messenger bags, and vegan leather folders for corporate professionals.',
-    metaKeywords: 'office bag manufacturer Mumbai, executive messenger bags, corporate document folders, business briefcases wholesale',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-14',
-    name: 'Custom Bags',
-    slug: 'custom-bags',
-    description: 'Full OEM/ODM made-to-order custom bags developed from your technical drawings, physical samples, or custom design brief.',
-    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800',
-    metaTitle: 'Custom Bag Manufacturer in Mumbai | OEM/ODM Made-to-Order Bags',
-    metaDescription: 'Leading OEM/ODM custom bag manufacturer in Mumbai, India. Complete custom pattern design, material sourcing, prototype sampling, and bulk production.',
-    metaKeywords: 'custom bag manufacturer Mumbai, OEM bag manufacturer India, ODM made to order bags, custom bag factory Dharavi',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+const INITIAL_CATEGORIES: Category[] = COMPLETE_CATEGORIES_DATA;
 
 
 const INITIAL_PRODUCTS: Product[] = [
@@ -1684,6 +1516,12 @@ function ensureDataFile(): DatabaseSchema {
     const seenCatSlugs = new Set<string>();
     const seenCatIds = new Set<string>();
 
+    const masterMap = new Map<string, Category>();
+    for (const initCat of INITIAL_CATEGORIES) {
+      masterMap.set(initCat.slug.toLowerCase().trim(), initCat);
+      masterMap.set(initCat.id.toLowerCase().trim(), initCat);
+    }
+
     // First process existing categories
     for (const c of (parsed.categories || [])) {
       const slug = c.slug?.toLowerCase().trim();
@@ -1696,7 +1534,26 @@ function ensureDataFile(): DatabaseSchema {
         dirty = true;
       }
       seenCatIds.add(finalId);
-      sanitizedCategories.push({ ...c, id: finalId, slug });
+
+      const master = masterMap.get(slug) || masterMap.get(finalId);
+      if (master) {
+        sanitizedCategories.push({
+          ...master,
+          ...c,
+          id: finalId,
+          slug,
+          parentId: c.parentId !== undefined ? c.parentId : master.parentId,
+          parentSlug: c.parentSlug !== undefined ? c.parentSlug : master.parentSlug,
+          parentCategory: c.parentCategory !== undefined ? c.parentCategory : master.parentCategory,
+          sortOrder: c.sortOrder !== undefined ? c.sortOrder : master.sortOrder,
+          level: c.level || master.level,
+          metaTitle: c.metaTitle || master.metaTitle,
+          metaDescription: c.metaDescription || master.metaDescription,
+          metaKeywords: c.metaKeywords || master.metaKeywords,
+        });
+      } else {
+        sanitizedCategories.push({ ...c, id: finalId, slug });
+      }
     }
 
     // Merge any missing initial categories
@@ -1851,30 +1708,36 @@ function saveData(data: DatabaseSchema): void {
 }
 
 const CATEGORY_SLUG_ALIASES: Record<string, string> = {
-  'backpacks': 'backpack-bags',
-  'corporate-backpacks': 'backpack-bags',
-  'backpack': 'backpack-bags',
-  'laptop-bag': 'laptop-bags',
-  'executive-laptop-bags': 'laptop-bags',
-  'school-college-bags': 'school-bags',
-  'school-bag': 'school-bags',
-  'corporate-bag': 'corporate-bags',
-  'promotional-drawstring-bags': 'promotional-bags',
-  'promotional-bag': 'promotional-bags',
+  'backpack-bags': 'backpacks',
+  'corporate-backpacks': 'backpacks',
+  'backpack': 'backpacks',
+  'laptop-bag': 'laptop-office-bags',
+  'laptop-bags': 'laptop-office-bags',
+  'executive-laptop-bags': 'laptop-office-bags',
+  'office-bags': 'laptop-office-bags',
+  'school-college-bags': 'school-college-bags',
+  'school-bags': 'school-college-bags',
+  'school-bag': 'school-college-bags',
+  'corporate-bag': 'corporate-promotional-bags',
+  'corporate-bags': 'corporate-promotional-bags',
+  'promotional-drawstring-bags': 'corporate-promotional-bags',
+  'promotional-bags': 'corporate-promotional-bags',
   'duffel-travel-bags': 'travel-bags',
   'travel-bag': 'travel-bags',
-  'duffel-bags': 'duffle-bags',
-  'duffels': 'duffle-bags',
-  'eco-canvas-tote-bags': 'tote-bags',
-  'canvas-totes': 'tote-bags',
-  'totes': 'tote-bags',
-  'tote-bag': 'tote-bags',
-  'sports-bag': 'sports-bags',
-  'gym-bag': 'gym-bags',
-  'college-bag': 'college-bags',
-  'office-bag': 'office-bags',
-  'custom-bag': 'custom-bags',
-  'oem-bags': 'custom-bags',
+  'duffel-bags': 'travel-duffel-bags',
+  'duffels': 'travel-duffel-bags',
+  'eco-canvas-tote-bags': 'tote-shopping-bags',
+  'canvas-totes': 'tote-shopping-bags',
+  'totes': 'tote-shopping-bags',
+  'tote-bags': 'tote-shopping-bags',
+  'sports-bags': 'sports-gym-bags',
+  'gym-bags': 'sports-gym-bags',
+  'college-bags': 'school-college-bags',
+  'jute-bags': 'jute-eco-bags',
+  'sling-bags': 'sling-shoulder-bags',
+  'lunch-bags': 'lunch-utility-bags',
+  'custom-bags': 'custom-manufacturing',
+  'oem-bags': 'custom-manufacturing',
 };
 
 export const db = {
@@ -1882,6 +1745,33 @@ export const db = {
   getCategories(): Category[] {
     const data = ensureDataFile();
     return data.categories;
+  },
+  getMainCategories(): Category[] {
+    const data = ensureDataFile();
+    return data.categories
+      .filter((c) => !c.parentId)
+      .sort((a, b) => (a.sortOrder || 99) - (b.sortOrder || 99));
+  },
+  getSubcategories(parentIdOrSlug: string): Category[] {
+    const data = ensureDataFile();
+    const parent = data.categories.find((c) => c.id === parentIdOrSlug || c.slug === parentIdOrSlug);
+    if (!parent) return [];
+    return data.categories
+      .filter((c) => c.parentId === parent.id || c.parentSlug === parent.slug)
+      .sort((a, b) => (a.sortOrder || 99) - (b.sortOrder || 99));
+  },
+  getCategoryHierarchy(): Category[] {
+    const data = ensureDataFile();
+    const mainCategories = data.categories
+      .filter((c) => !c.parentId)
+      .sort((a, b) => (a.sortOrder || 99) - (b.sortOrder || 99));
+    
+    return mainCategories.map((main) => ({
+      ...main,
+      subcategories: data.categories
+        .filter((c) => c.parentId === main.id || c.parentSlug === main.slug)
+        .sort((a, b) => (a.sortOrder || 99) - (b.sortOrder || 99)),
+    }));
   },
   getCategoryById(id: string): Category | undefined {
     const data = ensureDataFile();
@@ -1898,12 +1788,23 @@ export const db = {
 
     const targetSlug = CATEGORY_SLUG_ALIASES[normalized];
     if (targetSlug) {
-      return data.categories.find((c) => c.slug === targetSlug);
+      const aliasMatch = data.categories.find((c) => c.slug === targetSlug);
+      if (aliasMatch) return aliasMatch;
     }
 
     return data.categories.find((c) => 
       c.slug.includes(normalized) || normalized.includes(c.slug) || c.name.toLowerCase().includes(normalized)
     );
+  },
+  getCategoryByParentAndSubSlug(parentSlug: string, subSlug: string): { parent?: Category; subcategory?: Category } {
+    const data = ensureDataFile();
+    const parent = this.getCategoryBySlug(parentSlug);
+    if (!parent) return {};
+    const normSub = subSlug.toLowerCase().trim();
+    const subcategory = data.categories.find(
+      (c) => (c.parentId === parent.id || c.parentSlug === parent.slug) && (c.slug === normSub || c.id === normSub)
+    ) || data.categories.find((c) => c.slug === normSub);
+    return { parent, subcategory };
   },
   saveCategory(category: Partial<Category> & { name: string }): Category {
     const data = ensureDataFile();
@@ -1983,6 +1884,31 @@ export const db = {
     );
     const catId = matchedCategory ? matchedCategory.id : categoryIdOrSlug;
     return data.products.filter((p) => p.categoryId === catId || p.categoryId === categoryIdOrSlug || (matchedCategory && p.categoryId === matchedCategory.slug));
+  },
+  getProductsByCategoryOrSubcategory(categoryIdOrSlug: string): Product[] {
+    const data = ensureDataFile();
+    if (!categoryIdOrSlug) return [];
+    const cat = this.getCategoryBySlug(categoryIdOrSlug) || data.categories.find((c) => c.id === categoryIdOrSlug);
+    if (!cat) return this.getProductsByCategory(categoryIdOrSlug);
+
+    const relevantCategoryIds = new Set<string>([cat.id, cat.slug]);
+    if (!cat.parentId) {
+      const subs = data.categories.filter((c) => c.parentId === cat.id || c.parentSlug === cat.slug);
+      subs.forEach((s) => {
+        relevantCategoryIds.add(s.id);
+        relevantCategoryIds.add(s.slug);
+      });
+    }
+
+    const matchedProducts = data.products.filter((p) => {
+      if (relevantCategoryIds.has(p.categoryId)) return true;
+      if (p.subcategory && relevantCategoryIds.has(p.subcategory)) return true;
+      if (p.categoryName && (p.categoryName.toLowerCase() === cat.name.toLowerCase() || p.categoryName.toLowerCase().includes(cat.name.toLowerCase()))) return true;
+      return false;
+    });
+
+    if (matchedProducts.length > 0) return matchedProducts;
+    return this.getProductsByCategory(categoryIdOrSlug);
   },
   saveProduct(product: Partial<Product> & { name: string; categoryId: string }): Product {
     const data = ensureDataFile();

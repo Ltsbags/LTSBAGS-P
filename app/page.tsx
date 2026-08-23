@@ -36,7 +36,7 @@ export const metadata = generatePageMetadata({
 });
 
 export default function HomePage() {
-  const categories = db.getCategories();
+  const categoryHierarchy = db.getCategoryHierarchy();
   const featuredProducts = db.getProducts().filter((p) => p.isFeatured || p.moq <= 100).slice(0, 6);
   const latestBlogs = db.getBlogs().slice(0, 3);
   const slides = db.getSlides(true);
@@ -58,7 +58,7 @@ export default function HomePage() {
         {/* 2. TRUST / CREDIBILITY STRIP */}
         <FeatureStrip />
 
-        {/* 3. PRODUCT CATEGORIES (16 Core Categories Grid) */}
+        {/* 3. PRODUCT CATEGORIES (Complete Category Hierarchy) */}
         <section id="categories-section" className="py-20 bg-white dark:bg-slate-900 transition-colors duration-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
@@ -68,7 +68,7 @@ export default function HomePage() {
                   Bulk Product Lines
                 </span>
                 <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 font-sans mt-2">
-                  Specialized Bag Manufacturing Categories
+                  Explore Our Bag Categories
                 </h2>
                 <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
                   Engineered for corporate gifting, educational institutions, retail private-labels, and industrial applications.
@@ -83,39 +83,74 @@ export default function HomePage() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {categories.map((cat) => (
-                <Link
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {categoryHierarchy.map((cat) => (
+                <div
                   key={cat.id}
-                  href={`/category/${cat.slug}`}
                   className="group bg-slate-50 dark:bg-slate-800/80 rounded-2xl overflow-hidden border border-slate-200/80 dark:border-slate-700/80 hover:border-[#72AFDB] hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
                 >
-                  <div className="aspect-16/11 overflow-hidden relative bg-slate-200 dark:bg-slate-800">
-                    <Image
-                      src={cat.image}
-                      alt={cat.name}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      referrerPolicy="no-referrer"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
-                    <div className="absolute bottom-3 left-4 right-4 text-white">
-                      <h3 className="text-base font-bold font-sans group-hover:text-[#72AFDB] transition-colors leading-tight">
-                        {cat.name}
-                      </h3>
+                  <Link href={`/products/${cat.slug}`} className="block">
+                    <div className="aspect-16/10 overflow-hidden relative bg-slate-200 dark:bg-slate-800">
+                      <Image
+                        src={cat.image}
+                        alt={cat.name}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        referrerPolicy="no-referrer"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
+                      <div className="absolute bottom-3 left-4 right-4 text-white">
+                        <h3 className="text-lg font-bold font-sans group-hover:text-[#72AFDB] transition-colors leading-tight">
+                          {cat.name}
+                        </h3>
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                  </Link>
+
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                     <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed line-clamp-2">
                       {cat.description}
                     </p>
-                    <div className="flex items-center justify-between text-xs font-bold text-[#72AFDB] pt-2 border-t border-slate-200/60 dark:border-slate-700/60">
-                      <span>Explore Collection</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+
+                    {/* Subcategories pill links */}
+                    {cat.subcategories && cat.subcategories.length > 0 && (
+                      <div className="space-y-1.5 pt-1">
+                        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                          Popular Subcategories:
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {cat.subcategories.slice(0, 4).map((sub) => (
+                            <Link
+                              key={sub.id}
+                              href={`/products/${cat.slug}/${sub.slug}`}
+                              className="text-[11px] font-medium bg-white dark:bg-slate-900 hover:bg-[#72AFDB] hover:text-white dark:hover:bg-[#72AFDB] text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors"
+                            >
+                              {sub.name}
+                            </Link>
+                          ))}
+                          {cat.subcategories.length > 4 && (
+                            <Link
+                              href={`/products/${cat.slug}`}
+                              className="text-[11px] font-medium text-[#72AFDB] px-1 py-1 hover:underline"
+                            >
+                              +{cat.subcategories.length - 4} more
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between text-xs font-bold text-[#72AFDB] pt-3 border-t border-slate-200/60 dark:border-slate-700/60">
+                      <Link href={`/products/${cat.slug}`} className="hover:underline">
+                        Explore Collection
+                      </Link>
+                      <Link href={`/products/${cat.slug}`} aria-label={`Explore ${cat.name}`}>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </Link>
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
 

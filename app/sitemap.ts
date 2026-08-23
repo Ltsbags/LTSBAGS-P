@@ -31,12 +31,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   const categories = db.getCategories().filter((c) => c && c.slug);
-  const categoryEntries: MetadataRoute.Sitemap = categories.map((cat) => ({
-    url: `${baseUrl}/category/${cat.slug}`,
-    lastModified: cat.updatedAt ? new Date(cat.updatedAt) : now,
-    changeFrequency: 'weekly' as const,
-    priority: 0.85,
-  }));
+  const categoryEntries: MetadataRoute.Sitemap = [];
+  
+  categories.forEach((cat) => {
+    const parent = cat.parentId ? categories.find((p) => p.id === cat.parentId) : undefined;
+    const path = parent ? `/products/${parent.slug}/${cat.slug}` : `/products/${cat.slug}`;
+    
+    categoryEntries.push({
+      url: `${baseUrl}${path}`,
+      lastModified: cat.updatedAt ? new Date(cat.updatedAt) : now,
+      changeFrequency: 'weekly' as const,
+      priority: parent ? 0.8 : 0.85,
+    });
+
+    categoryEntries.push({
+      url: `${baseUrl}/category/${cat.slug}`,
+      lastModified: cat.updatedAt ? new Date(cat.updatedAt) : now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.75,
+    });
+  });
 
   const products = db.getProducts().filter((p) => p && p.slug && p.status !== 'INACTIVE');
   const productEntries: MetadataRoute.Sitemap = products.map((prod) => ({
