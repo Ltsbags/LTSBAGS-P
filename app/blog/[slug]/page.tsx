@@ -11,6 +11,7 @@ import { Calendar, User, Send, ArrowRight, BookOpen } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  if (!slug) return {};
   const blog = db.getBlogBySlug(slug);
   if (!blog) return {};
 
@@ -25,6 +26,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function SingleBlogPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+
+  if (!slug) {
+    notFound();
+  }
+
   const blog = db.getBlogBySlug(slug);
 
   if (!blog) {

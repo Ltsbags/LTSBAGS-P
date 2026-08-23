@@ -1,4 +1,3 @@
-import 'server-only';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
@@ -1959,15 +1958,31 @@ export const db = {
   },
   getProductBySlug(slug: string): Product | undefined {
     const data = ensureDataFile();
-    return data.products.find((p) => p.slug === slug);
+    if (!slug) return undefined;
+    const normalized = slug.toLowerCase().trim();
+    const exact = data.products.find((p) => p.slug === normalized || p.slug === slug || p.id === slug);
+    if (exact) return exact;
+    
+    // Fallback: match partial keywords
+    return data.products.find((p) => {
+      const pSlug = p.slug.toLowerCase();
+      const pName = p.name.toLowerCase();
+      return pSlug.includes(normalized) || normalized.includes(pSlug) || pName.includes(normalized);
+    });
   },
   getProductById(id: string): Product | undefined {
     const data = ensureDataFile();
-    return data.products.find((p) => p.id === id);
+    if (!id) return undefined;
+    return data.products.find((p) => p.id === id || p.slug === id);
   },
-  getProductsByCategory(categoryId: string): Product[] {
+  getProductsByCategory(categoryIdOrSlug: string): Product[] {
     const data = ensureDataFile();
-    return data.products.filter((p) => p.categoryId === categoryId);
+    if (!categoryIdOrSlug) return [];
+    const matchedCategory = data.categories.find(
+      (c) => c.id === categoryIdOrSlug || c.slug === categoryIdOrSlug || c.slug === categoryIdOrSlug.toLowerCase().trim()
+    );
+    const catId = matchedCategory ? matchedCategory.id : categoryIdOrSlug;
+    return data.products.filter((p) => p.categoryId === catId || p.categoryId === categoryIdOrSlug || (matchedCategory && p.categoryId === matchedCategory.slug));
   },
   saveProduct(product: Partial<Product> & { name: string; categoryId: string }): Product {
     const data = ensureDataFile();

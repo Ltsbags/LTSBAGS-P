@@ -29,7 +29,7 @@ const KNOWN_STATIC_ROUTES = new Set([
 
 export async function generateMetadata({ params }: { params: Promise<{ categorySlug: string }> }) {
   const { categorySlug } = await params;
-  if (KNOWN_STATIC_ROUTES.has(categorySlug)) return {};
+  if (!categorySlug || KNOWN_STATIC_ROUTES.has(categorySlug)) return {};
 
   const category = db.getCategoryBySlug(categorySlug);
   if (!category) return {};
@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<{ categoryS
 export default async function TopLevelCategoryPage({ params }: { params: Promise<{ categorySlug: string }> }) {
   const { categorySlug } = await params;
 
-  if (KNOWN_STATIC_ROUTES.has(categorySlug)) {
+  if (!categorySlug || KNOWN_STATIC_ROUTES.has(categorySlug)) {
     notFound();
   }
 

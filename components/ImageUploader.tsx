@@ -140,7 +140,6 @@ export default function ImageUploader({
         /* Image Preview Box */
         <div className="relative group rounded-xl overflow-hidden border-2 border-slate-200 bg-slate-900/5 shadow-xs transition-all hover:border-amber-500/50">
           <div className={`w-full ${aspectClasses} relative flex items-center justify-center bg-slate-100 overflow-hidden`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={value}
               alt="Uploaded image preview"

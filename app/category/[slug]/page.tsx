@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  if (!slug) return {};
   const category = db.getCategoryBySlug(slug);
   if (!category) return {};
 
@@ -22,6 +23,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+
+  if (!slug) {
+    notFound();
+  }
+
   const category = db.getCategoryBySlug(slug);
 
   if (!category) {

@@ -209,25 +209,25 @@ export function generateLocalBusinessSchema() {
 
 export function generateProductSchema(product: {
   name: string;
-  shortDesc: string;
-  images: string[];
+  shortDesc?: string;
+  images?: string[];
   slug: string;
-  moq: number;
-  materials: string;
+  moq?: number;
+  materials?: string;
 }) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    name: product.name,
-    image: product.images,
-    description: product.shortDesc,
-    sku: `LTS-${product.slug.toUpperCase()}`,
-    mpn: `LTS-${product.slug.toUpperCase()}`,
+    name: product?.name || 'Product',
+    image: product?.images || [],
+    description: product?.shortDesc || '',
+    sku: `LTS-${(product?.slug || 'ITEM').toUpperCase()}`,
+    mpn: `LTS-${(product?.slug || 'ITEM').toUpperCase()}`,
     brand: {
       '@type': 'Brand',
       name: 'LTS BAGS PRIVATE LIMITED',
     },
-    material: product.materials,
+    material: product?.materials || 'Fabric / Polyester / Nylon',
     offers: {
       '@type': 'AggregateOffer',
       priceCurrency: 'INR',
@@ -245,14 +245,15 @@ export function generateProductSchema(product: {
 }
 
 export function generateBreadcrumbSchema(items: { name: string; url: string }[]) {
+  const safeItems = Array.isArray(items) ? items : [];
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
-    itemListElement: items.map((item, index) => ({
+    itemListElement: safeItems.map((item, index) => ({
       '@type': 'ListItem',
       position: index + 1,
-      name: item.name,
-      item: `${SITE_URL}${item.url}`,
+      name: item?.name || 'Page',
+      item: item?.url?.startsWith('http') ? item.url : `${SITE_URL}${item?.url || ''}`,
     })),
   };
 }

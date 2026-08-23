@@ -423,7 +423,6 @@ export default function AdminProductsPage() {
                     <tr key={p.id} className="hover:bg-slate-800/40 transition-colors">
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={p.images?.[0] || 'https://images.unsplash.com/photo-1546938576-6e6a64f317cc?auto=format&fit=crop&q=80&w=200'}
                             alt={p.name}

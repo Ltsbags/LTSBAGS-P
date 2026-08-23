@@ -339,7 +339,6 @@ export default function AdminClientsPage() {
 
                     {/* Logo Box Preview */}
                     <div className="w-full h-32 bg-white rounded-xl p-4 flex items-center justify-center border border-slate-200 overflow-hidden shadow-inner relative group">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={client.logoUrl}
                         alt={client.name}

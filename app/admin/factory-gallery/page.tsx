@@ -296,7 +296,6 @@ export default function AdminFactoryGalleryPage() {
                   }`}
                 >
                   <div className="relative aspect-4/3 bg-slate-950 overflow-hidden group">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={item.imageUrl}
                       alt={item.altText || item.caption}
@@ -426,7 +425,6 @@ export default function AdminFactoryGalleryPage() {
               {/* Preview */}
               {formData.imageUrl && (
                 <div className="aspect-16/9 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 relative">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={formData.imageUrl}
                     alt="Preview"

@@ -12,6 +12,7 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  if (!slug) return {};
   const product = db.getProductBySlug(slug);
   if (!product) return {};
 
@@ -26,13 +27,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function SingleProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+
+  if (!slug) {
+    notFound();
+  }
+
   const product = db.getProductBySlug(slug);
 
   if (!product) {
     notFound();
   }
 
-  const category = db.getCategoryBySlug(product.categoryId);
+  const category = db.getCategoryById(product.categoryId) || db.getCategoryBySlug(product.categoryId);
   const relatedProducts = db.getProductsByCategory(product.categoryId).filter((p) => p.id !== product.id).slice(0, 3);
 
   const productSchema = generateProductSchema(product);

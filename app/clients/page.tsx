@@ -97,7 +97,6 @@ export default function ClientsPage() {
                 >
                   {/* Logo Container with Aspect-Ratio & Object-Contain */}
                   <div className="w-full h-20 sm:h-24 flex items-center justify-center p-2 relative rounded-xl bg-slate-50/80 dark:bg-slate-900/50 group-hover:bg-white dark:group-hover:bg-slate-900 transition-colors">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={client.logoUrl}
                       alt={`${client.name} Client Logo`}

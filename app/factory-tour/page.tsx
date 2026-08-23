@@ -188,7 +188,6 @@ export default function FactoryTourPage() {
                   className="bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 hover:border-sky-500/50 transition-all duration-300 flex flex-col justify-between group shadow-sm"
                 >
                   <div className="relative aspect-4/3 overflow-hidden bg-slate-900">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={item.imageUrl}
                       alt={item.altText || item.caption}
