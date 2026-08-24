@@ -33,18 +33,48 @@ import {
   Layers,
   Sliders,
   Sparkles,
+  Wand2,
+  Zap,
+  Maximize2,
   ExternalLink,
   RefreshCw,
   Search,
   Code,
-  Copy
+  Copy,
+  Eye,
+  EyeOff,
+  AlertTriangle,
+  Loader2,
+  Lock
 } from 'lucide-react';
 import { SiteSettings, StatItem, FeatureItem, ProcessStepItem, TestimonialItem, ClientLogoItem } from '@/lib/types';
 
 export default function AdminSettingsPage() {
-  const [activeTab, setActiveTab] = useState<'brand' | 'contact' | 'homepage' | 'features' | 'testimonials' | 'about' | 'footer' | 'metrics' | 'seo'>('brand');
+  const [activeTab, setActiveTab] = useState<'brand' | 'images' | 'contact' | 'homepage' | 'features' | 'testimonials' | 'about' | 'footer' | 'metrics' | 'seo'>('brand');
   const [isGeneratingSitemap, setIsGeneratingSitemap] = useState<boolean>(false);
   const [sitemapStats, setSitemapStats] = useState<{ totalUrls?: number; counts?: any; generatedAt?: string } | null>(null);
+
+  // AI Product Image Processing Settings
+  const [imgAutoProcessing, setImgAutoProcessing] = useState<boolean>(true);
+  const [imgAutoBgRemoval, setImgAutoBgRemoval] = useState<boolean>(true);
+  const [imgAutoUpscaling, setImgAutoUpscaling] = useState<boolean>(true);
+  const [imgTargetRes, setImgTargetRes] = useState<number>(2000);
+  const [imgOutputFormat, setImgOutputFormat] = useState<'webp' | 'png' | 'avif'>('webp');
+  const [imgQuality, setImgQuality] = useState<'high' | 'very_high'>('high');
+  const [imgPaddingPercent, setImgPaddingPercent] = useState<number>(8);
+  const [imgBgRemovalProvider, setImgBgRemovalProvider] = useState<'none' | 'smart_ai' | 'remove_bg' | 'clipdrop' | 'replicate' | 'gemini'>('smart_ai');
+  const [imgUpscaleProvider, setImgUpscaleProvider] = useState<'none' | 'smart_ai' | 'sharp_lanczos' | 'waifu2x' | 'replicate'>('smart_ai');
+  const [imgBgApiKey, setImgBgApiKey] = useState<string>('');
+  const [imgUpscaleApiKey, setImgUpscaleApiKey] = useState<string>('');
+  const [hasStoredBgKey, setHasStoredBgKey] = useState<boolean>(false);
+  const [hasStoredUpscaleKey, setHasStoredUpscaleKey] = useState<boolean>(false);
+  const [bgKeyVisible, setBgKeyVisible] = useState<boolean>(false);
+  const [upscaleKeyVisible, setUpscaleKeyVisible] = useState<boolean>(false);
+  const [testingBg, setTestingBg] = useState<boolean>(false);
+  const [bgTestResult, setBgTestResult] = useState<{ success: boolean; status: string; message: string; latencyMs?: number } | null>(null);
+  const [testingUpscale, setTestingUpscale] = useState<boolean>(false);
+  const [upscaleTestResult, setUpscaleTestResult] = useState<{ success: boolean; status: string; message: string; latencyMs?: number } | null>(null);
+  const [imgPreserveOriginals, setImgPreserveOriginals] = useState<boolean>(true);
   
   // Factory Metrics & Trust Claims
   const [yearsExperience, setYearsExperience] = useState('15+ Years');
@@ -244,6 +274,22 @@ export default function AdminSettingsPage() {
             if (m.clientSectionTitle) setClientSectionTitle(m.clientSectionTitle);
           }
 
+          if (data.imageProcessing) {
+            const ip = data.imageProcessing;
+            if (ip.autoProcessing !== undefined) setImgAutoProcessing(ip.autoProcessing);
+            if (ip.autoBackgroundRemoval !== undefined) setImgAutoBgRemoval(ip.autoBackgroundRemoval);
+            if (ip.autoUpscaling !== undefined) setImgAutoUpscaling(ip.autoUpscaling);
+            if (ip.targetResolution) setImgTargetRes(ip.targetResolution);
+            if (ip.outputFormat) setImgOutputFormat(ip.outputFormat);
+            if (ip.quality) setImgQuality(ip.quality);
+            if (ip.paddingPercent !== undefined) setImgPaddingPercent(ip.paddingPercent);
+            if (ip.bgRemovalProvider) setImgBgRemovalProvider(ip.bgRemovalProvider);
+            if (ip.upscaleProvider) setImgUpscaleProvider(ip.upscaleProvider);
+            setHasStoredBgKey(Boolean(ip.hasBgRemovalApiKey));
+            setHasStoredUpscaleKey(Boolean(ip.hasUpscalingApiKey));
+            if (ip.preserveOriginals !== undefined) setImgPreserveOriginals(ip.preserveOriginals);
+          }
+
           if (data.seoDefaults) {
             if (data.seoDefaults.googleSiteVerification) setGoogleSiteVerification(data.seoDefaults.googleSiteVerification);
             if (data.seoDefaults.googleAnalyticsId) setGoogleAnalyticsId(data.seoDefaults.googleAnalyticsId);
@@ -293,6 +339,58 @@ export default function AdminSettingsPage() {
       setNotification({ type: 'error', message: 'An unexpected error occurred during image upload.' });
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleTestProvider = async (type: 'bg_removal' | 'upscaling') => {
+    if (type === 'bg_removal') {
+      setTestingBg(true);
+      setBgTestResult(null);
+      try {
+        const res = await fetch('/api/admin/images/test-provider', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'bg_removal',
+            provider: imgBgRemovalProvider,
+            apiKey: imgBgApiKey,
+          }),
+        });
+        const data = await res.json();
+        setBgTestResult(data);
+      } catch (err: any) {
+        setBgTestResult({
+          success: false,
+          status: 'unavailable',
+          message: `Connection test failed: ${err.message || 'Network error'}`,
+        });
+      } finally {
+        setTestingBg(false);
+      }
+    } else {
+      setTestingUpscale(true);
+      setUpscaleTestResult(null);
+      try {
+        const res = await fetch('/api/admin/images/test-provider', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'upscaling',
+            provider: imgUpscaleProvider,
+            apiKey: imgUpscaleApiKey,
+          }),
+        });
+        const data = await res.json();
+        setUpscaleTestResult(data);
+      } catch (err: any) {
+        setUpscaleTestResult({
+          success: false,
+          status: 'unavailable',
+          message: `Connection test failed: ${err.message || 'Network error'}`,
+        });
+      } finally {
+        setTestingUpscale(false);
+      }
     }
   };
 
@@ -383,6 +481,20 @@ export default function AdminSettingsPage() {
         clientSectionMode,
         clientSectionTitle,
       },
+      imageProcessing: {
+        autoProcessing: imgAutoProcessing,
+        autoBackgroundRemoval: imgAutoBgRemoval,
+        autoUpscaling: imgAutoUpscaling,
+        targetResolution: imgTargetRes,
+        outputFormat: imgOutputFormat,
+        quality: imgQuality,
+        paddingPercent: imgPaddingPercent,
+        bgRemovalProvider: imgBgRemovalProvider,
+        upscaleProvider: imgUpscaleProvider,
+        bgRemovalApiKey: imgBgApiKey,
+        upscalingApiKey: imgUpscaleApiKey,
+        preserveOriginals: imgPreserveOriginals,
+      },
       seoDefaults: {
         siteUrl: 'https://ltsbags.com',
         googleSiteVerification: (() => {
@@ -404,9 +516,17 @@ export default function AdminSettingsPage() {
       });
 
       if (res.ok) {
+        if (imgBgApiKey) {
+          setHasStoredBgKey(true);
+          setImgBgApiKey('');
+        }
+        if (imgUpscaleApiKey) {
+          setHasStoredUpscaleKey(true);
+          setImgUpscaleApiKey('');
+        }
         setNotification({ 
           type: 'success', 
-          message: 'Website content updated successfully! All public pages and components have been updated automatically.' 
+          message: 'Website settings & image processing configuration updated successfully!' 
         });
       } else {
         const errorData = await res.json();
@@ -598,6 +718,18 @@ export default function AdminSettingsPage() {
             </button>
 
             <button
+              onClick={() => setActiveTab('images')}
+              className={`px-4 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                activeTab === 'images'
+                  ? 'bg-amber-600 text-white shadow-sm ring-2 ring-amber-400/50'
+                  : 'text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200/60'
+              }`}
+            >
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              <span>AI Product Image Studio</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('contact')}
               className={`px-4 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
                 activeTab === 'contact'
@@ -693,6 +825,634 @@ export default function AdminSettingsPage() {
               <span>SEO &amp; XML Sitemap</span>
             </button>
           </div>
+
+          {/* TAB: AI Product Image Studio Settings */}
+          {activeTab === 'images' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <div className="lg:col-span-8 space-y-6">
+                
+                {/* 1. Core Automation Pipeline */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-6">
+                  <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="p-1.5 bg-amber-100 text-amber-700 rounded-lg">
+                        <Sparkles className="w-4 h-4" />
+                      </span>
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900 font-serif">
+                          Automatic AI Pipeline Controls
+                        </h3>
+                        <p className="text-slate-500 text-xs mt-0.5">
+                          Configure automated image processing when admin uploads new product photos.
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold bg-amber-500/10 text-amber-800 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                      v2.4 Auto Pipeline
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Master Auto Processing Toggle */}
+                    <div className={`p-4 rounded-xl border transition-all ${imgAutoProcessing ? 'bg-amber-50/50 border-amber-200' : 'bg-slate-50 border-slate-200'}`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <Zap className={`w-5 h-5 ${imgAutoProcessing ? 'text-amber-600' : 'text-slate-400'}`} />
+                          <div>
+                            <div className="font-bold text-xs text-slate-900">Auto Process on Upload</div>
+                            <div className="text-[11px] text-slate-500">Run AI pipeline automatically</div>
+                          </div>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={imgAutoProcessing}
+                          onChange={(e) => setImgAutoProcessing(e.target.checked)}
+                          className="w-5 h-5 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Auto Background Removal */}
+                    <div className={`p-4 rounded-xl border transition-all ${imgAutoBgRemoval ? 'bg-amber-50/50 border-amber-200' : 'bg-slate-50 border-slate-200'}`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <Sparkles className={`w-5 h-5 ${imgAutoBgRemoval ? 'text-amber-600' : 'text-slate-400'}`} />
+                          <div>
+                            <div className="font-bold text-xs text-slate-900">Auto Background Removal</div>
+                            <div className="text-[11px] text-slate-500">Extract bag subject & feather edges</div>
+                          </div>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={imgAutoBgRemoval}
+                          onChange={(e) => setImgAutoBgRemoval(e.target.checked)}
+                          className="w-5 h-5 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Auto Upscaling */}
+                    <div className={`p-4 rounded-xl border transition-all ${imgAutoUpscaling ? 'bg-amber-50/50 border-amber-200' : 'bg-slate-50 border-slate-200'}`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <Maximize2 className={`w-5 h-5 ${imgAutoUpscaling ? 'text-amber-600' : 'text-slate-400'}`} />
+                          <div>
+                            <div className="font-bold text-xs text-slate-900">Auto 2000px+ Upscaling</div>
+                            <div className="text-[11px] text-slate-500">Lanczos3 multi-pass super-resolution</div>
+                          </div>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={imgAutoUpscaling}
+                          onChange={(e) => setImgAutoUpscaling(e.target.checked)}
+                          className="w-5 h-5 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Preserve Original Uploads */}
+                    <div className={`p-4 rounded-xl border transition-all ${imgPreserveOriginals ? 'bg-emerald-50/50 border-emerald-200' : 'bg-slate-50 border-slate-200'}`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <ShieldCheck className={`w-5 h-5 ${imgPreserveOriginals ? 'text-emerald-600' : 'text-slate-400'}`} />
+                          <div>
+                            <div className="font-bold text-xs text-slate-900">Preserve Original Files</div>
+                            <div className="text-[11px] text-slate-500">Never overwrite raw uploads</div>
+                          </div>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={imgPreserveOriginals}
+                          onChange={(e) => setImgPreserveOriginals(e.target.checked)}
+                          className="w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Output Formatting & Dimension Targets */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-6">
+                  <div className="border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="p-1.5 bg-sky-100 text-sky-700 rounded-lg">
+                        <Sliders className="w-4 h-4" />
+                      </span>
+                      <h3 className="text-lg font-bold text-slate-900 font-serif">
+                        Resolution &amp; Quality Specifications
+                      </h3>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {/* Target Resolution */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Default Target Resolution (Square Canvas)
+                      </label>
+                      <select
+                        value={imgTargetRes}
+                        onChange={(e) => setImgTargetRes(Number(e.target.value))}
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:ring-2 focus:ring-amber-500"
+                      >
+                        <option value={1600}>1600 x 1600 px (Fast Web)</option>
+                        <option value={2000}>2000 x 2000 px (E-commerce Standard ★)</option>
+                        <option value={2400}>2400 x 2400 px (Ultra HD Zoom)</option>
+                        <option value={3000}>3000 x 3000 px (Catalog Print Grade)</option>
+                      </select>
+                      <p className="text-[11px] text-slate-500">
+                        Product will be centered on transparent canvas with uniform margins.
+                      </p>
+                    </div>
+
+                    {/* Output Format */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Web Production Output Format
+                      </label>
+                      <select
+                        value={imgOutputFormat}
+                        onChange={(e) => setImgOutputFormat(e.target.value as any)}
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:ring-2 focus:ring-amber-500"
+                      >
+                        <option value="webp">WebP (Transparent, Recommended 80% Smaller)</option>
+                        <option value="png">PNG (Lossless Alpha Transparency)</option>
+                        <option value="avif">AVIF (Next-Gen High Efficiency)</option>
+                      </select>
+                      <p className="text-[11px] text-slate-500">
+                        WebP delivers lightning-fast loading for wholesale catalog buyers.
+                      </p>
+                    </div>
+
+                    {/* Product Margin / Padding */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-slate-700">
+                          Product Margin / Breathing Room
+                        </label>
+                        <span className="font-mono font-bold text-xs text-amber-700 bg-amber-100 px-2 py-0.5 rounded">
+                          {imgPaddingPercent}%
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="2"
+                        max="20"
+                        step="1"
+                        value={imgPaddingPercent}
+                        onChange={(e) => setImgPaddingPercent(Number(e.target.value))}
+                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
+                      />
+                      <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+                        <span>Tight (2%)</span>
+                        <span>Standard (8%)</span>
+                        <span>Spacious (20%)</span>
+                      </div>
+                    </div>
+
+                    {/* Quality Level */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Compression Sharpness Quality
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setImgQuality('high')}
+                          className={`py-2 px-3 rounded-lg border text-xs font-bold transition-all ${
+                            imgQuality === 'high'
+                              ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                          }`}
+                        >
+                          High (Optimal ~350KB)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setImgQuality('very_high')}
+                          className={`py-2 px-3 rounded-lg border text-xs font-bold transition-all ${
+                            imgQuality === 'very_high'
+                              ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                          }`}
+                        >
+                          Very High (Pristine ~750KB)
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Provider / AI Engine Settings */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-6">
+                  <div className="border-b border-slate-100 pb-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <span className="p-2 bg-purple-50 text-purple-700 rounded-xl border border-purple-100">
+                          <Wand2 className="w-5 h-5" />
+                        </span>
+                        <div>
+                          <h3 className="text-base font-bold text-slate-900 font-serif">
+                            AI Provider &amp; Engine Configuration
+                          </h3>
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            Configure background removal and neural upscaling engines. All external AI providers are completely optional.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Background Removal Provider Card */}
+                    <div className="bg-slate-50/70 border border-slate-200 rounded-xl p-5 space-y-4">
+                      <div className="flex items-center justify-between border-b border-slate-200/60 pb-3">
+                        <div className="flex items-center gap-2">
+                          <Layers className="w-4 h-4 text-purple-600" />
+                          <span className="text-xs font-bold text-slate-800 uppercase tracking-wide">
+                            Background Removal
+                          </span>
+                        </div>
+                        {(() => {
+                          const isConfigured =
+                            imgBgRemovalProvider === 'smart_ai' ||
+                            (imgBgRemovalProvider !== 'none' && (hasStoredBgKey || imgBgApiKey.trim().length > 0));
+                          return isConfigured ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Configured
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                              <AlertCircle className="w-3.5 h-3.5 text-slate-400" /> Not Configured
+                            </span>
+                          );
+                        })()}
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">
+                          Provider Engine
+                        </label>
+                        <select
+                          value={imgBgRemovalProvider}
+                          onChange={(e) => {
+                            setImgBgRemovalProvider(e.target.value as any);
+                            setBgTestResult(null);
+                          }}
+                          className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:ring-2 focus:ring-amber-500 font-medium"
+                        >
+                          <option value="none">Disabled / Not Configured</option>
+                          <option value="smart_ai">Built-in Smart Edge CV (Server Sharp, No Key Required ★)</option>
+                          <option value="remove_bg">Remove.bg API (Cloud Service)</option>
+                          <option value="clipdrop">ClipDrop API (Cloud Service)</option>
+                          <option value="replicate">Replicate Rembg (Cloud Service)</option>
+                          <option value="gemini">Google Gemini Vision</option>
+                        </select>
+                      </div>
+
+                      {imgBgRemovalProvider !== 'none' && imgBgRemovalProvider !== 'smart_ai' && (
+                        <div className="space-y-1.5 pt-1">
+                          <div className="flex items-center justify-between">
+                            <label className="block text-[11px] font-bold text-slate-700">
+                              {imgBgRemovalProvider.toUpperCase()} API Key
+                            </label>
+                            {hasStoredBgKey && !imgBgApiKey && (
+                              <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">
+                                <Lock className="w-2.5 h-2.5" /> Key Saved in DB
+                              </span>
+                            )}
+                          </div>
+                          <div className="relative">
+                            <input
+                              type={bgKeyVisible ? 'text' : 'password'}
+                              value={imgBgApiKey}
+                              onChange={(e) => {
+                                setImgBgApiKey(e.target.value);
+                                setBgTestResult(null);
+                              }}
+                              placeholder={
+                                hasStoredBgKey
+                                  ? '•••••••••••••••• (Leave blank to keep saved key)'
+                                  : 'Paste API Key (e.g. sk_live_...)'
+                              }
+                              className="w-full bg-white border border-slate-300 rounded-xl pl-3.5 pr-10 py-2.5 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-amber-500"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setBgKeyVisible(!bgKeyVisible)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+                            >
+                              {bgKeyVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                          {hasStoredBgKey && (
+                            <div className="flex items-center justify-between text-[10px] text-slate-500 px-1 pt-0.5">
+                              <span>Never displays full secret key for security.</span>
+                              {imgBgApiKey && (
+                                <button
+                                  type="button"
+                                  onClick={() => setImgBgApiKey('')}
+                                  className="text-amber-700 hover:underline font-semibold"
+                                >
+                                  Revert to Saved Key
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Test Connection Button & Status */}
+                      <div className="pt-2 border-t border-slate-200/60 space-y-2">
+                        <button
+                          type="button"
+                          onClick={() => handleTestProvider('bg_removal')}
+                          disabled={testingBg}
+                          className="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold transition-all shadow-2xs hover:border-slate-400 disabled:opacity-60"
+                        >
+                          {testingBg ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600" />
+                              <span>Testing Connection...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Zap className="w-3.5 h-3.5 text-purple-600" />
+                              <span>Test Background Removal Connection</span>
+                            </>
+                          )}
+                        </button>
+
+                        {bgTestResult && (
+                          <div
+                            className={`p-3 rounded-xl text-xs flex items-start gap-2.5 border ${
+                              bgTestResult.status === 'connected'
+                                ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                                : bgTestResult.status === 'invalid_key'
+                                ? 'bg-rose-50 border-rose-200 text-rose-800'
+                                : bgTestResult.status === 'unavailable'
+                                ? 'bg-amber-50 border-amber-200 text-amber-800'
+                                : 'bg-slate-100 border-slate-200 text-slate-700'
+                            }`}
+                          >
+                            {bgTestResult.status === 'connected' ? (
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                            ) : bgTestResult.status === 'invalid_key' ? (
+                              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                            ) : bgTestResult.status === 'unavailable' ? (
+                              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                            ) : (
+                              <AlertCircle className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+                            )}
+                            <div className="space-y-0.5">
+                              <p className="font-bold text-[11px] uppercase tracking-wider">
+                                {bgTestResult.status === 'connected'
+                                  ? 'Connected Successfully'
+                                  : bgTestResult.status === 'invalid_key'
+                                  ? 'Invalid API Key'
+                                  : bgTestResult.status === 'unavailable'
+                                  ? 'Provider Unavailable'
+                                  : 'Not Configured'}
+                              </p>
+                              <p className="text-xs leading-relaxed">{bgTestResult.message}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Upscaling & Centering Provider Card */}
+                    <div className="bg-slate-50/70 border border-slate-200 rounded-xl p-5 space-y-4">
+                      <div className="flex items-center justify-between border-b border-slate-200/60 pb-3">
+                        <div className="flex items-center gap-2">
+                          <Maximize2 className="w-4 h-4 text-amber-600" />
+                          <span className="text-xs font-bold text-slate-800 uppercase tracking-wide">
+                            Super-Resolution &amp; Centering
+                          </span>
+                        </div>
+                        {(() => {
+                          const isConfigured =
+                            imgUpscaleProvider === 'sharp_lanczos' ||
+                            imgUpscaleProvider === 'smart_ai' ||
+                            (imgUpscaleProvider !== 'none' && (hasStoredUpscaleKey || imgUpscaleApiKey.trim().length > 0));
+                          return isConfigured ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Configured
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                              <AlertCircle className="w-3.5 h-3.5 text-slate-400" /> Not Configured
+                            </span>
+                          );
+                        })()}
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">
+                          Upscaling Engine
+                        </label>
+                        <select
+                          value={imgUpscaleProvider}
+                          onChange={(e) => {
+                            setImgUpscaleProvider(e.target.value as any);
+                            setUpscaleTestResult(null);
+                          }}
+                          className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:ring-2 focus:ring-amber-500 font-medium"
+                        >
+                          <option value="none">Disabled / Not Configured</option>
+                          <option value="sharp_lanczos">Multi-Pass Lanczos3 &amp; Centering (Built-in Sharp, No Key Required ★)</option>
+                          <option value="smart_ai">Smart AI Super-Resolution (Built-in Sharp)</option>
+                          <option value="waifu2x">Waifu2x Neural Upscaler API</option>
+                          <option value="replicate">Replicate Real-ESRGAN (Cloud Service)</option>
+                        </select>
+                      </div>
+
+                      {(imgUpscaleProvider === 'replicate' || imgUpscaleProvider === 'waifu2x') && (
+                        <div className="space-y-1.5 pt-1">
+                          <div className="flex items-center justify-between">
+                            <label className="block text-[11px] font-bold text-slate-700">
+                              {imgUpscaleProvider.toUpperCase()} API Key
+                            </label>
+                            {hasStoredUpscaleKey && !imgUpscaleApiKey && (
+                              <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">
+                                <Lock className="w-2.5 h-2.5" /> Key Saved in DB
+                              </span>
+                            )}
+                          </div>
+                          <div className="relative">
+                            <input
+                              type={upscaleKeyVisible ? 'text' : 'password'}
+                              value={imgUpscaleApiKey}
+                              onChange={(e) => {
+                                setImgUpscaleApiKey(e.target.value);
+                                setUpscaleTestResult(null);
+                              }}
+                              placeholder={
+                                hasStoredUpscaleKey
+                                  ? '•••••••••••••••• (Leave blank to keep saved key)'
+                                  : 'Paste API Key (e.g. r8_...)'
+                              }
+                              className="w-full bg-white border border-slate-300 rounded-xl pl-3.5 pr-10 py-2.5 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-amber-500"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setUpscaleKeyVisible(!upscaleKeyVisible)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+                            >
+                              {upscaleKeyVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                          {hasStoredUpscaleKey && (
+                            <div className="flex items-center justify-between text-[10px] text-slate-500 px-1 pt-0.5">
+                              <span>Never displays full secret key for security.</span>
+                              {imgUpscaleApiKey && (
+                                <button
+                                  type="button"
+                                  onClick={() => setImgUpscaleApiKey('')}
+                                  className="text-amber-700 hover:underline font-semibold"
+                                >
+                                  Revert to Saved Key
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Test Connection Button & Status */}
+                      <div className="pt-2 border-t border-slate-200/60 space-y-2">
+                        <button
+                          type="button"
+                          onClick={() => handleTestProvider('upscaling')}
+                          disabled={testingUpscale}
+                          className="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold transition-all shadow-2xs hover:border-slate-400 disabled:opacity-60"
+                        >
+                          {testingUpscale ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600" />
+                              <span>Testing Connection...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Zap className="w-3.5 h-3.5 text-amber-600" />
+                              <span>Test Upscaling Engine Connection</span>
+                            </>
+                          )}
+                        </button>
+
+                        {upscaleTestResult && (
+                          <div
+                            className={`p-3 rounded-xl text-xs flex items-start gap-2.5 border ${
+                              upscaleTestResult.status === 'connected'
+                                ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                                : upscaleTestResult.status === 'invalid_key'
+                                ? 'bg-rose-50 border-rose-200 text-rose-800'
+                                : upscaleTestResult.status === 'unavailable'
+                                ? 'bg-amber-50 border-amber-200 text-amber-800'
+                                : 'bg-slate-100 border-slate-200 text-slate-700'
+                            }`}
+                          >
+                            {upscaleTestResult.status === 'connected' ? (
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                            ) : upscaleTestResult.status === 'invalid_key' ? (
+                              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                            ) : upscaleTestResult.status === 'unavailable' ? (
+                              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                            ) : (
+                              <AlertCircle className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+                            )}
+                            <div className="space-y-0.5">
+                              <p className="font-bold text-[11px] uppercase tracking-wider">
+                                {upscaleTestResult.status === 'connected'
+                                  ? 'Connected Successfully'
+                                  : upscaleTestResult.status === 'invalid_key'
+                                  ? 'Invalid API Key'
+                                  : upscaleTestResult.status === 'unavailable'
+                                  ? 'Provider Unavailable'
+                                  : 'Not Configured'}
+                              </p>
+                              <p className="text-xs leading-relaxed">{upscaleTestResult.message}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Sidebar Guide & Status */}
+              <div className="lg:col-span-4 space-y-6">
+                {/* Engine Health Status */}
+                <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <h4 className="font-bold text-xs text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Pipeline Engine Status
+                    </h4>
+                    <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      Operational
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5 text-xs text-slate-600 font-sans">
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
+                      <span className="font-semibold text-slate-700">Sharp Image Core</span>
+                      <span className="font-mono text-emerald-600 font-bold text-[11px]">Ready (v0.34)</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
+                      <span className="font-semibold text-slate-700">Auto Edge Matting</span>
+                      <span className="font-mono text-emerald-600 font-bold text-[11px]">Active</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
+                      <span className="font-semibold text-slate-700">WebP Generation</span>
+                      <span className="font-mono text-emerald-600 font-bold text-[11px]">Auto Enabled</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
+                      <span className="font-semibold text-slate-700">Original Preservation</span>
+                      <span className="font-mono text-sky-600 font-bold text-[11px]">Enforced (/public/uploads/original)</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Workflow Summary */}
+                <div className="bg-slate-900 text-slate-200 rounded-2xl p-5 border border-slate-800 space-y-3">
+                  <h4 className="font-bold text-xs text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" /> How the Pipeline Works
+                  </h4>
+                  <div className="space-y-2 text-[11px] leading-relaxed text-slate-300">
+                    <div className="flex items-start gap-2">
+                      <span className="font-bold text-amber-400">1.</span>
+                      <span><strong>Upload &amp; Save:</strong> Raw image is safely stored in <code className="text-amber-200 font-mono">/public/uploads/original/</code></span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-bold text-amber-400">2.</span>
+                      <span><strong>AI Isolation:</strong> Extracts the bag silhouette, eliminating messy factory studio backgrounds.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-bold text-amber-400">3.</span>
+                      <span><strong>Upscale &amp; Center:</strong> Expands to 2000px+ with 8% margin on clean transparent canvas.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-bold text-amber-400">4.</span>
+                      <span><strong>WebP Variants:</strong> Builds multi-resolution derivatives (<code className="text-amber-200 font-mono">web</code>, <code className="text-amber-200 font-mono">thumbnail</code>, <code className="text-amber-200 font-mono">small</code>).</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-bold text-amber-400">5.</span>
+                      <span><strong>Admin Preview &amp; Approval:</strong> Admin reviews processed vs. original comparison slider before committing to catalog.</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 text-amber-900 text-xs space-y-1">
+                  <div className="font-bold">Need custom photo shooting guidance?</div>
+                  <div className="text-[11px] leading-relaxed text-amber-800">
+                    For best automatic cutout results, place sample bags on a plain neutral tabletop or white poster board with even lighting.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* TAB 1: Brand & Logo */}
           {activeTab === 'brand' && (

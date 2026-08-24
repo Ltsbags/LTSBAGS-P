@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import AdminHeader from '@/components/AdminHeader';
 import ImageUploader from '@/components/ImageUploader';
-import { Product, Category } from '@/lib/types';
+import ProductImageStudio from '@/components/ProductImageStudio';
+import { Product, Category, ProcessedProductImage } from '@/lib/types';
 import { 
   Package, 
   Plus, 
@@ -25,7 +26,9 @@ import {
   EyeOff,
   Download,
   Filter,
-  Tag
+  Tag,
+  Sparkles,
+  Star
 } from 'lucide-react';
 
 export default function AdminProductsPage() {
@@ -202,9 +205,32 @@ export default function AdminProductsPage() {
     setEditingProduct({ ...editingProduct, images: [...current, ''] });
   };
 
-  const handleUpdateGalleryImage = (index: number, value: string) => {
+  const handleUpdateGalleryImage = (index: number, value: string, processedItem?: ProcessedProductImage) => {
     const current = [...(editingProduct?.images || [])];
     current[index] = value;
+    
+    let updatedGalleryItems = [...(editingProduct?.galleryImages || [])];
+    if (processedItem) {
+      const existingIdx = updatedGalleryItems.findIndex((g) => g.id === processedItem.id);
+      if (existingIdx >= 0) {
+        updatedGalleryItems[existingIdx] = processedItem;
+      } else {
+        updatedGalleryItems.push(processedItem);
+      }
+    }
+
+    setEditingProduct({ 
+      ...editingProduct, 
+      images: current,
+      galleryImages: updatedGalleryItems.length > 0 ? updatedGalleryItems : editingProduct?.galleryImages,
+    });
+  };
+
+  const handleSetPrimaryImage = (index: number) => {
+    if (!editingProduct?.images || index === 0) return;
+    const current = [...editingProduct.images];
+    const target = current.splice(index, 1)[0];
+    current.unshift(target);
     setEditingProduct({ ...editingProduct, images: current });
   };
 
@@ -610,44 +636,78 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* 2. Featured & Gallery Images */}
+              {/* 2. Featured & Gallery Images with AI Studio */}
               <div className="space-y-4 pt-2">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                  <h3 className="font-bold text-white font-serif text-sm">
-                    2. Product Images (Featured & Gallery)
-                  </h3>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-2 gap-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <div>
+                      <h3 className="font-bold text-white font-serif text-sm">
+                        2. AI Product Images & Studio (Master & Gallery)
+                      </h3>
+                      <p className="text-[11px] text-slate-400">
+                        Automatic background removal, 2000px upscaling, edge matting & transparent WebP
+                      </p>
+                    </div>
+                  </div>
                   <button
                     type="button"
                     onClick={handleAddGalleryImage}
-                    className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold px-3 py-1.5 rounded-lg text-[11px] transition-colors flex items-center gap-1 border border-amber-500/30"
+                    className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold px-3 py-1.5 rounded-lg text-[11px] transition-colors flex items-center gap-1 border border-amber-500/30 self-start sm:self-auto"
                   >
                     <Plus className="w-3.5 h-3.5" /> Add Gallery Image Slot
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {(editingProduct.images || ['']).map((imgUrl, idx) => (
                     <div key={idx} className="relative bg-slate-950 p-3 rounded-xl border border-slate-800 flex flex-col justify-between space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-xs text-slate-300">
-                          {idx === 0 ? '★ Featured Main Image *' : `Gallery Image #${idx + 1}`}
-                        </span>
-                        {idx > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveGalleryImage(idx)}
-                            className="text-red-400 hover:text-red-300 text-xs font-bold flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-red-950/40"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" /> Remove
-                          </button>
-                        )}
+                        <div className="flex items-center gap-1.5">
+                          {idx === 0 ? (
+                            <span className="font-black text-xs text-amber-300 flex items-center gap-1">
+                              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                              Primary Featured Image
+                            </span>
+                          ) : (
+                            <span className="font-bold text-xs text-slate-300">
+                              Gallery Image #{idx + 1}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          {idx > 0 && imgUrl && (
+                            <button
+                              type="button"
+                              onClick={() => handleSetPrimaryImage(idx)}
+                              className="text-amber-400 hover:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30"
+                              title="Set as Main Featured Image"
+                            >
+                              Make Main
+                            </button>
+                          )}
+                          {idx > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveGalleryImage(idx)}
+                              className="text-red-400 hover:text-red-300 text-xs font-bold flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-red-950/40"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
                       </div>
 
-                      <ImageUploader
+                      <ProductImageStudio
                         value={imgUrl}
-                        onChange={(url) => handleUpdateGalleryImage(idx, url)}
-                        aspectRatio="square"
-                        label=""
+                        imageItem={editingProduct.galleryImages?.[idx]}
+                        onChange={(url, processed) => handleUpdateGalleryImage(idx, url, processed)}
+                        onRemove={idx > 0 ? () => handleRemoveGalleryImage(idx) : undefined}
+                        productName={editingProduct.name || 'B2B Bag'}
+                        categoryName={editingProduct.categoryName || 'Custom Bags'}
+                        isPrimary={idx === 0}
+                        label={idx === 0 ? 'Master Product Shot' : `Angle #${idx + 1}`}
                       />
                     </div>
                   ))}

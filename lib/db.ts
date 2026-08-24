@@ -2133,6 +2133,20 @@ export const db = {
       about: { ...INITIAL_SETTINGS.about, ...(raw.about || {}) },
       footer: { ...INITIAL_SETTINGS.footer, ...(raw.footer || {}) },
       seoDefaults: { ...INITIAL_SETTINGS.seoDefaults, ...(raw.seoDefaults || {}) },
+      imageProcessing: {
+        autoProcessing: raw.imageProcessing?.autoProcessing ?? true,
+        autoBackgroundRemoval: raw.imageProcessing?.autoBackgroundRemoval ?? true,
+        autoUpscaling: raw.imageProcessing?.autoUpscaling ?? true,
+        targetResolution: raw.imageProcessing?.targetResolution || 2000,
+        outputFormat: raw.imageProcessing?.outputFormat || 'webp',
+        quality: raw.imageProcessing?.quality || 'high',
+        paddingPercent: raw.imageProcessing?.paddingPercent !== undefined ? raw.imageProcessing.paddingPercent : 8,
+        bgRemovalProvider: raw.imageProcessing?.bgRemovalProvider || 'smart_ai',
+        upscaleProvider: raw.imageProcessing?.upscaleProvider || 'smart_ai',
+        bgRemovalApiKey: raw.imageProcessing?.bgRemovalApiKey || '',
+        upscalingApiKey: raw.imageProcessing?.upscalingApiKey || '',
+        preserveOriginals: raw.imageProcessing?.preserveOriginals ?? true,
+      },
     };
 
     // Auto-clean old relative /uploads/ paths that break in Cloud Run static server
@@ -2146,9 +2160,52 @@ export const db = {
   updateSettings(newSettings: Partial<SiteSettings>): SiteSettings {
     const data = ensureDataFile();
     const current = data.settings || INITIAL_SETTINGS;
+
+    let mergedImageProcessing = current.imageProcessing;
+    if (newSettings.imageProcessing) {
+      const incoming = newSettings.imageProcessing;
+      const currentIp = current.imageProcessing || {
+        autoProcessing: true,
+        autoBackgroundRemoval: true,
+        autoUpscaling: true,
+        targetResolution: 2000,
+        outputFormat: 'webp',
+        quality: 'high',
+        paddingPercent: 8,
+        bgRemovalProvider: 'smart_ai',
+        upscaleProvider: 'smart_ai',
+        bgRemovalApiKey: '',
+        upscalingApiKey: '',
+        preserveOriginals: true,
+      };
+
+      // Preserve existing key if mask string or not provided
+      const resolvedBgKey =
+        incoming.bgRemovalApiKey === undefined ||
+        incoming.bgRemovalApiKey === '••••••••' ||
+        incoming.bgRemovalApiKey === '••••••••••••••••'
+          ? currentIp.bgRemovalApiKey
+          : incoming.bgRemovalApiKey;
+
+      const resolvedUpscaleKey =
+        incoming.upscalingApiKey === undefined ||
+        incoming.upscalingApiKey === '••••••••' ||
+        incoming.upscalingApiKey === '••••••••••••••••'
+          ? currentIp.upscalingApiKey
+          : incoming.upscalingApiKey;
+
+      mergedImageProcessing = {
+        ...currentIp,
+        ...incoming,
+        bgRemovalApiKey: resolvedBgKey,
+        upscalingApiKey: resolvedUpscaleKey,
+      };
+    }
+
     const updated: SiteSettings = {
       ...current,
       ...newSettings,
+      imageProcessing: mergedImageProcessing,
       updatedAt: new Date().toISOString(),
     };
     data.settings = updated;

@@ -5,8 +5,37 @@ import { requireAdminAuth, logAuditActivity } from '@/lib/auth';
 
 export async function GET() {
   try {
-    const settings = db.getSettings();
-    return NextResponse.json(settings);
+    const rawSettings = db.getSettings();
+    
+    // Mask sensitive API keys before sending to browser
+    const sanitizedSettings = {
+      ...rawSettings,
+      imageProcessing: rawSettings.imageProcessing
+        ? {
+            ...rawSettings.imageProcessing,
+            hasBgRemovalApiKey: Boolean(
+              rawSettings.imageProcessing.bgRemovalApiKey || process.env.BACKGROUND_REMOVAL_API_KEY
+            ),
+            hasUpscalingApiKey: Boolean(
+              rawSettings.imageProcessing.upscalingApiKey || process.env.UPSCALING_API_KEY
+            ),
+            bgRemovalApiKeyMasked: rawSettings.imageProcessing.bgRemovalApiKey
+              ? '••••••••••••••••'
+              : process.env.BACKGROUND_REMOVAL_API_KEY
+              ? '•••••••• (From .env)'
+              : '',
+            upscalingApiKeyMasked: rawSettings.imageProcessing.upscalingApiKey
+              ? '••••••••••••••••'
+              : process.env.UPSCALING_API_KEY
+              ? '•••••••• (From .env)'
+              : '',
+            bgRemovalApiKey: '', // never expose raw key
+            upscalingApiKey: '', // never expose raw key
+          }
+        : undefined,
+    };
+
+    return NextResponse.json(sanitizedSettings);
   } catch (error) {
     console.error('API Error fetching settings:', error);
     return NextResponse.json(

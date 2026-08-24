@@ -293,6 +293,64 @@ export interface Certification {
   updatedAt?: string;
 }
 
+export type ImageProcessingStatus = 
+  | 'pending' 
+  | 'uploading' 
+  | 'removing_background' 
+  | 'cleaning_edges' 
+  | 'upscaling' 
+  | 'optimizing' 
+  | 'completed' 
+  | 'failed';
+
+export interface ProcessedProductImage {
+  id: string;
+  productId?: string;
+  originalUrl: string;
+  processedUrl: string;
+  webUrl: string;
+  thumbnailUrl: string;
+  smallThumbnailUrl?: string;
+  altText: string;
+  fileName: string;
+  isPrimary: boolean;
+  sortOrder: number;
+  processingStatus: ImageProcessingStatus;
+  error?: string;
+  dimensions?: {
+    width: number;
+    height: number;
+  };
+  fileSize?: number;
+  mimeType?: string;
+  hasTransparency?: boolean;
+  bgRemovalApplied?: boolean;
+  upscalingApplied?: boolean;
+  bgRemovalProvider?: string;
+  upscaleProvider?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ImageProcessingSettings {
+  autoProcessing: boolean;
+  autoBackgroundRemoval: boolean;
+  autoUpscaling: boolean;
+  targetResolution: number; // e.g. 2000 or 3000
+  outputFormat: 'webp' | 'png' | 'avif';
+  quality: 'high' | 'very_high';
+  paddingPercent: number; // e.g. 8 (5-10%)
+  bgRemovalProvider: 'none' | 'smart_ai' | 'remove_bg' | 'clipdrop' | 'replicate' | 'gemini';
+  upscaleProvider: 'none' | 'smart_ai' | 'sharp_lanczos' | 'waifu2x' | 'replicate';
+  bgRemovalApiKey?: string;
+  upscalingApiKey?: string;
+  hasBgRemovalApiKey?: boolean;
+  hasUpscalingApiKey?: boolean;
+  bgRemovalApiKeyMasked?: string;
+  upscalingApiKeyMasked?: string;
+  preserveOriginals: boolean;
+}
+
 export interface SiteSettings {
   logoUrl?: string;
   logoText?: string;
@@ -306,6 +364,7 @@ export interface SiteSettings {
   homepage?: HomepageContent;
   about?: AboutPageContent;
   footer?: FooterContent;
+  imageProcessing?: ImageProcessingSettings;
   seoDefaults?: {
     defaultMetaTitle?: string;
     defaultMetaDescription?: string;
@@ -371,6 +430,7 @@ export interface Product {
   categoryName?: string;
   subcategory?: string;
   images: string[];
+  galleryImages?: ProcessedProductImage[];
   featuredImage?: string;
   videoUrl?: string;
   shortDesc: string;
