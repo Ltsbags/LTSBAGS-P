@@ -45,7 +45,8 @@ import {
   EyeOff,
   AlertTriangle,
   Loader2,
-  Lock
+  Lock,
+  Info
 } from 'lucide-react';
 import { SiteSettings, StatItem, FeatureItem, ProcessStepItem, TestimonialItem, ClientLogoItem } from '@/lib/types';
 
@@ -1089,6 +1090,18 @@ export default function AdminSettingsPage() {
                         })()}
                       </div>
 
+                      {/* Explicit Local vs External Status Indicators */}
+                      <div className="grid grid-cols-2 gap-2 bg-white rounded-lg p-2.5 border border-slate-200 text-[11px]">
+                        <div className="flex items-center gap-1.5 text-slate-700">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span><strong>Local/Built-in:</strong> <span className="text-emerald-700 font-semibold">Available</span></span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-slate-700">
+                          <Info className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                          <span><strong>External Provider:</strong> <span className="text-slate-600 font-medium">{hasStoredBgKey ? 'Configured (Optional)' : 'Optional'}</span></span>
+                        </div>
+                      </div>
+
                       <div className="space-y-1.5">
                         <label className="block text-xs font-bold text-slate-700">
                           Provider Engine
@@ -1101,12 +1114,12 @@ export default function AdminSettingsPage() {
                           }}
                           className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:ring-2 focus:ring-amber-500 font-medium"
                         >
-                          <option value="none">Disabled / Not Configured</option>
                           <option value="smart_ai">Built-in Smart Edge CV (Server Sharp, No Key Required ★)</option>
-                          <option value="remove_bg">Remove.bg API (Cloud Service)</option>
-                          <option value="clipdrop">ClipDrop API (Cloud Service)</option>
-                          <option value="replicate">Replicate Rembg (Cloud Service)</option>
-                          <option value="gemini">Google Gemini Vision</option>
+                          <option value="none">Disabled</option>
+                          <option value="remove_bg">Remove.bg API (Cloud Service - Optional)</option>
+                          <option value="clipdrop">ClipDrop API (Cloud Service - Optional)</option>
+                          <option value="replicate">Replicate Rembg (Cloud Service - Optional)</option>
+                          <option value="gemini">Google Gemini Vision (Optional)</option>
                         </select>
                       </div>
 
@@ -1114,7 +1127,7 @@ export default function AdminSettingsPage() {
                         <div className="space-y-1.5 pt-1">
                           <div className="flex items-center justify-between">
                             <label className="block text-[11px] font-bold text-slate-700">
-                              {imgBgRemovalProvider.toUpperCase()} API Key
+                              {imgBgRemovalProvider.toUpperCase()} API Key <span className="text-slate-400 font-normal">(Optional)</span>
                             </label>
                             {hasStoredBgKey && !imgBgApiKey && (
                               <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">
@@ -1247,6 +1260,18 @@ export default function AdminSettingsPage() {
                         })()}
                       </div>
 
+                      {/* Explicit Local vs External Status Indicators */}
+                      <div className="grid grid-cols-2 gap-2 bg-white rounded-lg p-2.5 border border-slate-200 text-[11px]">
+                        <div className="flex items-center gap-1.5 text-slate-700">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span><strong>Local/Built-in:</strong> <span className="text-emerald-700 font-semibold">Available</span></span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-slate-700">
+                          <Info className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                          <span><strong>External Provider:</strong> <span className="text-slate-600 font-medium">{hasStoredUpscaleKey ? 'Configured (Optional)' : 'Optional'}</span></span>
+                        </div>
+                      </div>
+
                       <div className="space-y-1.5">
                         <label className="block text-xs font-bold text-slate-700">
                           Upscaling Engine
@@ -1259,11 +1284,11 @@ export default function AdminSettingsPage() {
                           }}
                           className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:ring-2 focus:ring-amber-500 font-medium"
                         >
-                          <option value="none">Disabled / Not Configured</option>
-                          <option value="sharp_lanczos">Multi-Pass Lanczos3 &amp; Centering (Built-in Sharp, No Key Required ★)</option>
-                          <option value="smart_ai">Smart AI Super-Resolution (Built-in Sharp)</option>
-                          <option value="waifu2x">Waifu2x Neural Upscaler API</option>
-                          <option value="replicate">Replicate Real-ESRGAN (Cloud Service)</option>
+                          <option value="smart_ai">Smart AI Super-Resolution (Built-in Sharp, No Key Required ★)</option>
+                          <option value="sharp_lanczos">Multi-Pass Lanczos3 &amp; Centering (Built-in Sharp)</option>
+                          <option value="none">Disabled</option>
+                          <option value="waifu2x">Waifu2x Neural Upscaler API (Optional)</option>
+                          <option value="replicate">Replicate Real-ESRGAN (Cloud Service - Optional)</option>
                         </select>
                       </div>
 
@@ -1271,7 +1296,7 @@ export default function AdminSettingsPage() {
                         <div className="space-y-1.5 pt-1">
                           <div className="flex items-center justify-between">
                             <label className="block text-[11px] font-bold text-slate-700">
-                              {imgUpscaleProvider.toUpperCase()} API Key
+                              {imgUpscaleProvider.toUpperCase()} API Key <span className="text-slate-400 font-normal">(Optional)</span>
                             </label>
                             {hasStoredUpscaleKey && !imgUpscaleApiKey && (
                               <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">

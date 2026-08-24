@@ -21,18 +21,18 @@ export class BackgroundRemovalProvider implements IBackgroundRemovalProvider {
         buffer: inputBuffer,
         hasTransparency: false,
         isConfigured: false,
-        warning: 'Background removal provider is not configured.',
+        warning: 'Background removal is disabled.',
       };
     }
 
     // 1. External remove.bg provider
     if (provider === 'remove_bg') {
       if (!apiKey) {
+        const localResult = await this.removeBackgroundSmartAI(inputBuffer, options);
         return {
-          buffer: inputBuffer,
-          hasTransparency: false,
+          ...localResult,
           isConfigured: false,
-          warning: 'Background removal provider is not configured (Remove.bg API key missing).',
+          warning: 'External AI provider is not configured. Local image processing is available.',
         };
       }
 
@@ -59,20 +59,19 @@ export class BackgroundRemovalProvider implements IBackgroundRemovalProvider {
             isConfigured: true,
           };
         } else {
-          const errText = await response.text();
+          const localResult = await this.removeBackgroundSmartAI(inputBuffer, options);
           return {
-            buffer: inputBuffer,
-            hasTransparency: false,
+            ...localResult,
             isConfigured: true,
-            warning: `Remove.bg API responded with status ${response.status}: ${errText.slice(0, 100)}`,
+            warning: `External AI provider (Remove.bg) returned status ${response.status}. Local image processing was applied.`,
           };
         }
       } catch (apiErr: any) {
+        const localResult = await this.removeBackgroundSmartAI(inputBuffer, options);
         return {
-          buffer: inputBuffer,
-          hasTransparency: false,
+          ...localResult,
           isConfigured: true,
-          warning: `Remove.bg connection error: ${apiErr.message || 'Network error'}`,
+          warning: `External AI provider connection error. Local image processing was applied.`,
         };
       }
     }
@@ -80,11 +79,11 @@ export class BackgroundRemovalProvider implements IBackgroundRemovalProvider {
     // 2. External Clipdrop provider
     if (provider === 'clipdrop') {
       if (!apiKey) {
+        const localResult = await this.removeBackgroundSmartAI(inputBuffer, options);
         return {
-          buffer: inputBuffer,
-          hasTransparency: false,
+          ...localResult,
           isConfigured: false,
-          warning: 'Background removal provider is not configured (Clipdrop API key missing).',
+          warning: 'External AI provider is not configured. Local image processing is available.',
         };
       }
 
@@ -109,19 +108,19 @@ export class BackgroundRemovalProvider implements IBackgroundRemovalProvider {
             isConfigured: true,
           };
         } else {
+          const localResult = await this.removeBackgroundSmartAI(inputBuffer, options);
           return {
-            buffer: inputBuffer,
-            hasTransparency: false,
+            ...localResult,
             isConfigured: true,
-            warning: `Clipdrop API returned status ${response.status}`,
+            warning: `External AI provider (ClipDrop) returned status ${response.status}. Local image processing was applied.`,
           };
         }
       } catch (clipErr: any) {
+        const localResult = await this.removeBackgroundSmartAI(inputBuffer, options);
         return {
-          buffer: inputBuffer,
-          hasTransparency: false,
+          ...localResult,
           isConfigured: true,
-          warning: `Clipdrop connection error: ${clipErr.message}`,
+          warning: `External AI provider connection error. Local image processing was applied.`,
         };
       }
     }
@@ -135,12 +134,12 @@ export class BackgroundRemovalProvider implements IBackgroundRemovalProvider {
       };
     }
 
-    // Default fallback
+    // Default fallback to local Sharp processing
+    const localFallback = await this.removeBackgroundSmartAI(inputBuffer, options);
     return {
-      buffer: inputBuffer,
-      hasTransparency: false,
+      ...localFallback,
       isConfigured: false,
-      warning: `Background removal provider '${provider}' is not configured.`,
+      warning: 'External AI provider is not configured. Local image processing is available.',
     };
   }
 

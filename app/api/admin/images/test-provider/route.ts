@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: false,
         status: 'not_configured',
-        message: 'Provider is not configured (Disabled).',
+        message: 'External AI provider is not configured. Local image processing is available.',
         latencyMs: 0,
       });
     }
@@ -56,14 +56,14 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
           success: true,
           status: 'connected',
-          message: `Connected successfully: Built-in Sharp processing engine is fully operational (${latencyMs}ms).`,
+          message: `Connected successfully: Built-in local image processing is operational (${latencyMs}ms).`,
           latencyMs,
         });
       } catch (sharpErr: any) {
         return NextResponse.json({
           success: false,
           status: 'unavailable',
-          message: `Provider unavailable: Sharp image engine error (${sharpErr.message})`,
+          message: `Local image processing error: ${sharpErr.message}`,
           latencyMs: Date.now() - startTime,
         });
       }
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
           success: false,
           status: 'not_configured',
-          message: 'Not configured: API key is required for Remove.bg.',
+          message: 'External AI provider is not configured. Local image processing is available.',
           latencyMs: 0,
         });
       }
@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
           success: false,
           status: 'not_configured',
-          message: 'Not configured: API key is required for ClipDrop.',
+          message: 'External AI provider is not configured. Local image processing is available.',
           latencyMs: 0,
         });
       }
@@ -187,7 +187,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
           success: false,
           status: 'not_configured',
-          message: 'Not configured: API key is required for Replicate.',
+          message: 'External AI provider is not configured. Local image processing is available.',
           latencyMs: 0,
         });
       }
@@ -238,7 +238,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
           success: false,
           status: 'not_configured',
-          message: 'Not configured: GEMINI_API_KEY is missing.',
+          message: 'External AI provider is not configured. Local image processing is available.',
           latencyMs: 0,
         });
       }
@@ -287,7 +287,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
           success: false,
           status: 'not_configured',
-          message: 'Not configured: API key is required for Waifu2x API.',
+          message: 'External AI provider is not configured. Local image processing is available.',
           latencyMs: 0,
         });
       }
@@ -303,7 +303,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: false,
       status: 'not_configured',
-      message: `Provider '${provider}' is not recognized or not configured.`,
+      message: 'External AI provider is not configured. Local image processing is available.',
       latencyMs: 0,
     });
   } catch (globalErr: any) {

@@ -27,19 +27,17 @@ export class UpscalingProvider implements IUpscalingProvider {
         width: origWidth,
         height: origHeight,
         isConfigured: false,
-        warning: 'Upscaling provider is not configured.',
+        warning: 'Upscaling is disabled.',
       };
     }
 
-    // If external cloud provider like replicate or waifu2x without key
+    let isExternalConfigured = true;
+    let providerWarning: string | undefined = undefined;
+
+    // If external cloud provider without key, fall back to local Sharp Lanczos3 processing
     if ((provider === 'replicate' || provider === 'waifu2x') && !apiKey) {
-      return {
-        buffer: inputBuffer,
-        width: origWidth,
-        height: origHeight,
-        isConfigured: false,
-        warning: `Upscaling provider '${provider}' is not configured (API key missing).`,
-      };
+      isExternalConfigured = false;
+      providerWarning = 'External AI provider is not configured. Local image processing is available.';
     }
 
     const targetRes = options.targetResolution || 2000;
@@ -163,6 +161,8 @@ export class UpscalingProvider implements IUpscalingProvider {
       buffer: centeredCanvas,
       width: canvasSize,
       height: canvasSize,
+      isConfigured: isExternalConfigured,
+      warning: providerWarning,
     };
   }
 }
