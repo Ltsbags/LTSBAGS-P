@@ -699,34 +699,24 @@ export default function AdminSettingsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               <div className="lg:col-span-7 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-6">
                 <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-lg font-bold text-slate-900 font-serif">Brand Logo & Typography</h3>
-                  <p className="text-slate-500 text-xs">Configure the main company logo image or text emblem.</p>
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 bg-sky-100 text-sky-700 rounded-lg">
+                      <ImageIcon className="w-4 h-4" />
+                    </span>
+                    <h3 className="text-lg font-bold text-slate-900 font-serif">Brand Logo & Header Image</h3>
+                  </div>
+                  <p className="text-slate-500 text-xs mt-1">
+                    Upload your company logo image or enter an image link. It will automatically replace text and display across the entire website.
+                  </p>
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Company Primary Name</label>
-                    <input
-                      type="text"
-                      value={logoText}
-                      onChange={(e) => setLogoText(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-sky-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Company Tagline / Subtitle</label>
-                    <input
-                      type="text"
-                      value={logoSubtitle}
-                      onChange={(e) => setLogoSubtitle(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-sky-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Upload Custom Brand Logo Image</label>
-                    <div className="flex items-center gap-3">
+                <div className="space-y-5">
+                  {/* File Upload Box */}
+                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                    <label className="block text-xs font-bold text-slate-800">
+                      1. Upload Logo File (Recommended: PNG with transparent background or SVG)
+                    </label>
+                    <div className="flex flex-wrap items-center gap-3">
                       <input
                         type="file"
                         ref={fileInputRef}
@@ -738,49 +728,121 @@ export default function AdminSettingsPage() {
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isUploading}
-                        className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2"
+                        className="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl flex items-center gap-2 shadow-xs transition-all cursor-pointer"
                       >
                         <Upload className="w-4 h-4" />
-                        <span>{isUploading ? 'Uploading Image...' : 'Choose Logo File'}</span>
+                        <span>{isUploading ? 'Uploading Logo...' : 'Choose Logo File to Upload'}</span>
                       </button>
                       {logoUrl && (
                         <button
                           type="button"
                           onClick={() => setLogoUrl('')}
-                          className="text-rose-600 hover:text-rose-700 text-xs font-semibold"
+                          className="text-rose-600 hover:text-rose-700 text-xs font-bold px-3 py-2 hover:bg-rose-50 rounded-lg transition-colors"
                         >
-                          Clear Custom Logo Image
+                          Remove Current Logo
                         </button>
                       )}
                     </div>
                   </div>
 
-                  {logoUrl && (
+                  {/* Direct URL Input */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      2. Or Enter Direct Logo Image URL (CDN / Cloud / Website Link)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="https://your-domain.com/images/logo.png"
+                      value={logoUrl}
+                      onChange={(e) => setLogoUrl(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-sky-500 font-mono text-slate-800"
+                    />
+                    <p className="text-[11px] text-slate-500 mt-1">
+                      Tip: You can upload directly via the button above, or paste an external image link.
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">Or Logo Image URL</label>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Company Alt / Brand Name</label>
                       <input
                         type="text"
-                        value={logoUrl}
-                        onChange={(e) => setLogoUrl(e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-sky-500 font-mono"
+                        value={logoText}
+                        onChange={(e) => setLogoText(e.target.value)}
+                        placeholder="LTS BAGS"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-sky-500"
                       />
                     </div>
-                  )}
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Company Tagline / Subtitle</label>
+                      <input
+                        type="text"
+                        value={logoSubtitle}
+                        onChange={(e) => setLogoSubtitle(e.target.value)}
+                        placeholder="PRIVATE LIMITED"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-sky-500"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Preview Box */}
-              <div className="lg:col-span-5 bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 shadow-md space-y-4">
-                <span className="text-sky-400 font-mono text-[10px] uppercase font-bold tracking-widest bg-sky-500/10 px-2.5 py-1 rounded-md border border-sky-500/20">
-                  Header & Footer Logo Preview
-                </span>
+              <div className="lg:col-span-5 bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 shadow-md space-y-4 flex flex-col justify-between">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sky-400 font-mono text-[10px] uppercase font-bold tracking-widest bg-sky-500/10 px-2.5 py-1 rounded-md border border-sky-500/20">
+                      Live Header Logo Preview
+                    </span>
+                    {logoUrl ? (
+                      <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Logo Image Active
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-medium text-slate-400">
+                        Default Logo Mark
+                      </span>
+                    )}
+                  </div>
 
-                <div className="p-6 bg-slate-950/80 rounded-xl border border-slate-800 flex items-center justify-center">
-                  <Logo size="lg" theme="dark" showSubtitle={true} />
+                  <div className="space-y-3">
+                    <div className="text-[11px] text-slate-400 font-medium">Dark Header / Footer Preview:</div>
+                    <div className="p-5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-center min-h-[90px]">
+                      <Logo
+                        overrideLogoUrl={logoUrl}
+                        overrideLogoText={logoText}
+                        overrideLogoSubtitle={logoSubtitle}
+                        size="lg"
+                        theme="dark"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="text-[11px] text-slate-400 font-medium">Light Header Navbar Preview:</div>
+                    <div className="p-5 bg-white rounded-xl border border-slate-200 flex items-center justify-center min-h-[90px]">
+                      <Logo
+                        overrideLogoUrl={logoUrl}
+                        overrideLogoText={logoText}
+                        overrideLogoSubtitle={logoSubtitle}
+                        size="lg"
+                        theme="light"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div className="p-6 bg-white rounded-xl border border-slate-200 flex items-center justify-center">
-                  <Logo size="lg" theme="light" showSubtitle={true} />
+                <div className="pt-4 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => handleSaveAllSettings()}
+                    disabled={isSaving}
+                    className="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Save & Publish Logo to Website</span>
+                  </button>
                 </div>
               </div>
             </div>

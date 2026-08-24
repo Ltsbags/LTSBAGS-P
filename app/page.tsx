@@ -38,7 +38,6 @@ export const metadata = generatePageMetadata({
 export default function HomePage() {
   const categoryHierarchy = db.getCategoryHierarchy();
   const featuredProducts = db.getProducts().filter((p) => p.isFeatured || p.moq <= 100).slice(0, 6);
-  const latestBlogs = db.getBlogs().slice(0, 3);
   const slides = db.getSlides(true);
   const settings = db.getSettings();
   const orgSchema = generateOrganizationSchema();
@@ -228,73 +227,6 @@ export default function HomePage() {
 
         {/* 14. B2B QUOTE FORM (15 FIELDS & FACTORY DIRECT CONFIRMATION) */}
         <FactoryQuoteSection />
-
-        {/* 15. LATEST MANUFACTURING BLOGS & BUYER GUIDES */}
-        <section className="py-20 bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800 transition-colors duration-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            
-            <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-              <div>
-                <span className="text-[#72AFDB] font-bold text-xs uppercase tracking-widest font-mono bg-[#72AFDB]/10 px-3.5 py-1 rounded-full border border-[#72AFDB]/30">
-                  Manufacturing Insights
-                </span>
-                <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 font-sans mt-2">
-                  B2B Bag Buying Guides &amp; Technical Insights
-                </h2>
-              </div>
-              <Link
-                href="/blog"
-                className="text-[#72AFDB] hover:text-[#5C9BC7] font-bold text-sm flex items-center gap-1 hover:underline"
-              >
-                <span>Read All Articles</span>
-                <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {latestBlogs.map((blog) => (
-                <article
-                  key={blog.id}
-                  className="bg-slate-50 dark:bg-slate-800/80 rounded-2xl overflow-hidden border border-slate-200/80 dark:border-slate-700/80 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between group"
-                >
-                  <Link href={`/blog/${blog.slug}`} className="aspect-16/9 overflow-hidden bg-slate-100 dark:bg-slate-800 relative block">
-                    <Image
-                      src={blog.image}
-                      alt={blog.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      referrerPolicy="no-referrer"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </Link>
-                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                    <div className="space-y-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#72AFDB] bg-[#72AFDB]/10 px-2.5 py-1 rounded border border-[#72AFDB]/20 font-mono">
-                        {blog.category}
-                      </span>
-                      <Link href={`/blog/${blog.slug}`}>
-                        <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base group-hover:text-[#72AFDB] transition-colors line-clamp-2">
-                          {blog.title}
-                        </h3>
-                      </Link>
-                      <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed line-clamp-2">
-                        {blog.excerpt}
-                      </p>
-                    </div>
-
-                    <div className="pt-4 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                      <span>{new Date(blog.publishedAt).toLocaleDateString()}</span>
-                      <Link href={`/blog/${blog.slug}`} className="text-[#72AFDB] font-bold hover:underline">
-                        Read Guide →
-                      </Link>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-
-          </div>
-        </section>
 
       </main>
 
