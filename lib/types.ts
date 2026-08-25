@@ -608,17 +608,35 @@ export interface Payment {
   updatedAt: string;
 }
 
+export interface ResponsiveVariant {
+  width: number;
+  height: number;
+  url: string;
+  fileSize?: string;
+}
+
 export interface MediaAsset {
   id: string;
   title: string;
   url: string;
-  category: 'PRODUCTS' | 'HERO' | 'FACTORY' | 'CERTIFICATES' | 'LOGOS' | 'GENERAL';
+  originalUrl?: string;
+  thumbnailUrl?: string;
+  smallThumbnailUrl?: string;
+  responsiveVariants?: ResponsiveVariant[];
+  category: 'PRODUCTS' | 'HERO' | 'CATEGORIES' | 'BLOGS' | 'LOGOS' | 'TESTIMONIALS' | 'FACTORY' | 'CERTIFICATES' | 'GENERAL';
+  preset?: string;
   fileSize?: string;
+  originalFileSize?: string;
   dimensions?: string;
+  originalDimensions?: string;
+  savingsPercent?: number;
   mimeType?: string;
   altText?: string;
   caption?: string;
+  focalPoint?: { x: number; y: number };
+  hash?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface LanguageConfig {

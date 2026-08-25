@@ -263,9 +263,12 @@ export default function AdminBlogsPage() {
               </div>
 
               <ImageUploader
-                label="Article Cover Image"
+                label="Article Cover Image (1600 × 900 px)"
                 value={editingBlog.image || ''}
                 onChange={(url) => setEditingBlog({ ...editingBlog, image: url })}
+                preset="blog_featured"
+                contextName={editingBlog.title || 'Industry Article'}
+                categoryName={editingBlog.category || 'Bag Manufacturing'}
                 aspectRatio="video"
               />
 

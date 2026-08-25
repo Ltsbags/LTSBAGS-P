@@ -2412,19 +2412,49 @@ export const db = {
   },
 
   // Media
-  getMedia(): MediaAsset[] {
+  getMedia(category?: string, search?: string): MediaAsset[] {
     const data = ensureDataFile();
-    return data.media || INITIAL_MEDIA;
+    let list = data.media || INITIAL_MEDIA;
+    if (category && category !== 'ALL') {
+      list = list.filter((m) => m.category.toUpperCase() === category.toUpperCase());
+    }
+    if (search && search.trim()) {
+      const q = search.toLowerCase().trim();
+      list = list.filter(
+        (m) =>
+          m.title.toLowerCase().includes(q) ||
+          (m.altText && m.altText.toLowerCase().includes(q)) ||
+          (m.caption && m.caption.toLowerCase().includes(q)) ||
+          (m.url && m.url.toLowerCase().includes(q))
+      );
+    }
+    return list;
   },
+
+  getMediaById(id: string): MediaAsset | undefined {
+    const data = ensureDataFile();
+    const media = data.media || INITIAL_MEDIA;
+    return media.find((m) => m.id === id);
+  },
+
+  findMediaByHash(hash: string): MediaAsset | undefined {
+    if (!hash) return undefined;
+    const data = ensureDataFile();
+    const media = data.media || INITIAL_MEDIA;
+    return media.find((m) => m.hash && m.hash === hash);
+  },
+
   saveMedia(asset: Partial<MediaAsset> & { title: string; url: string }): MediaAsset {
     const data = ensureDataFile();
     const media = data.media || INITIAL_MEDIA;
+    const now = new Date().toISOString();
     const index = asset.id ? media.findIndex((m) => m.id === asset.id) : -1;
 
     if (index >= 0) {
       const updated: MediaAsset = {
         ...media[index],
         ...asset,
+        updatedAt: now,
       };
       media[index] = updated;
       data.media = media;
@@ -2432,14 +2462,27 @@ export const db = {
       return updated;
     } else {
       const newMedia: MediaAsset = {
-        id: 'med-' + Date.now(),
+        id: asset.id || 'med-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
         title: asset.title,
         url: asset.url,
+        originalUrl: asset.originalUrl || asset.url,
+        thumbnailUrl: asset.thumbnailUrl || asset.url,
+        smallThumbnailUrl: asset.smallThumbnailUrl || asset.url,
+        responsiveVariants: asset.responsiveVariants || [],
         category: asset.category || 'PRODUCTS',
+        preset: asset.preset || 'product_main',
         fileSize: asset.fileSize || '1.0 MB',
-        dimensions: asset.dimensions || '1920x1080',
+        originalFileSize: asset.originalFileSize || asset.fileSize || '1.0 MB',
+        dimensions: asset.dimensions || '1200x1200',
+        originalDimensions: asset.originalDimensions || asset.dimensions || '1200x1200',
+        savingsPercent: asset.savingsPercent || 0,
+        mimeType: asset.mimeType || 'image/webp',
         altText: asset.altText || asset.title,
-        createdAt: new Date().toISOString(),
+        caption: asset.caption || '',
+        focalPoint: asset.focalPoint || { x: 50, y: 50 },
+        hash: asset.hash,
+        createdAt: now,
+        updatedAt: now,
       };
       media.unshift(newMedia);
       data.media = media;
@@ -2447,6 +2490,7 @@ export const db = {
       return newMedia;
     }
   },
+
   deleteMedia(id: string): boolean {
     const data = ensureDataFile();
     const media = data.media || INITIAL_MEDIA;
@@ -2457,6 +2501,224 @@ export const db = {
       return true;
     }
     return false;
+  },
+
+  getImageUsageReferences(imageUrlOrId: string): { type: string; id: string; name: string; link: string }[] {
+    const data = ensureDataFile();
+    const refs: { type: string; id: string; name: string; link: string }[] = [];
+    if (!imageUrlOrId) return refs;
+
+    // Find media asset if ID passed
+    const mediaItem = data.media?.find((m) => m.id === imageUrlOrId);
+    const targetUrls = new Set<string>();
+    targetUrls.add(imageUrlOrId);
+    if (mediaItem) {
+      if (mediaItem.url) targetUrls.add(mediaItem.url);
+      if (mediaItem.originalUrl) targetUrls.add(mediaItem.originalUrl);
+      if (mediaItem.thumbnailUrl) targetUrls.add(mediaItem.thumbnailUrl);
+    }
+
+    const matchesUrl = (url?: string) => {
+      if (!url) return false;
+      return targetUrls.has(url) || Array.from(targetUrls).some((t) => t && url.includes(t));
+    };
+
+    // 1. Products
+    (data.products || []).forEach((p) => {
+      const hasImage = 
+        matchesUrl(p.featuredImage) || 
+        (p.images && p.images.some(matchesUrl)) ||
+        (p.galleryImages && p.galleryImages.some((g) => matchesUrl(g.processedUrl) || matchesUrl(g.originalUrl) || matchesUrl(g.webUrl)));
+      if (hasImage) {
+        refs.push({ type: 'Product', id: p.id, name: p.name, link: `/admin/products?edit=${p.id}` });
+      }
+    });
+
+    // 2. Categories
+    (data.categories || []).forEach((c) => {
+      const hasImage = matchesUrl(c.image) || matchesUrl(c.bannerImage) || matchesUrl(c.featuredImage);
+      if (hasImage) {
+        refs.push({ type: 'Category', id: c.id, name: c.name, link: '/admin/categories' });
+      }
+    });
+
+    // 3. Blogs
+    (data.blogs || []).forEach((b) => {
+      if (matchesUrl(b.image)) {
+        refs.push({ type: 'Blog Post', id: b.id, name: b.title, link: '/admin/blogs' });
+      }
+    });
+
+    // 4. Hero Slides
+    (data.slides || []).forEach((s) => {
+      if (matchesUrl(s.imageUrl)) {
+        refs.push({ type: 'Hero Slide', id: s.id, name: s.title || 'Slide ' + s.id, link: '/admin/slides' });
+      }
+    });
+
+    // 5. Testimonials
+    (data.testimonials || []).forEach((t) => {
+      if (matchesUrl(t.avatarUrl) || matchesUrl(t.photoUrl)) {
+        refs.push({ type: 'Testimonial', id: t.id, name: t.name + ' (' + t.company + ')', link: '/admin/testimonials' });
+      }
+    });
+
+    // 6. Clients
+    (data.clients || []).forEach((cl) => {
+      if (matchesUrl(cl.logoUrl)) {
+        refs.push({ type: 'Client Logo', id: cl.id, name: cl.name, link: '/admin/clients' });
+      }
+    });
+
+    // 7. Certifications
+    (data.settings?.certifications || []).forEach((cert) => {
+      if (matchesUrl(cert.imageUrl)) {
+        refs.push({ type: 'Certification', id: cert.id, name: cert.name, link: '/admin/certifications' });
+      }
+    });
+
+    // 8. Factory Gallery
+    (data.settings?.factoryGallery || []).forEach((fac) => {
+      if (matchesUrl(fac.imageUrl)) {
+        refs.push({ type: 'Factory Gallery', id: fac.id, name: fac.caption || fac.department, link: '/admin/factory-gallery' });
+      }
+    });
+
+    // 9. Settings
+    if (data.settings) {
+      if (matchesUrl(data.settings.logoUrl)) {
+        refs.push({ type: 'Site Logo', id: 'site_logo', name: 'Primary Website Logo', link: '/admin/settings' });
+      }
+      if (matchesUrl(data.settings.about?.aboutImageUrl)) {
+        refs.push({ type: 'About Page', id: 'about_image', name: 'About Page Factory Visual', link: '/admin/settings' });
+      }
+      if (matchesUrl(data.settings.seoDefaults?.ogImage)) {
+        refs.push({ type: 'SEO Defaults', id: 'seo_og', name: 'Default Open Graph Social Image', link: '/admin/settings' });
+      }
+    }
+
+    return refs;
+  },
+
+  replaceImageUrlEverywhere(oldUrl: string, newUrl: string): number {
+    if (!oldUrl || !newUrl || oldUrl === newUrl) return 0;
+    const data = ensureDataFile();
+    let replacedCount = 0;
+
+    // 1. Products
+    (data.products || []).forEach((p) => {
+      if (p.featuredImage === oldUrl) {
+        p.featuredImage = newUrl;
+        replacedCount++;
+      }
+      if (p.images && p.images.length > 0) {
+        p.images = p.images.map((img) => {
+          if (img === oldUrl) {
+            replacedCount++;
+            return newUrl;
+          }
+          return img;
+        });
+      }
+      if (p.galleryImages && p.galleryImages.length > 0) {
+        p.galleryImages.forEach((g) => {
+          if (g.processedUrl === oldUrl || g.webUrl === oldUrl) {
+            g.processedUrl = newUrl;
+            g.webUrl = newUrl;
+            replacedCount++;
+          }
+        });
+      }
+    });
+
+    // 2. Categories
+    (data.categories || []).forEach((c) => {
+      if (c.image === oldUrl) {
+        c.image = newUrl;
+        replacedCount++;
+      }
+      if (c.bannerImage === oldUrl) {
+        c.bannerImage = newUrl;
+        replacedCount++;
+      }
+      if (c.featuredImage === oldUrl) {
+        c.featuredImage = newUrl;
+        replacedCount++;
+      }
+    });
+
+    // 3. Blogs
+    (data.blogs || []).forEach((b) => {
+      if (b.image === oldUrl) {
+        b.image = newUrl;
+        replacedCount++;
+      }
+    });
+
+    // 4. Hero Slides
+    (data.slides || []).forEach((s) => {
+      if (s.imageUrl === oldUrl) {
+        s.imageUrl = newUrl;
+        replacedCount++;
+      }
+    });
+
+    // 5. Testimonials
+    (data.testimonials || []).forEach((t) => {
+      if (t.avatarUrl === oldUrl) {
+        t.avatarUrl = newUrl;
+        replacedCount++;
+      }
+      if (t.photoUrl === oldUrl) {
+        t.photoUrl = newUrl;
+        replacedCount++;
+      }
+    });
+
+    // 6. Clients
+    (data.clients || []).forEach((cl) => {
+      if (cl.logoUrl === oldUrl) {
+        cl.logoUrl = newUrl;
+        replacedCount++;
+      }
+    });
+
+    // 7. Settings & Certifications & Factory
+    if (data.settings) {
+      if (data.settings.logoUrl === oldUrl) {
+        data.settings.logoUrl = newUrl;
+        replacedCount++;
+      }
+      if (data.settings.about && data.settings.about.aboutImageUrl === oldUrl) {
+        data.settings.about.aboutImageUrl = newUrl;
+        replacedCount++;
+      }
+      if (data.settings.seoDefaults && data.settings.seoDefaults.ogImage === oldUrl) {
+        data.settings.seoDefaults.ogImage = newUrl;
+        replacedCount++;
+      }
+      if (data.settings.certifications) {
+        data.settings.certifications.forEach((cert) => {
+          if (cert.imageUrl === oldUrl) {
+            cert.imageUrl = newUrl;
+            replacedCount++;
+          }
+        });
+      }
+      if (data.settings.factoryGallery) {
+        data.settings.factoryGallery.forEach((fac) => {
+          if (fac.imageUrl === oldUrl) {
+            fac.imageUrl = newUrl;
+            replacedCount++;
+          }
+        });
+      }
+    }
+
+    if (replacedCount > 0) {
+      saveData(data);
+    }
+    return replacedCount;
   },
 
   // Clients

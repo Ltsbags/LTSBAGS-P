@@ -470,7 +470,10 @@ export default function AdminClientsPage() {
                     value={clientLogoUrl}
                     onChange={(url) => setClientLogoUrl(url)}
                     label=""
+                    preset="logo"
+                    contextName={clientName || 'Client Logo'}
                     aspectRatio="video"
+                    helperText="Logos are centered with contain-fit so branding is never clipped or distorted."
                   />
                 </div>
                 <p className="text-[11px] text-slate-400 mt-1">

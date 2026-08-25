@@ -2,10 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAdminAuth, logAuditActivity } from '@/lib/auth';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const media = db.getMedia();
-    return NextResponse.json(media);
+    const { searchParams } = new URL(req.url);
+    const category = searchParams.get('category') || undefined;
+    const search = searchParams.get('search') || undefined;
+
+    const mediaList = db.getMedia(category, search);
+
+    // Attach usage count to each asset for admin visibility
+    const enriched = mediaList.map((m) => {
+      const refs = db.getImageUsageReferences(m.id);
+      return {
+        ...m,
+        usageCount: refs.length,
+        references: refs,
+      };
+    });
+
+    return NextResponse.json(enriched);
   } catch (error) {
     console.error('Failed to fetch media assets:', error);
     return NextResponse.json({ error: 'Failed to fetch media assets' }, { status: 500 });
@@ -50,8 +65,21 @@ export async function DELETE(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
+    const force = searchParams.get('force') === 'true';
+
     if (!id) {
       return NextResponse.json({ error: 'Media ID required' }, { status: 400 });
+    }
+
+    // Check usage references before deleting
+    const usageRefs = db.getImageUsageReferences(id);
+    if (usageRefs.length > 0 && !force) {
+      return NextResponse.json({
+        error: 'IMAGE_IN_USE',
+        message: `This image is actively used in ${usageRefs.length} location(s) across your website.`,
+        usageCount: usageRefs.length,
+        references: usageRefs,
+      }, { status: 409 });
     }
 
     const success = db.deleteMedia(id);
@@ -60,7 +88,8 @@ export async function DELETE(req: NextRequest) {
         { id: auth.user.id, name: auth.user.name, email: auth.user.email },
         'DELETE_MEDIA',
         'MEDIA',
-        id
+        id,
+        { forceDeleted: force, previousUsageCount: usageRefs.length }
       );
       return NextResponse.json({ success: true, message: 'Media asset deleted successfully' });
     }
@@ -70,3 +99,4 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to delete media asset' }, { status: 500 });
   }
 }
+

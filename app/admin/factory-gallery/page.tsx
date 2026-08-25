@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import React, { useEffect, useState, useCallback } from 'react';
 import AdminHeader from '@/components/AdminHeader';
+import ImageUploader from '@/components/ImageUploader';
 import { FactoryGalleryItem, FactoryDepartment } from '@/lib/types';
 import { 
   Factory, 
@@ -407,32 +408,17 @@ export default function AdminFactoryGalleryPage() {
                 </select>
               </div>
 
-              {/* Image URL */}
-              <div>
-                <label className="block text-slate-300 font-bold mb-1">
-                  Image URL <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="url"
+              {/* Image Upload & Smart Studio */}
+              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                <ImageUploader
+                  label="Factory / Machinery Photo (1920 × 1080 px)"
                   value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="https://images.unsplash.com/... or uploaded URL"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-hidden focus:border-sky-500"
-                  required
+                  onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                  preset="factory_facility"
+                  contextName={`${formData.department} facility`}
+                  aspectRatio="video"
                 />
               </div>
-
-              {/* Preview */}
-              {formData.imageUrl && (
-                <div className="aspect-16/9 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 relative">
-                  <img
-                    src={formData.imageUrl}
-                    alt="Preview"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
 
               {/* Caption */}
               <div>

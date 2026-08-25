@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import AdminHeader from '@/components/AdminHeader';
+import ImageUploader from '@/components/ImageUploader';
 import { HeroSlide } from '@/lib/types';
 import {
   Sliders,
@@ -599,88 +600,17 @@ export default function AdminSlidesPage() {
             {/* Modal Form Body */}
             <form onSubmit={handleSaveSlide} className="p-6 space-y-6">
               
-              {/* Image Drag & Drop Upload Section */}
-              <div className="space-y-2">
-                <label className="block text-xs font-mono uppercase tracking-wider text-slate-300 font-bold">
-                  Slide Background Image <span className="text-rose-400">*</span>
-                </label>
-
-                <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                  className={`relative cursor-pointer border-2 border-dashed rounded-2xl p-6 text-center transition-all duration-200 ${
-                    isDragging
-                      ? 'border-sky-400 bg-sky-500/10'
-                      : 'border-slate-700 hover:border-slate-600 bg-slate-950/60'
-                  }`}
-                >
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        handleFileUpload(e.target.files[0]);
-                      }
-                    }}
-                  />
-
-                  {uploading ? (
-                    <div className="py-6 space-y-3">
-                      <div className="w-8 h-8 border-3 border-sky-400 border-t-transparent rounded-full animate-spin mx-auto" />
-                      <p className="text-xs font-mono text-sky-400">Uploading image file...</p>
-                    </div>
-                  ) : imageUrl ? (
-                    <div className="space-y-3">
-                      <div className="relative w-full h-44 rounded-xl overflow-hidden border border-slate-700 bg-slate-900 group">
-                        <img
-                          src={imageUrl}
-                          alt="Slide Preview"
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                          <span className="text-xs font-semibold text-white bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700">
-                            Click or Drag to replace
-                          </span>
-                        </div>
-                      </div>
-                      <p className="text-xs text-emerald-400 font-mono flex items-center justify-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Image attached successfully
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="py-6 space-y-3">
-                      <div className="w-12 h-12 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 mx-auto">
-                        <Upload className="w-6 h-6 text-sky-400" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-white">
-                          Click to upload or drag & drop image here
-                        </p>
-                        <p className="text-xs text-slate-400 mt-1">
-                          PNG, JPG, WebP up to 10MB (Recommended size: 1920x800px)
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Direct Image URL input option */}
-                <div className="pt-1">
-                  <span className="text-[11px] text-slate-400">Or paste an external image URL:</span>
-                  <input
-                    type="url"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
-                    className="mt-1 w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-600 focus:border-sky-500 focus:outline-none"
-                  />
-                </div>
+              {/* Image Uploader & Smart Studio */}
+              <div>
+                <ImageUploader
+                  label="Slide Background Image (1920 × 800 px)"
+                  value={imageUrl}
+                  onChange={(url) => setImageUrl(url)}
+                  preset="hero_banner"
+                  contextName={title || 'Hero Slide'}
+                  aspectRatio="banner"
+                  helperText="Supports high-res JPG, PNG, WebP with focal-point alignment."
+                />
               </div>
 
               {/* Title & Badge */}

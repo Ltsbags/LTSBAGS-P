@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import React, { useEffect, useState, useCallback } from 'react';
 import AdminHeader from '@/components/AdminHeader';
+import ImageUploader from '@/components/ImageUploader';
 import { Certification } from '@/lib/types';
 import { 
   Award, 
@@ -435,29 +436,28 @@ export default function AdminCertificationsPage() {
                 />
               </div>
 
-              {/* Image URL & PDF URL */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-slate-300 font-bold mb-1">Badge Image URL</label>
-                  <input
-                    type="url"
-                    value={formData.imageUrl}
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    placeholder="https://..."
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-hidden focus:border-amber-500"
-                  />
-                </div>
+              {/* Certificate Badge Image */}
+              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                <ImageUploader
+                  label="Certificate Seal / Badge Image"
+                  value={formData.imageUrl}
+                  onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                  preset="cert_badge"
+                  contextName={formData.name || 'Certification'}
+                  aspectRatio="square"
+                />
+              </div>
 
-                <div>
-                  <label className="block text-slate-300 font-bold mb-1">Audit PDF Document URL</label>
-                  <input
-                    type="url"
-                    value={formData.pdfUrl}
-                    onChange={(e) => setFormData({ ...formData, pdfUrl: e.target.value })}
-                    placeholder="https://.../iso-cert.pdf"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-hidden focus:border-amber-500"
-                  />
-                </div>
+              {/* Audit PDF URL */}
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Audit PDF Document URL (Optional)</label>
+                <input
+                  type="url"
+                  value={formData.pdfUrl}
+                  onChange={(e) => setFormData({ ...formData, pdfUrl: e.target.value })}
+                  placeholder="https://.../iso-cert.pdf"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-hidden focus:border-amber-500 font-mono text-xs"
+                />
               </div>
 
               {/* Order & Active */}
