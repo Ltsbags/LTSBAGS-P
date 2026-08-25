@@ -3,31 +3,83 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // Default deny catch-all
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
 
-    // Products: Publicly readable for customer catalog & AI bot
+    // Products: Catalog
     match /products/{productId} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      allow read, write: if true;
     }
 
-    // Categories: Publicly readable
+    // Categories: Categories collection
     match /categories/{categoryId} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      allow read, write: if true;
     }
 
-    // Enquiries: Anyone can create a lead/enquiry from the website chatbot or quote form
+    // Blogs: Blog posts
+    match /blogs/{blogId} {
+      allow read, write: if true;
+    }
+
+    // Enquiries: Customer quote inquiries & leads
     match /enquiries/{enquiryId} {
-      allow create: if true;
-      allow read, update, delete: if request.auth != null;
+      allow read, write: if true;
     }
 
-    // Settings & Content: Publicly readable
+    // Settings & Content: Global configuration & homepage data
     match /settings/{settingsId} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      allow read, write: if true;
+    }
+
+    // Slides: Hero banner slides
+    match /slides/{slideId} {
+      allow read, write: if true;
+    }
+
+    // Quotations: Quotations & orders
+    match /quotations/{quotationId} {
+      allow read, write: if true;
+    }
+
+    // Payments: Payment records
+    match /payments/{paymentId} {
+      allow read, write: if true;
+    }
+
+    // Media: Media library & processed images
+    match /media/{mediaId} {
+      allow read, write: if true;
+    }
+
+    // Clients: Client logo partners
+    match /clients/{clientId} {
+      allow read, write: if true;
+    }
+
+    // FAQs: FAQ items
+    match /faqs/{faqId} {
+      allow read, write: if true;
+    }
+
+    // Testimonials: Customer reviews
+    match /testimonials/{testimonialId} {
+      allow read, write: if true;
+    }
+
+    // Navigation: Header and footer menu configs
+    match /navigation/{navigationId} {
+      allow read, write: if true;
+    }
+
+    // Database snapshots / state backup
+    match /database_state/{stateId} {
+      allow read, write: if true;
+    }
+
+    // Uploaded images binary base64 storage
+    match /uploaded_images/{imageId} {
+      allow read, write: if true;
     }
   }
 }
+

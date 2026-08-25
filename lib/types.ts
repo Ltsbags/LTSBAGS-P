@@ -675,3 +675,24 @@ export interface LanguageSettings {
   defaultLanguage: string;
   uiTranslations: Record<string, Record<string, string>>;
 }
+
+export interface DatabaseSchema {
+  categories: Category[];
+  products: Product[];
+  blogs: Blog[];
+  enquiries: Enquiry[];
+  settings?: SiteSettings;
+  slides?: HeroSlide[];
+  quotations?: Quotation[];
+  payments?: Payment[];
+  media?: MediaAsset[];
+  clients?: Client[];
+  languageSettings?: LanguageSettings;
+  entityTranslations?: EntityTranslation[];
+  users?: AdminUser[];
+  sessions?: AdminSession[];
+  auditLogs?: AuditLog[];
+  faqs?: FaqItem[];
+  testimonials?: TestimonialItem[];
+  navigation?: NavigationMenuConfig;
+}

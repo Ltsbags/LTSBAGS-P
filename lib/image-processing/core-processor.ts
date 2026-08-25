@@ -4,6 +4,7 @@ import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { getPresetConfig, ImagePresetKey, ImagePresetConfig } from './presets';
 import { ResponsiveVariant, MediaAsset } from '../types';
+import { saveUploadedImageToFirestore } from '../firestore-sync';
 
 export interface ProcessImageRequestOptions {
   preset?: ImagePresetKey | string;
@@ -444,6 +445,10 @@ export class CoreImageProcessor {
       webUrl = `/uploads/optimized/${optFile}`;
       thumbnailUrl = `/uploads/thumb/${thumbFile}`;
       originalUrl = `/uploads/original/${origFile}`;
+
+      // Persist WebP images to Firestore so they survive container reboots and logouts
+      saveUploadedImageToFirestore(optFile, masterWebP.toString('base64'), 'image/webp', 'optimized').catch(console.error);
+      saveUploadedImageToFirestore(thumbFile, thumbBuf.toString('base64'), 'image/webp', 'thumb').catch(console.error);
     } catch (diskErr) {
       console.warn('Could not write uploads to disk folders, using data URLs:', diskErr);
     }

@@ -24,35 +24,22 @@ import {
   AuditLog,
   FaqItem,
   TestimonialItem,
-  NavigationMenuConfig
+  NavigationMenuConfig,
+  DatabaseSchema
 } from './types';
 import { INITIAL_LANGUAGES } from './i18n/languages';
 import { INITIAL_TRANSLATIONS_MAP } from './i18n/translations';
 import { COMPLETE_CATEGORIES_DATA } from './categories-data';
+import { 
+  saveDocToFirestore, 
+  deleteDocFromFirestore, 
+  loadAllDataFromFirestore, 
+  seedInitialDataToFirestore 
+} from './firestore-sync';
 
 const DATA_DIR = path.join(process.cwd(), '.data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 
-interface DatabaseSchema {
-  categories: Category[];
-  products: Product[];
-  blogs: Blog[];
-  enquiries: Enquiry[];
-  settings?: SiteSettings;
-  slides?: HeroSlide[];
-  quotations?: Quotation[];
-  payments?: Payment[];
-  media?: MediaAsset[];
-  clients?: Client[];
-  languageSettings?: LanguageSettings;
-  entityTranslations?: EntityTranslation[];
-  users?: AdminUser[];
-  sessions?: AdminSession[];
-  auditLogs?: AuditLog[];
-  faqs?: FaqItem[];
-  testimonials?: TestimonialItem[];
-  navigation?: NavigationMenuConfig;
-}
 
 const INITIAL_METRICS: CompanyMetrics = {
   yearsExperience: '15+ Years',
@@ -1438,9 +1425,43 @@ const INITIAL_NAVIGATION: NavigationMenuConfig = {
 };
 
 let inMemoryCache: DatabaseSchema | null = null;
+let firestoreSyncInitiated = false;
+
+function triggerFirestoreSync(currentData: DatabaseSchema) {
+  if (firestoreSyncInitiated) return;
+  firestoreSyncInitiated = true;
+
+  seedInitialDataToFirestore(currentData)
+    .then(() => loadAllDataFromFirestore())
+    .then((remoteData) => {
+      if (remoteData && inMemoryCache) {
+        if (remoteData.settings) inMemoryCache.settings = { ...inMemoryCache.settings, ...remoteData.settings };
+        if (remoteData.navigation) inMemoryCache.navigation = remoteData.navigation;
+        if (remoteData.languageSettings) inMemoryCache.languageSettings = remoteData.languageSettings;
+        if (remoteData.categories && remoteData.categories.length > 0) inMemoryCache.categories = remoteData.categories;
+        if (remoteData.products && remoteData.products.length > 0) inMemoryCache.products = remoteData.products;
+        if (remoteData.blogs && remoteData.blogs.length > 0) inMemoryCache.blogs = remoteData.blogs;
+        if (remoteData.enquiries && remoteData.enquiries.length > 0) inMemoryCache.enquiries = remoteData.enquiries;
+        if (remoteData.slides && remoteData.slides.length > 0) inMemoryCache.slides = remoteData.slides;
+        if (remoteData.quotations && remoteData.quotations.length > 0) inMemoryCache.quotations = remoteData.quotations;
+        if (remoteData.payments && remoteData.payments.length > 0) inMemoryCache.payments = remoteData.payments;
+        if (remoteData.media && remoteData.media.length > 0) inMemoryCache.media = remoteData.media;
+        if (remoteData.clients && remoteData.clients.length > 0) inMemoryCache.clients = remoteData.clients;
+        if (remoteData.faqs && remoteData.faqs.length > 0) inMemoryCache.faqs = remoteData.faqs;
+        if (remoteData.testimonials && remoteData.testimonials.length > 0) inMemoryCache.testimonials = remoteData.testimonials;
+        saveData(inMemoryCache);
+      }
+    })
+    .catch((err) => {
+      console.warn('[Firestore] Sync warning:', err);
+    });
+}
 
 function ensureDataFile(): DatabaseSchema {
   if (inMemoryCache) {
+    if (!firestoreSyncInitiated) {
+      triggerFirestoreSync(inMemoryCache);
+    }
     return inMemoryCache;
   }
 
@@ -1468,6 +1489,7 @@ function ensureDataFile(): DatabaseSchema {
       };
       saveData(initialData);
       inMemoryCache = initialData;
+      triggerFirestoreSync(initialData);
       return initialData;
     }
     const raw = fs.readFileSync(DB_FILE, 'utf-8');
@@ -1668,6 +1690,7 @@ function ensureDataFile(): DatabaseSchema {
     if (dirty) {
       saveData(parsed);
     }
+    triggerFirestoreSync(parsed);
     return parsed;
   } catch (error) {
     console.error('Error reading DB file, using fallback initial data safely:', error);
@@ -1689,6 +1712,7 @@ function ensureDataFile(): DatabaseSchema {
       sessions: [],
     };
     inMemoryCache = fallbackData;
+    triggerFirestoreSync(fallbackData);
     return fallbackData;
   }
 }
@@ -1822,6 +1846,7 @@ export const db = {
       };
       data.categories[existingIndex] = updated;
       saveData(data);
+      saveDocToFirestore('categories', updated.id, updated);
       return updated;
     } else {
       const newCat: Category = {
@@ -1838,6 +1863,7 @@ export const db = {
       };
       data.categories.push(newCat);
       saveData(data);
+      saveDocToFirestore('categories', newCat.id, newCat);
       return newCat;
     }
   },
@@ -1847,6 +1873,7 @@ export const db = {
     data.categories = data.categories.filter((c) => c.id !== id);
     if (data.categories.length !== lenBefore) {
       saveData(data);
+      deleteDocFromFirestore('categories', id);
       return true;
     }
     return false;
@@ -1929,6 +1956,7 @@ export const db = {
       };
       data.products[existingIndex] = updated;
       saveData(data);
+      saveDocToFirestore('products', updated.id, updated);
       return updated;
     } else {
       const newProd: Product = {
@@ -1955,6 +1983,7 @@ export const db = {
       };
       data.products.push(newProd);
       saveData(data);
+      saveDocToFirestore('products', newProd.id, newProd);
       return newProd;
     }
   },
@@ -1964,6 +1993,7 @@ export const db = {
     data.products = data.products.filter((p) => p.id !== id);
     if (data.products.length !== lenBefore) {
       saveData(data);
+      deleteDocFromFirestore('products', id);
       return true;
     }
     return false;
@@ -1997,6 +2027,7 @@ export const db = {
       };
       data.blogs[existingIndex] = updated;
       saveData(data);
+      saveDocToFirestore('blogs', updated.id, updated);
       return updated;
     } else {
       const newBlog: Blog = {
@@ -2017,6 +2048,7 @@ export const db = {
       };
       data.blogs.push(newBlog);
       saveData(data);
+      saveDocToFirestore('blogs', newBlog.id, newBlog);
       return newBlog;
     }
   },
@@ -2026,6 +2058,7 @@ export const db = {
     data.blogs = data.blogs.filter((b) => b.id !== id);
     if (data.blogs.length !== lenBefore) {
       saveData(data);
+      deleteDocFromFirestore('blogs', id);
       return true;
     }
     return false;
@@ -2052,6 +2085,7 @@ export const db = {
     };
     data.enquiries.unshift(newEnq);
     saveData(data);
+    saveDocToFirestore('enquiries', newEnq.id, newEnq);
     return newEnq;
   },
   updateEnquiryStatus(id: string, status: Enquiry['status'], notes?: string, assignedTo?: string): Enquiry | undefined {
@@ -2063,6 +2097,7 @@ export const db = {
       if (assignedTo !== undefined) item.assignedTo = assignedTo;
       item.updatedAt = new Date().toISOString();
       saveData(data);
+      saveDocToFirestore('enquiries', item.id, item);
       return item;
     }
     return undefined;
@@ -2078,6 +2113,7 @@ export const db = {
       };
       data.enquiries[index] = updated;
       saveData(data);
+      saveDocToFirestore('enquiries', updated.id, updated);
       return updated;
     }
     return undefined;
@@ -2088,6 +2124,7 @@ export const db = {
     data.enquiries = data.enquiries.filter((e) => e.id !== id);
     if (data.enquiries.length !== lenBefore) {
       saveData(data);
+      deleteDocFromFirestore('enquiries', id);
       return true;
     }
     return false;
@@ -2149,12 +2186,6 @@ export const db = {
       },
     };
 
-    // Auto-clean old relative /uploads/ paths that break in Cloud Run static server
-    if (settings.logoUrl && settings.logoUrl.startsWith('/uploads/')) {
-      settings.logoUrl = '';
-      data.settings = settings;
-      saveData(data);
-    }
     return settings;
   },
   updateSettings(newSettings: Partial<SiteSettings>): SiteSettings {
@@ -2210,6 +2241,7 @@ export const db = {
     };
     data.settings = updated;
     saveData(data);
+    saveDocToFirestore('settings', 'global', updated);
     return updated;
   },
 
@@ -2243,6 +2275,7 @@ export const db = {
     slides.push(newSlide);
     data.slides = slides;
     saveData(data);
+    saveDocToFirestore('slides', newSlide.id, newSlide);
     return newSlide;
   },
 
@@ -2260,6 +2293,7 @@ export const db = {
     slides[index] = updated;
     data.slides = slides;
     saveData(data);
+    saveDocToFirestore('slides', updated.id, updated);
     return updated;
   },
 
@@ -2270,6 +2304,7 @@ export const db = {
     if (filtered.length !== slides.length) {
       data.slides = filtered;
       saveData(data);
+      deleteDocFromFirestore('slides', id);
       return true;
     }
     return false;
@@ -2283,6 +2318,7 @@ export const db = {
       if (orderMap.has(slide.id)) {
         slide.displayOrder = orderMap.get(slide.id)!;
         slide.updatedAt = new Date().toISOString();
+        saveDocToFirestore('slides', slide.id, slide);
       }
     });
     data.slides = slides;
@@ -2315,6 +2351,7 @@ export const db = {
       quotes[index] = updated;
       data.quotations = quotes;
       saveData(data);
+      saveDocToFirestore('quotations', updated.id, updated);
       return updated;
     } else {
       const newQuote: Quotation = {
@@ -2340,6 +2377,7 @@ export const db = {
       quotes.unshift(newQuote);
       data.quotations = quotes;
       saveData(data);
+      saveDocToFirestore('quotations', newQuote.id, newQuote);
       return newQuote;
     }
   },
@@ -2350,6 +2388,7 @@ export const db = {
     if (filtered.length !== quotes.length) {
       data.quotations = filtered;
       saveData(data);
+      deleteDocFromFirestore('quotations', id);
       return true;
     }
     return false;
@@ -2375,6 +2414,7 @@ export const db = {
       payments[index] = updated;
       data.payments = payments;
       saveData(data);
+      saveDocToFirestore('payments', updated.id, updated);
       return updated;
     } else {
       const newPay: Payment = {
@@ -2396,6 +2436,7 @@ export const db = {
       payments.unshift(newPay);
       data.payments = payments;
       saveData(data);
+      saveDocToFirestore('payments', newPay.id, newPay);
       return newPay;
     }
   },
@@ -2406,6 +2447,7 @@ export const db = {
     if (filtered.length !== payments.length) {
       data.payments = filtered;
       saveData(data);
+      deleteDocFromFirestore('payments', id);
       return true;
     }
     return false;
@@ -2459,6 +2501,7 @@ export const db = {
       media[index] = updated;
       data.media = media;
       saveData(data);
+      saveDocToFirestore('media', updated.id, updated);
       return updated;
     } else {
       const newMedia: MediaAsset = {
@@ -2487,6 +2530,7 @@ export const db = {
       media.unshift(newMedia);
       data.media = media;
       saveData(data);
+      saveDocToFirestore('media', newMedia.id, newMedia);
       return newMedia;
     }
   },
@@ -2498,6 +2542,7 @@ export const db = {
     if (filtered.length !== media.length) {
       data.media = filtered;
       saveData(data);
+      deleteDocFromFirestore('media', id);
       return true;
     }
     return false;
@@ -2750,6 +2795,7 @@ export const db = {
       clients[index] = updated;
       data.clients = clients;
       saveData(data);
+      saveDocToFirestore('clients', updated.id, updated);
       return updated;
     } else {
       const maxOrder = clients.reduce((max, c) => (c.displayOrder > max ? c.displayOrder : max), 0);
@@ -2766,6 +2812,7 @@ export const db = {
       clients.push(newClient);
       data.clients = clients;
       saveData(data);
+      saveDocToFirestore('clients', newClient.id, newClient);
       return newClient;
     }
   },
@@ -2777,6 +2824,7 @@ export const db = {
     if (filtered.length !== clients.length) {
       data.clients = filtered;
       saveData(data);
+      deleteDocFromFirestore('clients', id);
       return true;
     }
     return false;
@@ -2791,6 +2839,7 @@ export const db = {
       if (orderMap.has(c.id)) {
         c.displayOrder = orderMap.get(c.id)!;
         c.updatedAt = new Date().toISOString();
+        saveDocToFirestore('clients', c.id, c);
       }
     });
 
@@ -2820,6 +2869,7 @@ export const db = {
     const now = new Date().toISOString();
     const index = itemData.id ? gallery.findIndex((g) => g.id === itemData.id) : -1;
 
+    let resultItem: FactoryGalleryItem;
     if (index >= 0) {
       const updated: FactoryGalleryItem = {
         ...gallery[index],
@@ -2830,7 +2880,7 @@ export const db = {
       settings.factoryGallery = gallery;
       data.settings = settings;
       saveData(data);
-      return updated;
+      resultItem = updated;
     } else {
       const maxOrder = gallery.reduce((max, g) => (g.displayOrder > max ? g.displayOrder : max), 0);
       const newItem: FactoryGalleryItem = {
@@ -2848,8 +2898,10 @@ export const db = {
       settings.factoryGallery = gallery;
       data.settings = settings;
       saveData(data);
-      return newItem;
+      resultItem = newItem;
     }
+    saveDocToFirestore('settings', 'global', data.settings);
+    return resultItem;
   },
 
   deleteFactoryGalleryItem(id: string): boolean {
@@ -2861,6 +2913,7 @@ export const db = {
       settings.factoryGallery = filtered;
       data.settings = settings;
       saveData(data);
+      saveDocToFirestore('settings', 'global', data.settings);
       return true;
     }
     return false;
@@ -2881,6 +2934,7 @@ export const db = {
     const now = new Date().toISOString();
     const index = certData.id ? certs.findIndex((c) => c.id === certData.id) : -1;
 
+    let resultCert: Certification;
     if (index >= 0) {
       const updated: Certification = {
         ...certs[index],
@@ -2891,7 +2945,7 @@ export const db = {
       settings.certifications = certs;
       data.settings = settings;
       saveData(data);
-      return updated;
+      resultCert = updated;
     } else {
       const maxOrder = certs.reduce((max, c) => (c.displayOrder > max ? c.displayOrder : max), 0);
       const newCert: Certification = {
@@ -2913,8 +2967,10 @@ export const db = {
       settings.certifications = certs;
       data.settings = settings;
       saveData(data);
-      return newCert;
+      resultCert = newCert;
     }
+    saveDocToFirestore('settings', 'global', data.settings);
+    return resultCert;
   },
 
   deleteCertification(id: string): boolean {
@@ -2926,6 +2982,7 @@ export const db = {
       settings.certifications = filtered;
       data.settings = settings;
       saveData(data);
+      saveDocToFirestore('settings', 'global', data.settings);
       return true;
     }
     return false;
@@ -3111,6 +3168,7 @@ export const db = {
       };
       data.faqs[index] = updated;
       saveData(data);
+      saveDocToFirestore('faqs', updated.id, updated);
       return updated;
     } else {
       const maxOrder = data.faqs.reduce((max, f) => (f.displayOrder > max ? f.displayOrder : max), 0);
@@ -3126,6 +3184,7 @@ export const db = {
       };
       data.faqs.push(newFaq);
       saveData(data);
+      saveDocToFirestore('faqs', newFaq.id, newFaq);
       return newFaq;
     }
   },
@@ -3137,6 +3196,7 @@ export const db = {
     data.faqs = data.faqs.filter((f) => f.id !== id);
     if (data.faqs.length !== lenBefore) {
       saveData(data);
+      deleteDocFromFirestore('faqs', id);
       return true;
     }
     return false;
@@ -3174,6 +3234,7 @@ export const db = {
       };
       data.testimonials[index] = updated;
       saveData(data);
+      saveDocToFirestore('testimonials', updated.id, updated);
       return updated;
     } else {
       const maxOrder = data.testimonials.reduce((max, t) => ((t.displayOrder || 0) > max ? (t.displayOrder || 0) : max), 0);
@@ -3197,6 +3258,7 @@ export const db = {
       };
       data.testimonials.push(newTest);
       saveData(data);
+      saveDocToFirestore('testimonials', newTest.id, newTest);
       return newTest;
     }
   },
@@ -3208,6 +3270,7 @@ export const db = {
     data.testimonials = data.testimonials.filter((t) => t.id !== id);
     if (data.testimonials.length !== lenBefore) {
       saveData(data);
+      deleteDocFromFirestore('testimonials', id);
       return true;
     }
     return false;
@@ -3226,6 +3289,7 @@ export const db = {
       updatedAt: new Date().toISOString(),
     };
     saveData(data);
+    saveDocToFirestore('navigation', 'main', data.navigation);
     return data.navigation;
   },
 
@@ -3408,6 +3472,7 @@ export function updateLanguageSettings(settings: Partial<LanguageSettings>): Lan
     ...settings,
   };
   saveData(db);
+  saveDocToFirestore('languageSettings', 'global', db.languageSettings);
   return db.languageSettings;
 }
 
@@ -3426,6 +3491,7 @@ export function saveUiTranslation(langCode: string, key: string, value: string):
   current.uiTranslations[lang][key] = value;
   db.languageSettings = current;
   saveData(db);
+  saveDocToFirestore('languageSettings', 'global', db.languageSettings);
 }
 
 export function saveBatchUiTranslations(langCode: string, translations: Record<string, string>): void {
@@ -3447,6 +3513,7 @@ export function saveBatchUiTranslations(langCode: string, translations: Record<s
 
   db.languageSettings = current;
   saveData(db);
+  saveDocToFirestore('languageSettings', 'global', db.languageSettings);
 }
 
 export function getEntityTranslations(entityType?: string, entityId?: string, langCode?: string): EntityTranslation[] {
@@ -3518,6 +3585,7 @@ export function saveEntityTranslation(translation: Partial<EntityTranslation> & 
   }
 
   saveData(db);
+  saveDocToFirestore('entityTranslations', updated.id, updated);
   return updated;
 }
 
