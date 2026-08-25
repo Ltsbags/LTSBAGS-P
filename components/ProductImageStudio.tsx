@@ -206,7 +206,11 @@ export default function ProductImageStudio({
   };
 
   const handleReprocess = async () => {
-    if (!originalUrl) return;
+    const sourceUrl = currentImage?.originalUrl || originalUrl || activeUrl || value;
+    if (!sourceUrl) {
+      setErrorMessage('No source image available to process. Please upload a product photo.');
+      return;
+    }
     setErrorMessage('');
     setProgressPercent(10);
     setProcessingStatus('removing_background');
@@ -219,7 +223,7 @@ export default function ProductImageStudio({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          imageUrl: originalUrl,
+          imageUrl: sourceUrl,
           productName,
           categoryName,
           variantSuffix: isPrimary ? 'main' : 'gallery',
@@ -246,7 +250,7 @@ export default function ProductImageStudio({
         throw new Error(data.error || 'Reprocessing failed');
       }
     } catch (err: any) {
-      setErrorMessage(err.message || 'Failed to reprocess image');
+      setErrorMessage(err.message || 'Failed to reprocess image. Please re-upload or select a photo.');
       setProcessingStatus('completed');
     }
   };
@@ -599,9 +603,28 @@ export default function ProductImageStudio({
 
       {/* Error alert */}
       {errorMessage && (
-        <div className="bg-amber-950/40 border border-amber-500/30 text-amber-200 p-2 rounded-lg text-xs flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-          <span className="leading-tight">{errorMessage}</span>
+        <div className="bg-amber-950/40 border border-amber-500/30 text-amber-200 p-2.5 rounded-lg text-xs flex items-start justify-between gap-2">
+          <div className="flex items-start gap-2 flex-1">
+            <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <span className="leading-tight block">{errorMessage}</span>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="text-[11px] text-amber-300 hover:text-amber-200 underline font-bold"
+              >
+                Upload a new image file
+              </button>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setErrorMessage('')}
+            className="text-slate-400 hover:text-white text-xs px-1"
+            title="Dismiss"
+          >
+            ✕
+          </button>
         </div>
       )}
 

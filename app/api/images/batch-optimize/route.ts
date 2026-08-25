@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAdminAuth, logAuditActivity } from '@/lib/auth';
 import { coreImageProcessor } from '@/lib/image-processing/core-processor';
+import { resolveImageBuffer } from '@/lib/image-processing/buffer-resolver';
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,23 +27,17 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      // If it's a data URL or external URL we can try to fetch buffer
       try {
-        let buffer: Buffer | null = null;
-        if (item.url.startsWith('data:')) {
-          const base64Data = item.url.split(',')[1];
-          if (base64Data) {
-            buffer = Buffer.from(base64Data, 'base64');
-          }
-        } else if (item.url.startsWith('http')) {
-          const res = await fetch(item.url);
-          if (res.ok) {
-            const arr = await res.arrayBuffer();
-            buffer = Buffer.from(arr);
-          }
+        const sourceUrl = item.originalUrl || item.url;
+        if (!sourceUrl) {
+          skippedCount++;
+          continue;
         }
 
-        if (buffer) {
+        const resolved = await resolveImageBuffer(sourceUrl);
+        const buffer = resolved.buffer;
+
+        if (buffer && buffer.length > 0) {
           const result = await coreImageProcessor.processAndOptimize(buffer, {
             preset: item.preset || (item.category === 'PRODUCTS' ? 'product_main' : item.category === 'HERO' ? 'hero_banner' : 'general'),
             contextName: item.title,

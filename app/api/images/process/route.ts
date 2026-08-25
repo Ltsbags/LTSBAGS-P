@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { imageProcessingService } from '@/lib/image-processing/service';
 import { ProcessImageOptions } from '@/lib/image-processing/types';
+import { resolveImageBuffer } from '@/lib/image-processing/buffer-resolver';
 import { db } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
@@ -34,19 +35,15 @@ export async function POST(req: NextRequest) {
       const formData = await req.formData();
       const file = formData.get('file') as File | null;
       const originalUrl = formData.get('originalUrl') as string | null;
+      const imageUrl = formData.get('imageUrl') as string | null;
 
       if (file) {
         const bytes = await file.arrayBuffer();
-        buffer = Buffer.from(bytes);
-      } else if (originalUrl) {
-        if (originalUrl.startsWith('data:')) {
-          const parts = originalUrl.split(',');
-          buffer = Buffer.from(parts[1], 'base64');
-        } else if (originalUrl.startsWith('http://') || originalUrl.startsWith('https://')) {
-          const fetched = await fetch(originalUrl);
-          const arrayBuf = await fetched.arrayBuffer();
-          buffer = Buffer.from(arrayBuf);
-        }
+        const resolved = await resolveImageBuffer(bytes);
+        buffer = resolved.buffer;
+      } else if (originalUrl || imageUrl) {
+        const resolved = await resolveImageBuffer(originalUrl || imageUrl);
+        buffer = resolved.buffer;
       }
 
       options = {
@@ -76,19 +73,11 @@ export async function POST(req: NextRequest) {
     } else {
       // JSON payload (e.g. { dataUrl, options })
       const body = await req.json();
-      const rawData = body.dataUrl || body.imageUrl || body.base64;
+      const rawData = body.dataUrl || body.imageUrl || body.originalUrl || body.base64;
 
       if (rawData) {
-        if (rawData.startsWith('data:')) {
-          const parts = rawData.split(',');
-          buffer = Buffer.from(parts[1], 'base64');
-        } else if (rawData.startsWith('http://') || rawData.startsWith('https://')) {
-          const fetched = await fetch(rawData);
-          const arrayBuf = await fetched.arrayBuffer();
-          buffer = Buffer.from(arrayBuf);
-        } else {
-          buffer = Buffer.from(rawData, 'base64');
-        }
+        const resolved = await resolveImageBuffer(rawData);
+        buffer = resolved.buffer;
       }
 
       options = {
@@ -135,8 +124,8 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Image processing API error:', error);
     return NextResponse.json(
-      { error: `Internal processing error: ${error.message || 'Unknown error'}` },
-      { status: 500 }
+      { error: error.message || 'Image processing error' },
+      { status: 422 }
     );
   }
 }
