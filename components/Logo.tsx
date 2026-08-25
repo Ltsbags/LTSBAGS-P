@@ -11,6 +11,7 @@ interface LogoProps {
   showIcon?: boolean;
   showText?: boolean;
   overrideLogoUrl?: string;
+  overrideLogoDarkUrl?: string;
   overrideLogoText?: string;
   overrideLogoSubtitle?: string;
 }
@@ -24,36 +25,77 @@ export default function Logo({
   showIcon = true,
   showText = true,
   overrideLogoUrl,
+  overrideLogoDarkUrl,
   overrideLogoText,
   overrideLogoSubtitle,
 }: LogoProps) {
-  const [fetchedSettings, setFetchedSettings] = useState<{ logoUrl?: string; logoText?: string; logoSubtitle?: string } | null>(null);
+  const [fetchedSettings, setFetchedSettings] = useState<{
+    logoUrl?: string;
+    logoDarkUrl?: string;
+    logoText?: string;
+    logoSubtitle?: string;
+  } | null>(null);
   const [imgError, setImgError] = useState<boolean>(false);
 
   useEffect(() => {
-    if (overrideLogoUrl !== undefined) return;
     let active = true;
-    fetch('/api/settings')
-      .then((res) => {
-        if (!res.ok) return null;
-        return res.json();
-      })
-      .then((data) => {
-        if (active && data && !data.error) {
-          setFetchedSettings(data);
-        }
-      })
-      .catch(() => {
-        // Silently retain defaults
-      });
+
+    const loadSettings = () => {
+      fetch('/api/settings')
+        .then((res) => {
+          if (!res.ok) return null;
+          return res.json();
+        })
+        .then((data) => {
+          if (active && data && !data.error) {
+            setFetchedSettings(data);
+            setImgError(false);
+          }
+        })
+        .catch(() => {
+          // Silently retain defaults
+        });
+    };
+
+    loadSettings();
+
+    const handleSettingsUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        setFetchedSettings(customEvent.detail);
+        setImgError(false);
+      } else {
+        loadSettings();
+      }
+    };
+
+    window.addEventListener('site-settings-updated', handleSettingsUpdate);
+    window.addEventListener('storage', loadSettings);
+
     return () => {
       active = false;
+      window.removeEventListener('site-settings-updated', handleSettingsUpdate);
+      window.removeEventListener('storage', loadSettings);
     };
-  }, [overrideLogoUrl]);
+  }, []);
 
-  const logoUrl = overrideLogoUrl !== undefined ? overrideLogoUrl : (fetchedSettings?.logoUrl || '');
+  const isDark = theme === 'dark';
+
+  // Determine active logo URL based on theme and overrides
+  const effectiveLogoUrl = overrideLogoUrl !== undefined ? overrideLogoUrl : (fetchedSettings?.logoUrl || '');
+  const effectiveDarkLogoUrl = overrideLogoDarkUrl !== undefined 
+    ? overrideLogoDarkUrl 
+    : (fetchedSettings?.logoDarkUrl || '');
+
+  const activeLogoUrl = isDark && effectiveDarkLogoUrl ? effectiveDarkLogoUrl : effectiveLogoUrl;
+
   const logoText = overrideLogoText !== undefined ? overrideLogoText : (fetchedSettings?.logoText || 'LTS BAGS');
   const logoSubtitle = overrideLogoSubtitle !== undefined ? overrideLogoSubtitle : (fetchedSettings?.logoSubtitle || 'PRIVATE LIMITED');
+
+  // Reset img error if activeLogoUrl changes
+  useEffect(() => {
+    setImgError(false);
+  }, [activeLogoUrl]);
 
   // Height mappings for container
   const containerHeights = {
@@ -87,13 +129,72 @@ export default function Logo({
   };
 
   // Color theme helpers
-  const isDark = theme === 'dark';
-  const primaryTextColor = isDark ? 'text-white' : 'text-slate-900 dark:text-white';
-  const subtitleTextColor = isDark ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400';
-  const emblemLColor = isDark ? '#FFFFFF' : '#0F172A';
+  const ltsGreyColor = isDark ? 'text-slate-100' : 'text-[#8F949B]';
+  const bagsBlueColor = isDark ? 'text-[#38BDF8]' : 'text-[#6CA4D9]';
+  const subtitleTextColor = isDark ? 'text-slate-400' : 'text-[#94A3B8]';
+  const emblemLColor = isDark ? '#FFFFFF' : '#8F949B';
+  const emblemBGradientId = `ltsBlueGrad_${theme}_${size}`;
 
-  // If a custom image was uploaded and it's NOT the default logo.svg
-  const hasCustomUploadedImage = logoUrl && logoUrl !== '/logo.svg' && logoUrl !== '/logo-white.svg' && !imgError;
+  // If a custom image was uploaded or a specific logo URL is configured
+  const hasCustomUploadedImage = Boolean(activeLogoUrl && !imgError);
+
+  if (variant === 'vertical') {
+    return (
+      <div
+        id="brand-logo-container"
+        className={`inline-flex flex-col items-center justify-center gap-2 group select-none ${className}`}
+      >
+        {hasCustomUploadedImage ? (
+          <img
+            key={activeLogoUrl}
+            src={activeLogoUrl}
+            alt={logoText || 'LTS BAGS Logo'}
+            className={`${containerHeights[size]} w-auto max-w-[260px] sm:max-w-[320px] object-contain object-center transition-transform duration-200 group-hover:scale-[1.02] drop-shadow-xs`}
+            style={{ objectFit: 'contain', objectPosition: 'center' }}
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <>
+            {/* Emblem */}
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
+              <svg
+                viewBox="0 0 130 130"
+                className="w-full h-full drop-shadow-xs"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <linearGradient id={`${emblemBGradientId}_vert`} x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor={isDark ? '#38BDF8' : '#6CA4D9'} />
+                    <stop offset="100%" stopColor={isDark ? '#0284C7' : '#5599D0'} />
+                  </linearGradient>
+                </defs>
+                <path fill={emblemLColor} d="M 0 0 H 34 V 82 H 66 L 68 116 H 0 Z" />
+                <path
+                  fill={`url(#${emblemBGradientId}_vert)`}
+                  fillRule="evenodd"
+                  d="M 34 0 H 82 C 106 0 120 12 120 31 C 120 43 111 52 98 57 C 114 62 124 73 124 90 C 124 110 108 120 82 120 H 74 L 72 100 H 80 C 95 100 102 94 102 85 C 102 76 95 70 80 70 H 34 V 48 H 76 C 90 48 98 42 98 33 C 98 24 90 18 76 18 H 34 Z"
+                />
+              </svg>
+            </div>
+
+            {/* LTS BAGS */}
+            <div className="flex items-center gap-1.5 leading-none">
+              <span className={`font-black tracking-tight ${titleTextSizes[size]} ${ltsGreyColor} font-sans`}>
+                LTS
+              </span>
+              <span className={`font-black tracking-tight ${titleTextSizes[size]} ${bagsBlueColor} font-sans`}>
+                BAGS
+              </span>
+              <span className={`text-[10px] sm:text-[11px] font-bold ${bagsBlueColor} self-start -mt-0.5 ml-0.5`}>
+                ®
+              </span>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -103,8 +204,8 @@ export default function Logo({
       {hasCustomUploadedImage ? (
         <div className="flex items-center shrink-0">
           <img
-            key={logoUrl}
-            src={logoUrl}
+            key={activeLogoUrl}
+            src={activeLogoUrl}
             alt={logoText || 'LTS BAGS Logo'}
             className={`${containerHeights[size]} w-auto max-w-[260px] sm:max-w-[320px] object-contain object-center transition-transform duration-200 group-hover:scale-[1.02] drop-shadow-xs`}
             style={{ objectFit: 'contain', objectPosition: 'center' }}
@@ -119,28 +220,29 @@ export default function Logo({
               className={`relative shrink-0 ${iconDimensions[size]} flex items-center justify-center transition-transform duration-200 group-hover:scale-105`}
             >
               <svg
-                viewBox="0 0 140 140"
+                viewBox="0 0 130 130"
                 className="w-full h-full drop-shadow-xs"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <defs>
-                  <linearGradient id={`ltsBlueGrad_${theme}_${size}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#0284C7" />
-                    <stop offset="100%" stopColor="#0369A1" />
+                  <linearGradient id={emblemBGradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor={isDark ? '#38BDF8' : '#6CA4D9'} />
+                    <stop offset="100%" stopColor={isDark ? '#0284C7' : '#5599D0'} />
                   </linearGradient>
                 </defs>
 
                 {/* Base 'L' Column */}
                 <path
-                  d="M 6 4 H 42 V 88 H 74 V 122 H 6 Z"
+                  d="M 0 0 H 34 V 82 H 66 L 68 116 H 0 Z"
                   fill={emblemLColor}
                 />
 
                 {/* Interlocking 'B' Lobe */}
                 <path
-                  d="M 42 4 H 92 C 118 4 134 18 134 39 C 134 53 124 64 110 70 C 128 76 138 90 138 107 C 138 129 120 140 92 140 H 42 V 116 H 88 C 102 116 110 109 110 99 C 110 89 102 82 88 82 H 42 V 58 H 84 C 98 58 106 51 106 42 C 106 33 98 26 84 26 H 42 Z"
-                  fill={`url(#ltsBlueGrad_${theme}_${size})`}
+                  d="M 34 0 H 82 C 106 0 120 12 120 31 C 120 43 111 52 98 57 C 114 62 124 73 124 90 C 124 110 108 120 82 120 H 74 L 72 100 H 80 C 95 100 102 94 102 85 C 102 76 95 70 80 70 H 34 V 48 H 76 C 90 48 98 42 98 33 C 98 24 90 18 76 18 H 34 Z"
+                  fill={`url(#${emblemBGradientId})`}
+                  fillRule="evenodd"
                 />
               </svg>
             </div>
@@ -151,17 +253,17 @@ export default function Logo({
             <div className="flex flex-col justify-center leading-none text-left">
               <div className="flex items-center gap-1 sm:gap-1.5 leading-none">
                 <span
-                  className={`font-black tracking-tight ${titleTextSizes[size]} ${primaryTextColor} font-sans`}
+                  className={`font-black tracking-tight ${titleTextSizes[size]} ${ltsGreyColor} font-sans`}
                 >
                   LTS
                 </span>
                 <span
-                  className={`font-black tracking-tight ${titleTextSizes[size]} text-[#0284C7] dark:text-[#38BDF8] font-sans`}
+                  className={`font-black tracking-tight ${titleTextSizes[size]} ${bagsBlueColor} font-sans`}
                 >
                   BAGS
                 </span>
                 {/* Registered ® Symbol */}
-                <span className="text-[10px] sm:text-[11px] font-bold text-[#0284C7] dark:text-[#38BDF8] self-start -mt-0.5 ml-0.5">
+                <span className={`text-[10px] sm:text-[11px] font-bold ${bagsBlueColor} self-start -mt-0.5 ml-0.5`}>
                   ®
                 </span>
               </div>

@@ -9,6 +9,8 @@ interface MediaLibraryPickerModalProps {
   onClose: () => void;
   onSelect: (asset: MediaAsset) => void;
   categoryFilter?: string;
+  title?: string;
+  subtitle?: string;
 }
 
 export default function MediaLibraryPickerModal({
@@ -16,6 +18,8 @@ export default function MediaLibraryPickerModal({
   onClose,
   onSelect,
   categoryFilter,
+  title = 'Select from Media Library',
+  subtitle = 'Pick previously optimized web-ready assets',
 }: MediaLibraryPickerModalProps) {
   const [mediaList, setMediaList] = useState<MediaAsset[]>([]);
   const [loading, setLoading] = useState(false);
@@ -77,8 +81,8 @@ export default function MediaLibraryPickerModal({
               <ImageIcon className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">Select from Media Library</h3>
-              <p className="text-xs text-slate-500">Pick previously optimized web-ready assets</p>
+              <h3 className="text-base font-bold text-slate-900">{title}</h3>
+              <p className="text-xs text-slate-500">{subtitle}</p>
             </div>
           </div>
           <button

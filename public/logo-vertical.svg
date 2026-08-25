@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 320" width="100%" height="100%">
+  <defs>
+    <!-- Brand Exact Palette -->
+    <linearGradient id="ltsGreyGradVert" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#939598" />
+      <stop offset="100%" stop-color="#7D828A" />
+    </linearGradient>
+    <linearGradient id="ltsBlueGradVert" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6CA4D9" />
+      <stop offset="100%" stop-color="#5599D0" />
+    </linearGradient>
+  </defs>
+
+  <!-- ========================================== -->
+  <!-- 1. ICON EMBLEM (CENTERED AT TOP)           -->
+  <!-- ========================================== -->
+  <g transform="translate(140, 15)">
+    <!-- Letter 'L' (Slate Grey) -->
+    <path fill="url(#ltsGreyGradVert)" d="M 0 0 H 34 V 82 H 66 L 68 116 H 0 Z" />
+    
+    <!-- Letter 'B' (Sky Blue Interlocking Monogram) -->
+    <path fill="url(#ltsBlueGradVert)" fill-rule="evenodd" d="
+      M 34 0 
+      H 82 
+      C 106 0 120 12 120 31 
+      C 120 43 111 52 98 57 
+      C 114 62 124 73 124 90 
+      C 124 110 108 120 82 120 
+      H 74 
+      L 72 100 
+      H 80 
+      C 95 100 102 94 102 85 
+      C 102 76 95 70 80 70 
+      H 34 
+      V 48 
+      H 76 
+      C 90 48 98 42 98 33 
+      C 98 24 90 18 76 18 
+      H 34 
+      Z
+    " />
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 2. TYPOGRAPHY WORDMARK: LTS (Grey)         -->
+  <!-- ========================================== -->
+  <g fill="url(#ltsGreyGradVert)" transform="translate(20, 175)">
+    <!-- Letter L -->
+    <path d="M 0 0 H 22 V 70 H 60 V 90 H 0 Z" />
+    
+    <!-- Letter T -->
+    <path d="M 66 0 H 132 V 20 H 110 V 90 H 88 V 20 H 66 Z" />
+    
+    <!-- Letter S -->
+    <path d="
+      M 142 22 
+      C 142 9 155 0 174 0 
+      C 193 0 206 9 207 25 
+      H 183 
+      C 182 19 178 16 174 16 
+      C 170 16 166 19 166 22 
+      C 166 25 170 28 178 30 
+      L 187 33 
+      C 202 37 210 46 210 58 
+      C 210 75 195 84 174 84 
+      C 153 84 139 74 137 56 
+      H 161 
+      C 162 64 168 68 174 68 
+      C 181 68 185 65 185 60 
+      C 185 55 181 52 172 49 
+      L 163 47 
+      C 148 42 142 33 142 22 
+      Z
+    " />
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 3. TYPOGRAPHY WORDMARK: BAGS (Sky Blue)    -->
+  <!-- ========================================== -->
+  <g fill="url(#ltsBlueGradVert)" transform="translate(245, 175)">
+    <!-- Letter B -->
+    <path d="
+      M 0 0 
+      H 40 
+      C 55 0 65 8 65 21 
+      C 65 30 59 36 49 39 
+      C 62 42 69 49 69 62 
+      C 69 77 55 90 40 90 
+      H 0 
+      Z 
+      M 23 18 
+      V 34 
+      H 38 
+      C 43 34 47 30 47 26 
+      C 47 22 43 18 38 18 
+      Z 
+      M 23 49 
+      V 72 
+      H 39 
+      C 45 72 49 69 49 60 
+      C 49 52 45 49 39 49 
+      Z
+    " />
+    
+    <!-- Letter A -->
+    <path d="
+      M 98 0 
+      H 121 
+      L 144 90 
+      H 121 
+      L 116 70 
+      H 91 
+      L 86 90 
+      H 63 
+      Z 
+      M 96 51 
+      H 111 
+      L 103 21 
+      Z
+    " />
+    
+    <!-- Letter G -->
+    <path d="
+      M 209 23 
+      H 184 
+      C 183 19 179 15 171 15 
+      C 161 15 155 24 155 45 
+      C 155 65 161 75 171 75 
+      C 179 75 183 70 184 63 
+      H 171 
+      V 45 
+      H 209 
+      V 78 
+      C 200 87 186 92 171 92 
+      C 147 92 131 76 131 45 
+      C 131 15 149 0 171 0 
+      C 190 0 203 10 209 23 
+      Z
+    " />
+    
+    <!-- Letter S -->
+    <path d="
+      M 221 22 
+      C 221 9 234 0 253 0 
+      C 272 0 285 9 286 25 
+      H 262 
+      C 261 19 257 16 253 16 
+      C 249 16 245 19 245 22 
+      C 245 25 249 28 257 30 
+      L 266 33 
+      C 281 37 289 46 289 58 
+      C 289 75 274 84 253 84 
+      C 232 84 218 74 216 56 
+      H 240 
+      C 241 64 247 68 253 68 
+      C 260 68 264 65 264 60 
+      C 264 55 260 52 251 49 
+      L 242 47 
+      C 227 42 221 33 221 22 
+      Z
+    " />
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 4. REGISTERED TRADEMARK SYMBOL (®)         -->
+  <!-- ========================================== -->
+  <g transform="translate(540, 168)">
+    <circle cx="10" cy="10" r="9.5" stroke="url(#ltsBlueGradVert)" stroke-width="1.8" fill="none" />
+    <text x="10" y="14" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900" fill="url(#ltsBlueGradVert)" text-anchor="middle">R</text>
+  </g>
+</svg>

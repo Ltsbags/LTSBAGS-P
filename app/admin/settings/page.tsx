@@ -46,9 +46,13 @@ import {
   AlertTriangle,
   Loader2,
   Lock,
-  Info
+  Info,
+  FolderOpen,
+  CheckCheck,
+  Sparkle
 } from 'lucide-react';
-import { SiteSettings, StatItem, FeatureItem, ProcessStepItem, TestimonialItem, ClientLogoItem } from '@/lib/types';
+import { SiteSettings, StatItem, FeatureItem, ProcessStepItem, TestimonialItem, ClientLogoItem, MediaAsset } from '@/lib/types';
+import MediaLibraryPickerModal from '@/components/MediaLibraryPickerModal';
 
 export default function AdminSettingsPage() {
   const [activeTab, setActiveTab] = useState<'brand' | 'images' | 'contact' | 'homepage' | 'features' | 'testimonials' | 'about' | 'footer' | 'metrics' | 'seo'>('brand');
@@ -91,10 +95,16 @@ export default function AdminSettingsPage() {
   const [clientSectionMode, setClientSectionMode] = useState<'CLIENTS' | 'INDUSTRIES_SERVED'>('INDUSTRIES_SERVED');
   const [clientSectionTitle, setClientSectionTitle] = useState('Businesses & Industries We Serve');
 
-  // Settings state
+  // Brand & Logo Settings state
   const [logoUrl, setLogoUrl] = useState<string>('');
+  const [logoDarkUrl, setLogoDarkUrl] = useState<string>('');
   const [logoText, setLogoText] = useState<string>('LTS BAGS');
   const [logoSubtitle, setLogoSubtitle] = useState<string>('PRIVATE LIMITED');
+  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState<boolean>(false);
+  const [mediaPickerTarget, setMediaPickerTarget] = useState<'logo' | 'logoDark' | 'clientLogo'>('logo');
+  const [isDraggingLogo, setIsDraggingLogo] = useState<boolean>(false);
+  const [isDraggingDarkLogo, setIsDraggingDarkLogo] = useState<boolean>(false);
+  const darkFileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Contact Info
   const [companyName, setCompanyName] = useState('LTS BAGS PRIVATE LIMITED');
@@ -186,6 +196,7 @@ export default function AdminSettingsPage() {
       .then((data: SiteSettings) => {
         if (data) {
           if (data.logoUrl !== undefined) setLogoUrl(data.logoUrl);
+          if (data.logoDarkUrl !== undefined) setLogoDarkUrl(data.logoDarkUrl);
           if (data.logoText) setLogoText(data.logoText);
           if (data.logoSubtitle) setLogoSubtitle(data.logoSubtitle);
 
@@ -305,8 +316,7 @@ export default function AdminSettingsPage() {
       });
   }, []);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, targetField: 'logo' | 'clientLogo') => {
-    const file = e.target.files?.[0];
+  const uploadImageFile = async (file: File, targetField: 'logo' | 'logoDark' | 'clientLogo') => {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
@@ -319,6 +329,8 @@ export default function AdminSettingsPage() {
 
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('preset', 'general');
+    formData.append('contextName', targetField === 'logo' ? 'LTS BAGS Primary Brand Logo' : targetField === 'logoDark' ? 'LTS BAGS Dark Header Logo' : 'Client Logo');
 
     try {
       const res = await fetch('/api/upload', {
@@ -330,10 +342,13 @@ export default function AdminSettingsPage() {
       if (res.ok && data.url) {
         if (targetField === 'logo') {
           setLogoUrl(data.url);
-          setNotification({ type: 'success', message: 'Logo uploaded! Click "Save Website Content" to publish changes.' });
+          setNotification({ type: 'success', message: '✅ Primary logo uploaded successfully! Click "Save & Publish Brand Logo" to apply across the entire website.' });
+        } else if (targetField === 'logoDark') {
+          setLogoDarkUrl(data.url);
+          setNotification({ type: 'success', message: '✅ Dark-theme logo uploaded successfully! Click "Save & Publish Brand Logo" to apply.' });
         }
       } else {
-        setNotification({ type: 'error', message: data.error || 'Failed to upload image.' });
+        setNotification({ type: 'error', message: data.error || 'Failed to upload logo image.' });
       }
     } catch (err) {
       console.error('Upload error:', err);
@@ -341,6 +356,26 @@ export default function AdminSettingsPage() {
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, targetField: 'logo' | 'logoDark' | 'clientLogo') => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await uploadImageFile(file, targetField);
+      // Reset input value so the same file can be re-uploaded if modified
+      e.target.value = '';
+    }
+  };
+
+  const handleMediaAssetSelect = (asset: MediaAsset) => {
+    if (mediaPickerTarget === 'logo') {
+      setLogoUrl(asset.url);
+      setNotification({ type: 'success', message: 'Logo selected from Media Library. Remember to click "Save & Publish Brand Logo" to commit changes.' });
+    } else if (mediaPickerTarget === 'logoDark') {
+      setLogoDarkUrl(asset.url);
+      setNotification({ type: 'success', message: 'Dark-mode logo selected from Media Library. Click "Save & Publish Brand Logo" to commit changes.' });
+    }
+    setIsMediaPickerOpen(false);
   };
 
   const handleTestProvider = async (type: 'bg_removal' | 'upscaling') => {
@@ -402,6 +437,7 @@ export default function AdminSettingsPage() {
 
     const payload: SiteSettings = {
       logoUrl,
+      logoDarkUrl,
       logoText,
       logoSubtitle,
       contactInfo: {
@@ -525,9 +561,19 @@ export default function AdminSettingsPage() {
           setHasStoredUpscaleKey(true);
           setImgUpscaleApiKey('');
         }
+
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('site-settings-updated', { detail: payload }));
+          try {
+            localStorage.setItem('lts_site_settings_updated', Date.now().toString());
+          } catch {
+            // ignore localStorage quota or restrictions
+          }
+        }
+
         setNotification({ 
           type: 'success', 
-          message: 'Website settings & image processing configuration updated successfully!' 
+          message: 'Website settings & brand configuration updated and published across all components!' 
         });
       } else {
         const errorData = await res.json();
@@ -1482,152 +1528,419 @@ export default function AdminSettingsPage() {
           {/* TAB 1: Brand & Logo */}
           {activeTab === 'brand' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-6">
-                <div className="border-b border-slate-100 pb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="p-1.5 bg-sky-100 text-sky-700 rounded-lg">
-                      <ImageIcon className="w-4 h-4" />
-                    </span>
-                    <h3 className="text-lg font-bold text-slate-900 font-serif">Brand Logo & Header Image</h3>
+              {/* Left Column: Uploaders & Configuration */}
+              <div className="lg:col-span-7 space-y-6">
+                
+                {/* Primary Logo Card */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-6">
+                  <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="p-1.5 bg-sky-100 text-sky-700 rounded-lg">
+                          <ImageIcon className="w-4 h-4" />
+                        </span>
+                        <h3 className="text-lg font-bold text-slate-900 font-serif">Primary Company Logo</h3>
+                      </div>
+                      <p className="text-slate-500 text-xs mt-1">
+                        Applied across main navigation header, mobile menu, quotations, invoices, and general site branding.
+                      </p>
+                    </div>
+                    {logoUrl && (
+                      <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Custom Active
+                      </span>
+                    )}
                   </div>
-                  <p className="text-slate-500 text-xs mt-1">
-                    Upload your company logo image or enter an image link. It will automatically replace text and display across the entire website.
-                  </p>
-                </div>
 
-                <div className="space-y-5">
-                  {/* File Upload Box */}
-                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-                    <label className="block text-xs font-bold text-slate-800">
-                      1. Upload Logo File (Recommended: PNG with transparent background or SVG)
-                    </label>
-                    <div className="flex flex-wrap items-center gap-3">
+                  <div className="space-y-5">
+                    {/* Drag-and-Drop / File Upload Box */}
+                    <div 
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDraggingLogo(true);
+                      }}
+                      onDragLeave={(e) => {
+                        e.preventDefault();
+                        setIsDraggingLogo(false);
+                      }}
+                      onDrop={async (e) => {
+                        e.preventDefault();
+                        setIsDraggingLogo(false);
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) await uploadImageFile(file, 'logo');
+                      }}
+                      className={`p-5 rounded-xl border-2 border-dashed transition-all ${
+                        isDraggingLogo 
+                          ? 'border-sky-500 bg-sky-50/70 scale-[1.01]' 
+                          : 'border-slate-300 bg-slate-50/80 hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center text-center space-y-3">
+                        <div className="w-12 h-12 rounded-full bg-white shadow-xs border border-slate-200 flex items-center justify-center text-sky-600">
+                          <Upload className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-800">
+                            Drag &amp; drop your logo file here, or click to upload
+                          </p>
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            Supports transparent PNG, SVG, WEBP, or JPG (Max 10MB)
+                          </p>
+                        </div>
+
+                        <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={(e) => handleFileUpload(e, 'logo')}
+                            accept="image/*"
+                            className="hidden"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isUploading}
+                            className="bg-sky-600 hover:bg-sky-700 active:scale-95 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                          >
+                            <Upload className="w-3.5 h-3.5" />
+                            <span>{isUploading ? 'Uploading Logo...' : 'Upload File'}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setMediaPickerTarget('logo');
+                              setIsMediaPickerOpen(true);
+                            }}
+                            className="bg-white hover:bg-slate-100 active:scale-95 text-slate-700 border border-slate-300 font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
+                          >
+                            <FolderOpen className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Media Library</span>
+                          </button>
+
+                          {logoUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setLogoUrl('')}
+                              className="text-rose-600 hover:text-rose-700 active:scale-95 text-xs font-bold px-3 py-2 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+                            >
+                              Reset to Default
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Direct URL Input */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Direct Logo Image URL / CDN Link
+                      </label>
                       <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={(e) => handleFileUpload(e, 'logo')}
-                        accept="image/*"
-                        className="hidden"
+                        type="text"
+                        placeholder="https://your-domain.com/images/logo.png or /logo.svg"
+                        value={logoUrl}
+                        onChange={(e) => setLogoUrl(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-sky-500 font-mono text-slate-800"
                       />
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isUploading}
-                        className="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl flex items-center gap-2 shadow-xs transition-all cursor-pointer"
-                      >
-                        <Upload className="w-4 h-4" />
-                        <span>{isUploading ? 'Uploading Logo...' : 'Choose Logo File to Upload'}</span>
-                      </button>
-                      {logoUrl && (
+                    </div>
+
+                    {/* Built-in Presets */}
+                    <div className="pt-3 border-t border-slate-100">
+                      <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        Official Presets &amp; Vector Marks
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         <button
                           type="button"
-                          onClick={() => setLogoUrl('')}
-                          className="text-rose-600 hover:text-rose-700 text-xs font-bold px-3 py-2 hover:bg-rose-50 rounded-lg transition-colors"
+                          onClick={() => setLogoUrl('/logo.svg')}
+                          className={`p-2.5 rounded-xl border text-left text-xs font-medium transition-all flex items-center justify-between ${
+                            logoUrl === '/logo.svg'
+                              ? 'border-sky-500 bg-sky-50/50 text-sky-900 font-bold'
+                              : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
+                          }`}
                         >
-                          Remove Current Logo
+                          <span className="truncate">Color Vector Logo</span>
+                          {logoUrl === '/logo.svg' && <Check className="w-3.5 h-3.5 text-sky-600 shrink-0" />}
                         </button>
-                      )}
+
+                        <button
+                          type="button"
+                          onClick={() => setLogoUrl('/logo-white.svg')}
+                          className={`p-2.5 rounded-xl border text-left text-xs font-medium transition-all flex items-center justify-between ${
+                            logoUrl === '/logo-white.svg'
+                              ? 'border-sky-500 bg-sky-50/50 text-sky-900 font-bold'
+                              : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
+                          }`}
+                        >
+                          <span className="truncate">White Monochrome</span>
+                          {logoUrl === '/logo-white.svg' && <Check className="w-3.5 h-3.5 text-sky-600 shrink-0" />}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setLogoUrl('/logo-vertical.svg')}
+                          className={`p-2.5 rounded-xl border text-left text-xs font-medium transition-all flex items-center justify-between ${
+                            logoUrl === '/logo-vertical.svg'
+                              ? 'border-sky-500 bg-sky-50/50 text-sky-900 font-bold'
+                              : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
+                          }`}
+                        >
+                          <span className="truncate">Vertical Stacked</span>
+                          {logoUrl === '/logo-vertical.svg' && <Check className="w-3.5 h-3.5 text-sky-600 shrink-0" />}
+                        </button>
+                      </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Direct URL Input */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      2. Or Enter Direct Logo Image URL (CDN / Cloud / Website Link)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="https://your-domain.com/images/logo.png"
-                      value={logoUrl}
-                      onChange={(e) => setLogoUrl(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-sky-500 font-mono text-slate-800"
-                    />
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      Tip: You can upload directly via the button above, or paste an external image link.
-                    </p>
+                {/* Secondary / Dark-Mode Logo Card */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-5">
+                  <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="p-1.5 bg-slate-900 text-white rounded-lg">
+                          <Layers className="w-4 h-4" />
+                        </span>
+                        <h3 className="text-base font-bold text-slate-900 font-serif">Dark Theme / Inverted Footer Logo (Optional)</h3>
+                      </div>
+                      <p className="text-slate-500 text-xs mt-1">
+                        Rendered against dark charcoal surfaces (e.g. Website Footer). If left blank, the Primary Logo is used.
+                      </p>
+                    </div>
+                    {logoDarkUrl && (
+                      <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-200 flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Dark Variant Set
+                      </span>
+                    )}
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-4">
+                    {/* Drag-and-Drop / File Upload Box for Dark Logo */}
+                    <div 
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDraggingDarkLogo(true);
+                      }}
+                      onDragLeave={(e) => {
+                        e.preventDefault();
+                        setIsDraggingDarkLogo(false);
+                      }}
+                      onDrop={async (e) => {
+                        e.preventDefault();
+                        setIsDraggingDarkLogo(false);
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) await uploadImageFile(file, 'logoDark');
+                      }}
+                      className={`p-4 rounded-xl border-2 border-dashed transition-all ${
+                        isDraggingDarkLogo 
+                          ? 'border-indigo-500 bg-indigo-50/70 scale-[1.01]' 
+                          : 'border-slate-200 bg-slate-50/80 hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between flex-wrap gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center shrink-0">
+                            <Upload className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-slate-800">Upload Inverted / White Logo</p>
+                            <p className="text-[11px] text-slate-500">PNG with transparency or SVG</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="file"
+                            ref={darkFileInputRef}
+                            onChange={(e) => handleFileUpload(e, 'logoDark')}
+                            accept="image/*"
+                            className="hidden"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => darkFileInputRef.current?.click()}
+                            disabled={isUploading}
+                            className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
+                          >
+                            <Upload className="w-3.5 h-3.5" />
+                            <span>Upload</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setMediaPickerTarget('logoDark');
+                              setIsMediaPickerOpen(true);
+                            }}
+                            className="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
+                          >
+                            <FolderOpen className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Library</span>
+                          </button>
+
+                          {logoDarkUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setLogoDarkUrl('')}
+                              className="text-rose-600 hover:text-rose-700 text-xs font-bold px-2 py-1.5 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">Company Alt / Brand Name</label>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Direct Dark Logo Image URL
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="https://your-domain.com/images/logo-white.png or /logo-white.svg"
+                        value={logoDarkUrl}
+                        onChange={(e) => setLogoDarkUrl(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-slate-800"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Company Name & Tagline */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
+                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    Company Text Fallbacks &amp; SEO Alt Tags
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Company Display / Alt Name</label>
                       <input
                         type="text"
                         value={logoText}
                         onChange={(e) => setLogoText(e.target.value)}
                         placeholder="LTS BAGS"
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-sky-500"
+                        className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-sky-500 font-semibold"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">Company Tagline / Subtitle</label>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Tagline / Subtitle</label>
                       <input
                         type="text"
                         value={logoSubtitle}
                         onChange={(e) => setLogoSubtitle(e.target.value)}
                         placeholder="PRIVATE LIMITED"
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-sky-500"
+                        className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-sky-500 font-semibold"
                       />
                     </div>
                   </div>
                 </div>
+
               </div>
 
-              {/* Preview Box */}
-              <div className="lg:col-span-5 bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 shadow-md space-y-4 flex flex-col justify-between">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sky-400 font-mono text-[10px] uppercase font-bold tracking-widest bg-sky-500/10 px-2.5 py-1 rounded-md border border-sky-500/20">
-                      Live Header Logo Preview
-                    </span>
-                    {logoUrl ? (
-                      <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Logo Image Active
-                      </span>
-                    ) : (
-                      <span className="text-[11px] font-medium text-slate-400">
-                        Default Logo Mark
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="text-[11px] text-slate-400 font-medium">Dark Header / Footer Preview:</div>
-                    <div className="p-5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-center min-h-[90px]">
-                      <Logo
-                        overrideLogoUrl={logoUrl}
-                        overrideLogoText={logoText}
-                        overrideLogoSubtitle={logoSubtitle}
-                        size="lg"
-                        theme="dark"
-                      />
+              {/* Right Column: Live Multi-Surface Previews */}
+              <div className="lg:col-span-5 space-y-6">
+                <div className="bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 shadow-xl space-y-5 sticky top-24">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-sky-400">
+                        Live Multi-Surface Previews
+                      </h4>
                     </div>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      Real-time Preview
+                    </span>
                   </div>
 
-                  <div className="space-y-3">
-                    <div className="text-[11px] text-slate-400 font-medium">Light Header Navbar Preview:</div>
-                    <div className="p-5 bg-white rounded-xl border border-slate-200 flex items-center justify-center min-h-[90px]">
+                  {/* Surface 1: Light Header Navbar */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-[11px] text-slate-400">
+                      <span className="font-semibold text-slate-200">1. Light Navbar (Header):</span>
+                      <span className="font-mono text-[10px] bg-slate-800 px-2 py-0.5 rounded">theme=&quot;light&quot;</span>
+                    </div>
+                    <div className="p-4 bg-white rounded-xl border border-slate-300 shadow-inner flex items-center justify-between">
                       <Logo
                         overrideLogoUrl={logoUrl}
+                        overrideLogoDarkUrl={logoDarkUrl}
                         overrideLogoText={logoText}
                         overrideLogoSubtitle={logoSubtitle}
-                        size="lg"
+                        size="md"
                         theme="light"
                       />
+                      <div className="hidden sm:flex items-center gap-3 text-[11px] font-semibold text-slate-600">
+                        <span>Products</span>
+                        <span>OEM/ODM</span>
+                        <span>Contact</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="pt-4 border-t border-slate-800">
-                  <button
-                    type="button"
-                    onClick={() => handleSaveAllSettings()}
-                    disabled={isSaving}
-                    className="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
-                  >
-                    <Save className="w-4 h-4" />
-                    <span>Save & Publish Logo to Website</span>
-                  </button>
+                  {/* Surface 2: Dark Footer Canvas */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-[11px] text-slate-400">
+                      <span className="font-semibold text-slate-200">2. Dark Footer Surface:</span>
+                      <span className="font-mono text-[10px] bg-slate-800 px-2 py-0.5 rounded">theme=&quot;dark&quot;</span>
+                    </div>
+                    <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+                      <Logo
+                        overrideLogoUrl={logoUrl}
+                        overrideLogoDarkUrl={logoDarkUrl}
+                        overrideLogoText={logoText}
+                        overrideLogoSubtitle={logoSubtitle}
+                        size="md"
+                        theme="dark"
+                      />
+                      <span className="text-[10px] text-slate-500 font-mono">ISO 9001:2015</span>
+                    </div>
+                  </div>
+
+                  {/* Surface 3: Compact Mobile Bar */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-[11px] text-slate-400">
+                      <span className="font-semibold text-slate-200">3. Mobile / Compact Header:</span>
+                      <span className="font-mono text-[10px] bg-slate-800 px-2 py-0.5 rounded">size=&quot;sm&quot;</span>
+                    </div>
+                    <div className="p-3 bg-white rounded-xl border border-slate-300 flex items-center justify-between">
+                      <Logo
+                        overrideLogoUrl={logoUrl}
+                        overrideLogoDarkUrl={logoDarkUrl}
+                        overrideLogoText={logoText}
+                        overrideLogoSubtitle={logoSubtitle}
+                        size="sm"
+                        theme="light"
+                      />
+                      <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 text-xs font-bold">
+                        ☰
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Save Button for Brand Tab */}
+                  <div className="pt-3 border-t border-slate-800 space-y-2">
+                    <button
+                      type="button"
+                      onClick={() => handleSaveAllSettings()}
+                      disabled={isSaving}
+                      className="w-full bg-sky-600 hover:bg-sky-500 active:scale-[0.98] text-white font-bold text-xs py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer disabled:opacity-50"
+                    >
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Publishing Changes...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4" />
+                          <span>Save &amp; Publish Brand Logo</span>
+                        </>
+                      )}
+                    </button>
+                    <p className="text-center text-[10px] text-slate-400">
+                      Instantly updates Header, Footer, Admin Bar &amp; Invoices across the website.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2693,6 +3006,17 @@ export default function AdminSettingsPage() {
 
         </div>
       </main>
+
+      {/* Media Library Asset Picker Modal */}
+      {isMediaPickerOpen && (
+        <MediaLibraryPickerModal
+          isOpen={isMediaPickerOpen}
+          onClose={() => setIsMediaPickerOpen(false)}
+          onSelect={handleMediaAssetSelect}
+          title={mediaPickerTarget === 'logo' ? 'Select Primary Company Logo' : 'Select Dark Footer Logo'}
+          categoryFilter="LOGOS"
+        />
+      )}
     </div>
   );
 }

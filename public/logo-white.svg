@@ -1,59 +1,175 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 140" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 140" width="100%" height="100%">
   <defs>
-    <linearGradient id="ltsBlueGradLight" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ltsBlueGradWhiteMode" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#38BDF8" />
       <stop offset="100%" stop-color="#0284C7" />
     </linearGradient>
   </defs>
 
-  <!-- ==================== EMBLEM (LB MONOGRAM) ==================== -->
+  <!-- ========================================== -->
+  <!-- 1. ICON EMBLEM (LB MONOGRAM)              -->
+  <!-- ========================================== -->
   <g transform="translate(10, 10)">
-    <!-- White 'L' shape -->
-    <path fill="#FFFFFF" d="M 0 0 H 36 V 85 H 68 V 116 H 0 Z" />
+    <!-- Letter 'L' (Crisp White) -->
+    <path fill="#FFFFFF" d="M 0 0 H 34 V 82 H 66 L 68 116 H 0 Z" />
     
-    <!-- Light Blue 'B' Interlocking shape -->
-    <path fill="url(#ltsBlueGradLight)" d="M 36 0 H 88 C 114 0 130 14 130 35 C 130 49 120 60 106 66 C 124 72 134 86 134 103 C 134 125 116 136 88 136 H 36 V 112 H 84 C 98 112 106 105 106 95 C 106 85 98 78 84 78 H 36 V 54 H 80 C 94 54 102 47 102 38 C 102 29 94 22 80 22 H 36 Z" />
+    <!-- Letter 'B' (Sky Blue Interlocking Monogram) -->
+    <path fill="url(#ltsBlueGradWhiteMode)" fill-rule="evenodd" d="
+      M 34 0 
+      H 82 
+      C 106 0 120 12 120 31 
+      C 120 43 111 52 98 57 
+      C 114 62 124 73 124 90 
+      C 124 110 108 120 82 120 
+      H 74 
+      L 72 100 
+      H 80 
+      C 95 100 102 94 102 85 
+      C 102 76 95 70 80 70 
+      H 34 
+      V 48 
+      H 76 
+      C 90 48 98 42 98 33 
+      C 98 24 90 18 76 18 
+      H 34 
+      Z
+    " />
   </g>
 
-  <!-- ==================== MAIN WORDMARK: LTS ==================== -->
-  <g fill="#FFFFFF" transform="translate(165, 20)">
+  <!-- ========================================== -->
+  <!-- 2. TYPOGRAPHY WORDMARK: LTS (White)        -->
+  <!-- ========================================== -->
+  <g fill="#FFFFFF" transform="translate(155, 30)">
     <!-- Letter L -->
-    <path d="M 0 5 H 22 V 50 H 52 V 68 H 0 Z" />
+    <path d="M 0 0 H 18 V 56 H 48 V 72 H 0 Z" />
     
     <!-- Letter T -->
-    <path d="M 58 5 H 112 V 23 H 94 V 68 H 76 V 23 H 58 Z" />
+    <path d="M 52 0 H 104 V 16 H 87 V 72 H 69 V 16 H 52 Z" />
     
     <!-- Letter S -->
-    <path d="M 122 22 C 122 10 133 4 148 4 C 163 4 174 10 175 23 H 154 C 153 18 150 16 147 16 C 144 16 141 18 141 20 C 141 23 144 25 151 27 L 159 29 C 172 32 178 39 178 49 C 178 62 166 69 149 69 C 131 69 120 61 119 47 H 140 C 141 53 145 56 149 56 C 154 56 157 54 157 51 C 157 47 154 45 146 43 L 138 41 C 126 37 122 30 122 22 Z" />
+    <path d="
+      M 112 18 
+      C 112 7 122 0 137 0 
+      C 152 0 162 7 163 20 
+      H 144 
+      C 143 15 140 13 137 13 
+      C 134 13 131 15 131 17 
+      C 131 20 134 22 140 24 
+      L 147 26 
+      C 159 29 165 36 165 46 
+      C 165 59 153 66 137 66 
+      C 120 66 109 58 108 44 
+      H 127 
+      C 128 50 132 53 137 53 
+      C 142 53 145 51 145 47 
+      C 145 43 142 41 135 39 
+      L 128 37 
+      C 116 33 112 26 112 18 
+      Z
+    " />
   </g>
 
-  <!-- ==================== MAIN WORDMARK: BAGS ==================== -->
-  <g fill="url(#ltsBlueGradLight)" transform="translate(360, 20)">
+  <!-- ========================================== -->
+  <!-- 3. TYPOGRAPHY WORDMARK: BAGS (Sky Blue)    -->
+  <!-- ========================================== -->
+  <g fill="url(#ltsBlueGradWhiteMode)" transform="translate(335, 30)">
     <!-- Letter B -->
-    <path d="M 0 5 H 34 C 47 5 55 12 55 22 C 55 29 50 34 42 36 C 52 38 58 45 58 55 C 58 66 47 73 34 73 H 0 Z M 20 18 V 31 H 32 C 37 31 40 28 40 24.5 C 40 21 37 18 32 18 Z M 20 44 V 58 H 33 C 39 58 42 55 42 51 C 42 47 39 44 33 44 Z" />
+    <path d="
+      M 0 0 
+      H 32 
+      C 44 0 52 6 52 17 
+      C 52 24 47 29 39 31 
+      C 49 33 55 39 55 49 
+      C 55 61 44 72 32 72 
+      H 0 
+      Z 
+      M 18 14 
+      V 27 
+      H 30 
+      C 34 27 37 24 37 20.5 
+      C 37 17 34 14 30 14 
+      Z 
+      M 18 39 
+      V 58 
+      H 31 
+      C 36 58 39 55 39 48.5 
+      C 39 42 36 39 31 39 
+      Z
+    " />
     
     <!-- Letter A -->
-    <path d="M 85 5 H 104 L 124 73 H 104 L 100 58 H 78 L 74 73 H 55 Z M 83 44 H 95 L 89 21 Z" />
+    <path d="
+      M 78 0 
+      H 96 
+      L 114 72 
+      H 96 
+      L 92 56 
+      H 72 
+      L 68 72 
+      H 50 
+      Z 
+      M 76 41 
+      H 88 
+      L 82 17 
+      Z
+    " />
     
     <!-- Letter G -->
-    <path d="M 178 20 H 157 C 156 16 153 13 147 13 C 139 13 134 20 134 33 C 134 46 139 53 147 53 C 153 53 156 50 157 45 H 146 V 34 H 178 V 57 C 171 65 160 69 147 69 C 128 69 114 56 114 33 C 114 11 128 -1 147 -1 C 162 -1 173 8 178 20 Z" />
+    <path d="
+      M 166 18 
+      H 146 
+      C 145 15 142 12 136 12 
+      C 128 12 123 19 123 36 
+      C 123 52 128 60 136 60 
+      C 142 60 145 56 146 50 
+      H 136 
+      V 36 
+      H 166 
+      V 62 
+      C 159 69 148 73 136 73 
+      C 117 73 104 60 104 36 
+      C 104 12 118 0 136 0 
+      C 151 0 161 8 166 18 
+      Z
+    " />
     
     <!-- Letter S -->
-    <path d="M 188 22 C 188 10 199 4 214 4 C 229 4 240 10 241 23 H 220 C 219 18 216 16 213 16 C 210 16 207 18 207 20 C 207 23 210 25 217 27 L 225 29 C 238 32 244 39 244 49 C 244 62 232 69 215 69 C 197 69 186 61 185 47 H 206 C 207 53 211 56 215 56 C 220 56 223 54 223 51 C 223 47 220 45 212 43 L 204 41 C 192 37 188 30 188 22 Z" />
+    <path d="
+      M 176 18 
+      C 176 7 186 0 201 0 
+      C 216 0 226 7 227 20 
+      H 208 
+      C 207 15 204 13 201 13 
+      C 198 13 195 15 195 17 
+      C 195 20 198 22 204 24 
+      L 211 26 
+      C 223 29 229 36 229 46 
+      C 229 59 217 66 201 66 
+      C 184 66 173 58 172 44 
+      H 191 
+      C 192 50 196 53 201 53 
+      C 206 53 209 51 209 47 
+      C 209 43 206 41 199 39 
+      L 192 37 
+      C 180 33 176 26 176 18 
+      Z
+    " />
   </g>
 
-  <!-- ==================== REGISTERED ® MARK ==================== -->
-  <g transform="translate(606, 23)">
-    <circle cx="6" cy="6" r="6" stroke="#38BDF8" stroke-width="1.2" fill="none" />
-    <path fill="#38BDF8" d="M 3.8 2.8 H 6.5 C 7.5 2.8 8.1 3.4 8.1 4.3 C 8.1 5.1 7.5 5.6 6.7 5.7 L 8.3 9.2 H 7.1 L 5.6 6.1 H 4.8 V 9.2 H 3.8 Z M 4.8 3.7 V 5.2 H 6.4 C 6.9 5.2 7.2 4.9 7.2 4.4 C 7.2 3.9 6.9 3.7 6.4 3.7 Z" />
+  <!-- ========================================== -->
+  <!-- 4. REGISTERED TRADEMARK SYMBOL (®)         -->
+  <!-- ========================================== -->
+  <g transform="translate(568, 25)">
+    <circle cx="7" cy="7" r="7" stroke="url(#ltsBlueGradWhiteMode)" stroke-width="1.4" fill="none" />
+    <text x="7" y="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="900" fill="url(#ltsBlueGradWhiteMode)" text-anchor="middle">R</text>
   </g>
 
-  <!-- ==================== SUBTITLE ==================== -->
-  <g transform="translate(165, 102)">
-    <text x="0" y="14" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#94A3B8" letter-spacing="4">PRIVATE LIMITED</text>
-    <circle cx="178" cy="10" r="2.5" fill="#38BDF8" />
-    <text x="190" y="14" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#38BDF8" letter-spacing="2">ESTD. 2008</text>
-    <circle cx="288" cy="10" r="2.5" fill="#94A3B8" />
-    <text x="300" y="14" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#94A3B8" letter-spacing="2.5">MUMBAI, INDIA</text>
+  <!-- ========================================== -->
+  <!-- 5. OPTIONAL SUBTITLE                       -->
+  <!-- ========================================== -->
+  <g transform="translate(155, 114)">
+    <text x="0" y="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" font-weight="700" fill="#CBD5E1" letter-spacing="3.5">PRIVATE LIMITED</text>
+    <circle cx="150" cy="7" r="2" fill="#38BDF8" />
+    <text x="160" y="10" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" font-weight="600" fill="#38BDF8" letter-spacing="1.5">MUMBAI • ESTD. 2008</text>
   </g>
 </svg>

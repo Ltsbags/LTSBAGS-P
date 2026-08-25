@@ -222,9 +222,9 @@ const INITIAL_FACTORY_GALLERY: FactoryGalleryItem[] = [
 ];
 
 const INITIAL_SETTINGS: SiteSettings = {
-  logoUrl: '',
+  logoUrl: '/logo.svg',
   logoText: 'LTS BAGS',
-  logoSubtitle: '',
+  logoSubtitle: 'PRIVATE LIMITED',
   updatedAt: new Date().toISOString(),
   metrics: INITIAL_METRICS,
   certifications: INITIAL_CERTIFICATIONS,
@@ -237,7 +237,7 @@ const INITIAL_SETTINGS: SiteSettings = {
   contactInfo: {
     companyName: 'LTS BAGS PRIVATE LIMITED',
     tagline: 'Premier OEM/ODM Custom Bag Manufacturer & Global Exporter',
-    logoUrl: '',
+    logoUrl: '/logo.svg',
     phone1: '+91 98335 98338',
     phone2: '+91 96199 61971',
     email1: 'info@ltsbags.com',
