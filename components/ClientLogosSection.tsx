@@ -75,7 +75,8 @@ export default function ClientLogosSection({ initialClients }: ClientLogosSectio
                     fill
                     sizes="150px"
                     referrerPolicy="no-referrer"
-                    className="object-contain"
+                    className="object-contain object-center"
+                    style={{ objectFit: 'contain', objectPosition: 'center' }}
                   />
                 </div>
               ) : (

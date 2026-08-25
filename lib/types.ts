@@ -351,6 +351,16 @@ export interface ImageProcessingSettings {
   preserveOriginals: boolean;
 }
 
+export interface MaintenanceSettings {
+  enabled: boolean;
+  title?: string;
+  message?: string;
+  estimatedEndTime?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  allowAdminAccess?: boolean;
+}
+
 export interface SiteSettings {
   logoUrl?: string;
   logoText?: string;
@@ -365,6 +375,7 @@ export interface SiteSettings {
   about?: AboutPageContent;
   footer?: FooterContent;
   imageProcessing?: ImageProcessingSettings;
+  maintenance?: MaintenanceSettings;
   seoDefaults?: {
     defaultMetaTitle?: string;
     defaultMetaDescription?: string;
@@ -392,6 +403,11 @@ export interface HeroSlide {
   updatedAt: string;
 }
 
+export interface CategoryFaq {
+  question: string;
+  answer: string;
+}
+
 export interface Category {
   id: string;
   name: string;
@@ -400,14 +416,25 @@ export interface Category {
   image: string;
   bannerImage?: string;
   featuredImage?: string;
+  icon?: string;
   parentId?: string;
   parentSlug?: string;
   parentCategory?: string;
   sortOrder?: number;
   isActive?: boolean;
+  isFeatured?: boolean;
   metaTitle: string;
   metaDescription: string;
   metaKeywords: string;
+  canonicalUrl?: string;
+  robots?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  breadcrumbTitle?: string;
+  imageAlt?: string;
+  imageAltText?: string;
+  faqs?: CategoryFaq[];
   subcategories?: Category[];
   level?: 'MAIN' | 'SUB' | number;
   createdAt: string;
@@ -429,6 +456,8 @@ export interface Product {
   categoryId: string;
   categoryName?: string;
   subcategory?: string;
+  secondaryCategoryIds?: string[];
+  secondaryCategories?: string[];
   images: string[];
   galleryImages?: ProcessedProductImage[];
   featuredImage?: string;
@@ -459,6 +488,11 @@ export interface Product {
   metaKeywords: string;
   imageAltText: string;
   canonicalUrl?: string;
+  robots?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  faqs?: CategoryFaq[];
   createdAt: string;
   updatedAt: string;
 }

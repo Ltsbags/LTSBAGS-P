@@ -188,8 +188,12 @@ export default function ImageUploader({
               alt="Uploaded optimized preview"
               referrerPolicy="no-referrer"
               className={`max-w-full max-h-full ${
-                presetConfig.defaultFitMode === 'contain' ? 'object-contain p-2' : 'w-full h-full object-cover'
+                presetConfig.defaultFitMode === 'contain' ? 'object-contain object-center p-2' : 'w-full h-full object-cover object-center'
               }`}
+              style={{
+                objectFit: presetConfig.defaultFitMode === 'contain' ? 'contain' : 'cover',
+                objectPosition: 'center',
+              }}
             />
             {uploading && (
               <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs flex flex-col items-center justify-center text-white p-4">

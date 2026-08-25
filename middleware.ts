@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
   const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || url.host;
   const proto = request.headers.get('x-forwarded-proto') || url.protocol.replace(':', '');
 
-  // Skip middleware for internal assets, api routes, and health checks
+  // Skip middleware for internal assets, api routes, and static files
   if (
     url.pathname.startsWith('/_next') ||
     url.pathname.startsWith('/api') ||
@@ -23,6 +23,26 @@ export function middleware(request: NextRequest) {
   if (isWww || (isApex && isHttp)) {
     const canonicalTarget = new URL(url.pathname + url.search, 'https://ltsbags.com');
     return NextResponse.redirect(canonicalTarget, 301);
+  }
+
+  // Maintenance Mode Handling
+  // Checked via environment variable MAINTENANCE_MODE="true"
+  const isMaintenanceEnv = process.env.MAINTENANCE_MODE === 'true';
+  const isMaintenancePath = url.pathname === '/maintenance';
+  const isAdminPath = url.pathname.startsWith('/admin');
+
+  if (isMaintenanceEnv) {
+    // If maintenance mode is active, allow admin access and the maintenance page itself
+    if (!isAdminPath && !isMaintenancePath) {
+      url.pathname = '/maintenance';
+      return NextResponse.rewrite(url);
+    }
+  } else {
+    // If maintenance mode is OFF, redirect users away from /maintenance to home
+    if (isMaintenancePath) {
+      url.pathname = '/';
+      return NextResponse.redirect(url);
+    }
   }
 
   return NextResponse.next();

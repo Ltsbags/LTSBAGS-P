@@ -343,7 +343,8 @@ export default function AdminClientsPage() {
                         src={client.logoUrl}
                         alt={client.name}
                         referrerPolicy="no-referrer"
-                        className="max-h-full max-w-full object-contain filter group-hover:scale-105 transition-transform duration-300"
+                        className="max-h-full max-w-full object-contain object-center filter group-hover:scale-105 transition-transform duration-300"
+                        style={{ objectFit: 'contain', objectPosition: 'center' }}
                       />
                     </div>
 
