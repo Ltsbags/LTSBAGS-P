@@ -1,12 +1,4 @@
-export type AdminRole = 
-  | 'SUPER_ADMIN' 
-  | 'ADMIN' 
-  | 'SALES_MANAGER' 
-  | 'SALES_STAFF' 
-  | 'CONTENT_MANAGER' 
-  | 'SEO_MANAGER' 
-  | 'EDITOR' 
-  | 'SEO_SPECIALIST';
+export type AdminRole = 'SUPER_ADMIN' | 'CONTENT_MANAGER' | 'SALES_MANAGER' | 'EDITOR' | 'SEO_SPECIALIST';
 
 export interface AdminUser {
   id: string;
@@ -384,6 +376,21 @@ export interface SiteSettings {
     googleSiteVerification?: string;
     googleAnalyticsId?: string;
   };
+  paymentGateway?: {
+    enabled?: boolean;
+    testMode?: boolean;
+    razorpayKeyId?: string;
+    razorpayKeySecret?: string;
+    hasKeySecret?: boolean;
+    accountName?: string;
+    bankName?: string;
+    accountNumber?: string;
+    ifscCode?: string;
+    branchName?: string;
+    upiId?: string;
+    gstNumber?: string;
+    panNumber?: string;
+  };
   updatedAt?: string;
 }
 
@@ -409,23 +416,14 @@ export interface Category {
   image: string;
   bannerImage?: string;
   featuredImage?: string;
-  iconName?: string;
   parentId?: string;
   parentSlug?: string;
   parentCategory?: string;
-  displayOrder?: number;
   sortOrder?: number;
   isActive?: boolean;
-  isFeatured?: boolean;
   metaTitle: string;
   metaDescription: string;
   metaKeywords: string;
-  canonicalUrl?: string;
-  robotsMeta?: string;
-  ogTitle?: string;
-  ogDescription?: string;
-  ogImage?: string;
-  breadcrumbTitle?: string;
   subcategories?: Category[];
   level?: 'MAIN' | 'SUB' | number;
   createdAt: string;
@@ -439,14 +437,6 @@ export interface ProductSpecification {
 
 export type ProductStatus = 'PUBLISHED' | 'DRAFT' | 'ARCHIVED';
 
-export interface CommercialOptions {
-  requestQuote?: boolean;
-  requestSample?: boolean;
-  bulkOrder?: boolean;
-  exportOrder?: boolean;
-  showPrice?: boolean;
-}
-
 export interface Product {
   id: string;
   name: string;
@@ -455,71 +445,36 @@ export interface Product {
   categoryId: string;
   categoryName?: string;
   subcategory?: string;
-  brand?: string;
   images: string[];
   galleryImages?: ProcessedProductImage[];
   featuredImage?: string;
-  thumbnail?: string;
-  lifestyleImages?: string[];
-  detailImages?: string[];
-  manufacturingImages?: string[];
   videoUrl?: string;
-  youtubeUrl?: string;
   shortDesc: string;
   fullDesc: string;
   features: string[];
   materials: string;
   size?: string;
-  dimensions?: string;
   capacity?: string;
   weight?: string;
-  laptopSize?: string;
-  compartments?: string | number;
-  closureType?: string;
-  handleType?: string;
-  strapType?: string;
-  lining?: string;
   colors?: string[];
-  availableColors?: string[];
   moq: number;
-  sampleAvailability?: boolean | string;
-  sampleAvailable?: boolean;
-  productionLeadTime?: string;
-  countryOfOrigin?: string;
-  packaging?: string;
-  packagingInformation?: string;
   customizationOptions?: string[];
   printingOptions?: string[];
   embroideryOptions?: string[];
   applications?: string[];
+  packagingInformation?: string;
   price?: number;
   isPriceOnRequest?: boolean;
   priceDisplay?: string;
-  commercialOptions?: CommercialOptions;
   specifications: ProductSpecification[];
   isFeatured: boolean;
-  isBestseller?: boolean;
-  isNewArrival?: boolean;
-  isDeleted?: boolean;
-  deletedAt?: string;
   status: 'ACTIVE' | 'INACTIVE' | 'PUBLISHED' | 'DRAFT' | 'ARCHIVED';
-  displayOrder?: number;
   sortOrder?: number;
   metaTitle: string;
   metaDescription: string;
   metaKeywords: string;
-  focusKeyword?: string;
-  secondaryKeywords?: string[];
-  canonicalUrl?: string;
-  robotsMeta?: string;
-  ogTitle?: string;
-  ogDescription?: string;
-  ogImage?: string;
-  twitterTitle?: string;
-  twitterDescription?: string;
-  twitterImage?: string;
   imageAltText: string;
-  breadcrumbTitle?: string;
+  canonicalUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -579,19 +534,8 @@ export interface RfqProductItem {
   customNotes?: string;
 }
 
-export type LeadPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-
-export interface EnquiryTimelineItem {
-  id?: string;
-  status: string;
-  note?: string;
-  author?: string;
-  timestamp: string;
-}
-
 export interface Enquiry {
   id: string;
-  enquiryNumber?: string;
   name: string;
   customerName?: string;
   company: string;
@@ -601,9 +545,6 @@ export interface Enquiry {
   phone?: string;
   whatsapp?: string;
   country?: string;
-  city?: string;
-  state?: string;
-  destination?: string;
   productRequirement: string;
   productId?: string;
   product?: string;
@@ -611,18 +552,14 @@ export interface Enquiry {
   quantity: number;
   targetPrice?: string;
   material?: string;
-  materialRequirement?: string;
   size?: string;
   color?: string;
   logoBranding?: string;
-  brandingRequirement?: string;
-  customizationRequirement?: string;
   printingType?: string;
   embroideryType?: string;
   sampleRequired?: boolean;
   requiredDate?: string;
   deliveryDate?: string;
-  deliveryRequirement?: string;
   deliveryLocation?: string;
   deliveryAddress?: string;
   referenceImageUrl?: string;
@@ -630,17 +567,11 @@ export interface Enquiry {
   message: string;
   items?: RfqProductItem[];
   status: EnquiryStatus;
-  priority?: LeadPriority;
-  source?: 'FORM' | 'AI_CHATBOT' | 'SAMPLE_REQUEST' | 'WHATSAPP_LEAD' | 'DIRECT' | 'CATALOGUE_DOWNLOAD' | 'QUICK_QUOTE';
+  source?: 'FORM' | 'AI_CHATBOT' | 'SAMPLE_REQUEST' | 'WHATSAPP_LEAD' | 'DIRECT' | 'CATALOGUE_DOWNLOAD';
   internalNotes?: string;
   notes?: string;
   assignedStaff?: string;
   assignedTo?: string;
-  assignedSalesPerson?: string;
-  followUpDate?: string;
-  quotationNumber?: string;
-  quotationId?: string;
-  timeline?: EnquiryTimelineItem[];
   createdAt: string;
   updatedAt: string;
 }
@@ -648,7 +579,6 @@ export interface Enquiry {
 export interface QuotationItem {
   id: string;
   productName: string;
-  productCode?: string;
   description?: string;
   quantity: number;
   unitPrice: number;
@@ -660,7 +590,6 @@ export interface Quotation {
   id: string;
   quoteNumber: string;
   enquiryId?: string;
-  customerId?: string;
   clientName: string;
   companyName: string;
   clientEmail: string;
@@ -669,144 +598,13 @@ export interface Quotation {
   subtotal: number;
   gstAmount: number;
   discount: number;
-  shippingCharge?: number;
-  otherCharges?: number;
   totalAmount: number;
-  paymentTerms?: string;
-  deliveryTerms?: string;
-  bankDetails?: BankDetails;
-  bankDetailsText?: string;
   termsAndConditions?: string;
   notes?: string;
   validUntil: string;
-  status: 'DRAFT' | 'SENT' | 'ACCEPTED' | 'REJECTED' | 'PAID' | 'VIEWED' | 'NEGOTIATION' | 'EXPIRED';
-  sentAt?: string;
-  viewedAt?: string;
+  status: 'DRAFT' | 'SENT' | 'ACCEPTED' | 'REJECTED' | 'PAID';
   createdAt: string;
   updatedAt: string;
-}
-
-export interface Customer {
-  id: string;
-  name: string;
-  companyName: string;
-  email: string;
-  phone: string;
-  whatsapp?: string;
-  country?: string;
-  state?: string;
-  city?: string;
-  address?: string;
-  website?: string;
-  industry?: string;
-  customerType?: 'CORPORATE' | 'WHOLESALER' | 'RETAILER' | 'INSTITUTION' | 'EXPORTER' | 'INDIVIDUAL';
-  leadSource?: string;
-  notes?: string;
-  totalOrders?: number;
-  totalSpent?: number;
-  enquiryIds?: string[];
-  quotationIds?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CatalogueItem {
-  id: string;
-  title: string;
-  description?: string;
-  coverImageUrl: string;
-  pdfUrl: string;
-  category?: string;
-  version?: string;
-  fileSize?: string;
-  viewsCount: number;
-  downloadsCount: number;
-  isActive: boolean;
-  displayOrder?: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type Catalogue = CatalogueItem;
-
-export interface RedirectRule {
-  id: string;
-  sourceUrl: string;
-  targetUrl: string;
-  statusCode: 301 | 302;
-  isActive: boolean;
-  hitCount: number;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type AnalyticsEventType = 
-  | 'PAGE_VIEW' 
-  | 'PRODUCT_VIEW' 
-  | 'QUOTE_FORM_START' 
-  | 'QUOTE_FORM_SUBMIT' 
-  | 'WHATSAPP_CLICK' 
-  | 'PHONE_CLICK' 
-  | 'EMAIL_CLICK' 
-  | 'CATALOGUE_DOWNLOAD' 
-  | 'SEARCH'
-  | 'PAYMENT_INITIATED'
-  | 'PAYMENT_SUCCESS';
-
-export interface AnalyticsEvent {
-  id: string;
-  eventType: AnalyticsEventType;
-  resourceId?: string;
-  resourceName?: string;
-  metadata?: Record<string, any>;
-  ipAddress?: string;
-  userAgent?: string;
-  referrer?: string;
-  createdAt: string;
-}
-
-export interface SmtpSettings {
-  host?: string;
-  port?: number;
-  secure?: boolean;
-  user?: string;
-  pass?: string;
-  senderName?: string;
-  senderEmail?: string;
-  notifyEmail?: string;
-  enabled?: boolean;
-}
-
-export interface WhatsAppConfig {
-  defaultNumber?: string;
-  templateMessage?: string;
-  enabled?: boolean;
-}
-
-export interface DatabaseSchema {
-  categories: Category[];
-  products: Product[];
-  blogs: Blog[];
-  enquiries: Enquiry[];
-  customers?: Customer[];
-  catalogues?: CatalogueItem[];
-  redirects?: RedirectRule[];
-  analyticsEvents?: AnalyticsEvent[];
-  settings?: SiteSettings;
-  slides?: HeroSlide[];
-  quotations?: Quotation[];
-  payments?: Payment[];
-  media?: MediaAsset[];
-  clients?: Client[];
-  languageSettings?: LanguageSettings;
-  entityTranslations?: EntityTranslation[];
-  users?: AdminUser[];
-  sessions?: AdminSession[];
-  auditLogs?: AuditLog[];
-  faqs?: FaqItem[];
-  testimonials?: TestimonialItem[];
-  navigation?: NavigationMenuConfig;
 }
 
 export interface Payment {

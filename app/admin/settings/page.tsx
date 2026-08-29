@@ -49,15 +49,37 @@ import {
   Info,
   FolderOpen,
   CheckCheck,
-  Sparkle
+  Sparkle,
+  CreditCard,
+  QrCode,
+  Landmark,
+  DollarSign,
+  KeyRound
 } from 'lucide-react';
 import { SiteSettings, StatItem, FeatureItem, ProcessStepItem, TestimonialItem, ClientLogoItem, MediaAsset } from '@/lib/types';
 import MediaLibraryPickerModal from '@/components/MediaLibraryPickerModal';
 
 export default function AdminSettingsPage() {
-  const [activeTab, setActiveTab] = useState<'brand' | 'images' | 'contact' | 'homepage' | 'features' | 'testimonials' | 'about' | 'footer' | 'metrics' | 'seo'>('brand');
+  const [activeTab, setActiveTab] = useState<'brand' | 'images' | 'payment' | 'contact' | 'homepage' | 'features' | 'testimonials' | 'about' | 'footer' | 'metrics' | 'seo'>('brand');
   const [isGeneratingSitemap, setIsGeneratingSitemap] = useState<boolean>(false);
   const [sitemapStats, setSitemapStats] = useState<{ totalUrls?: number; counts?: any; generatedAt?: string } | null>(null);
+
+  // Payment Gateway (Razorpay & Bank) Settings
+  const [rzpEnabled, setRzpEnabled] = useState<boolean>(true);
+  const [rzpTestMode, setRzpTestMode] = useState<boolean>(false);
+  const [rzpKeyId, setRzpKeyId] = useState<string>('');
+  const [rzpKeySecret, setRzpKeySecret] = useState<string>('');
+  const [hasStoredRzpSecret, setHasStoredRzpSecret] = useState<boolean>(false);
+  const [rzpSecretVisible, setRzpSecretVisible] = useState<boolean>(false);
+  const [rzpAccountName, setRzpAccountName] = useState<string>('LTS BAGS PRIVATE LIMITED');
+  const [rzpBankName, setRzpBankName] = useState<string>('Yes Bank (Lower Parel, Mumbai Branch)');
+  const [rzpAccountNumber, setRzpAccountNumber] = useState<string>('041961900001163');
+  const [rzpIfscCode, setRzpIfscCode] = useState<string>('YESB0000419');
+  const [rzpUpiId, setRzpUpiId] = useState<string>('ltsbags@yesbank');
+  const [rzpGstNumber, setRzpGstNumber] = useState<string>('27AAGCL1568H1ZC');
+  const [rzpPanNumber, setRzpPanNumber] = useState<string>('AAGCL1568H');
+  const [testingRzp, setTestingRzp] = useState<boolean>(false);
+  const [rzpTestResult, setRzpTestResult] = useState<{ success: boolean; status: string; message: string; mode?: string; latencyMs?: number } | null>(null);
 
   // AI Product Image Processing Settings
   const [imgAutoProcessing, setImgAutoProcessing] = useState<boolean>(true);
@@ -306,6 +328,21 @@ export default function AdminSettingsPage() {
             if (data.seoDefaults.googleSiteVerification) setGoogleSiteVerification(data.seoDefaults.googleSiteVerification);
             if (data.seoDefaults.googleAnalyticsId) setGoogleAnalyticsId(data.seoDefaults.googleAnalyticsId);
           }
+
+          if (data.paymentGateway) {
+            const pg = data.paymentGateway;
+            if (pg.enabled !== undefined) setRzpEnabled(pg.enabled);
+            if (pg.testMode !== undefined) setRzpTestMode(pg.testMode);
+            if (pg.razorpayKeyId) setRzpKeyId(pg.razorpayKeyId);
+            if (pg.hasKeySecret) setHasStoredRzpSecret(true);
+            if (pg.accountName) setRzpAccountName(pg.accountName);
+            if (pg.bankName) setRzpBankName(pg.bankName);
+            if (pg.accountNumber) setRzpAccountNumber(pg.accountNumber);
+            if (pg.ifscCode) setRzpIfscCode(pg.ifscCode);
+            if (pg.upiId) setRzpUpiId(pg.upiId);
+            if (pg.gstNumber) setRzpGstNumber(pg.gstNumber);
+            if (pg.panNumber) setRzpPanNumber(pg.panNumber);
+          }
         }
       })
       .catch((err) => {
@@ -315,6 +352,31 @@ export default function AdminSettingsPage() {
         setIsLoading(false);
       });
   }, []);
+
+  const handleTestRazorpayConnection = async () => {
+    setTestingRzp(true);
+    setRzpTestResult(null);
+    try {
+      const res = await fetch('/api/payments/razorpay/test-connection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          keyId: rzpKeyId.trim(),
+          keySecret: rzpKeySecret.trim(),
+        }),
+      });
+      const data = await res.json();
+      setRzpTestResult(data);
+    } catch (err: any) {
+      setRzpTestResult({
+        success: false,
+        status: 'error',
+        message: `Connection test failed: ${err.message || 'Network error'}`,
+      });
+    } finally {
+      setTestingRzp(false);
+    }
+  };
 
   const uploadImageFile = async (file: File, targetField: 'logo' | 'logoDark' | 'clientLogo') => {
     if (!file) return;
@@ -541,6 +603,19 @@ export default function AdminSettingsPage() {
           return metaMatch ? metaMatch[1] : raw;
         })(),
         googleAnalyticsId: googleAnalyticsId.trim(),
+      },
+      paymentGateway: {
+        enabled: rzpEnabled,
+        testMode: rzpTestMode,
+        razorpayKeyId: rzpKeyId.trim(),
+        razorpayKeySecret: rzpKeySecret.trim() || undefined,
+        accountName: rzpAccountName.trim(),
+        bankName: rzpBankName.trim(),
+        accountNumber: rzpAccountNumber.trim(),
+        ifscCode: rzpIfscCode.trim(),
+        upiId: rzpUpiId.trim(),
+        gstNumber: rzpGstNumber.trim(),
+        panNumber: rzpPanNumber.trim(),
       },
       updatedAt: new Date().toISOString(),
     };
@@ -777,6 +852,18 @@ export default function AdminSettingsPage() {
             </button>
 
             <button
+              onClick={() => setActiveTab('payment')}
+              className={`px-4 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                activeTab === 'payment'
+                  ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-400/50'
+                  : 'text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60'
+              }`}
+            >
+              <CreditCard className="w-4 h-4 text-emerald-600" />
+              <span>Payment Gateway (Razorpay)</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('contact')}
               className={`px-4 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
                 activeTab === 'contact'
@@ -872,6 +959,368 @@ export default function AdminSettingsPage() {
               <span>SEO &amp; XML Sitemap</span>
             </button>
           </div>
+
+          {/* TAB: Payment Gateway (Razorpay & Bank) Settings */}
+          {activeTab === 'payment' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <div className="lg:col-span-8 space-y-6">
+                
+                {/* 1. Razorpay Gateway API Configuration */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-6">
+                  <div className="border-b border-slate-100 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <span className="p-2.5 bg-emerald-100 text-emerald-800 rounded-xl">
+                        <CreditCard className="w-5 h-5" />
+                      </span>
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900 font-serif">
+                          Razorpay Payment Gateway Integration
+                        </h3>
+                        <p className="text-slate-500 text-xs mt-0.5">
+                          Manage live and test API keys for instant UPI, Cards, Net Banking, and Corporate Wallets.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[11px] font-mono font-bold px-3 py-1 rounded-full border ${
+                        rzpKeyId && (hasStoredRzpSecret || rzpKeySecret)
+                          ? rzpTestMode 
+                            ? 'bg-amber-50 text-amber-700 border-amber-200' 
+                            : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-slate-100 text-slate-600 border-slate-200'
+                      }`}>
+                        {rzpKeyId && (hasStoredRzpSecret || rzpKeySecret)
+                          ? rzpTestMode ? '⚡ TEST / SANDBOX MODE' : '🟢 LIVE GATEWAY ACTIVE'
+                          : '⚪ KEYS NOT CONFIGURED'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Toggle Controls */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="text-xs font-bold text-slate-800 block">
+                          Enable Online Payments
+                        </label>
+                        <p className="text-[11px] text-slate-500">
+                          Allow customers to pay online via /pay checkout
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={rzpEnabled}
+                          onChange={(e) => setRzpEnabled(e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                      </label>
+                    </div>
+
+                    <div className="flex items-center justify-between border-t sm:border-t-0 sm:border-l border-slate-200 pt-3 sm:pt-0 sm:pl-4">
+                      <div>
+                        <label className="text-xs font-bold text-slate-800 block">
+                          Test Mode (Sandbox Simulation)
+                        </label>
+                        <p className="text-[11px] text-slate-500">
+                          Enable test mode without charging real bank accounts
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={rzpTestMode}
+                          onChange={(e) => setRzpTestMode(e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* API Credentials */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          <KeyRound className="w-3.5 h-3.5 text-emerald-600" />
+                          Razorpay Key ID
+                        </span>
+                        <a
+                          href="https://dashboard.razorpay.com/app/keys"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[11px] font-normal text-sky-600 hover:text-sky-700 flex items-center gap-1 lowercase"
+                        >
+                          <span>get keys from razorpay dashboard</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </label>
+                      <input
+                        type="text"
+                        value={rzpKeyId}
+                        onChange={(e) => setRzpKeyId(e.target.value)}
+                        placeholder="rzp_live_xxxxxxxxxxxxxx or rzp_test_xxxxxxxxxxxxxx"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                      />
+                      <p className="text-[11px] text-slate-400 mt-1">
+                        Starts with <code className="text-slate-600 font-mono">rzp_live_</code> for production or <code className="text-slate-600 font-mono">rzp_test_</code> for staging.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          <Lock className="w-3.5 h-3.5 text-emerald-600" />
+                          Razorpay Key Secret
+                        </span>
+                        {hasStoredRzpSecret && (
+                          <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <Check className="w-3 h-3" /> Secret Stored Securely
+                          </span>
+                        )}
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={rzpSecretVisible ? 'text' : 'password'}
+                          value={rzpKeySecret}
+                          onChange={(e) => setRzpKeySecret(e.target.value)}
+                          placeholder={hasStoredRzpSecret ? '•••••••••••••••• (Leave blank to keep existing secret)' : 'Enter Razorpay Key Secret'}
+                          className="w-full pl-3.5 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setRzpSecretVisible(!rzpSecretVisible)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                        >
+                          {rzpSecretVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1">
+                        Required for server-side order creation and cryptographic signature verification. Never shared with the browser.
+                      </p>
+                    </div>
+
+                    {/* Test Connection Action Button */}
+                    <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <button
+                        type="button"
+                        onClick={handleTestRazorpayConnection}
+                        disabled={testingRzp}
+                        className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                      >
+                        {testingRzp ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Testing Connection to Razorpay...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="w-4 h-4" />
+                            <span>Test Gateway Connection</span>
+                          </>
+                        )}
+                      </button>
+
+                      <p className="text-[11px] text-slate-500 italic">
+                        Click &quot;Save Website Content&quot; at the top to commit changes to database.
+                      </p>
+                    </div>
+
+                    {/* Test Result Message Box */}
+                    {rzpTestResult && (
+                      <div
+                        className={`p-4 rounded-xl border flex items-start gap-3 transition-all ${
+                          rzpTestResult.success
+                            ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
+                            : 'bg-rose-50 text-rose-900 border-rose-200'
+                        }`}
+                      >
+                        {rzpTestResult.success ? (
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                        ) : (
+                          <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                        )}
+                        <div className="flex-1 text-xs">
+                          <p className="font-bold">
+                            {rzpTestResult.success ? 'Gateway Verified Successfully' : 'Connection Failed'}
+                          </p>
+                          <p className="mt-0.5 leading-relaxed text-slate-700 font-sans">
+                            {rzpTestResult.message}
+                          </p>
+                          {rzpTestResult.latencyMs && (
+                            <p className="text-[10px] text-slate-400 font-mono mt-1">
+                              Response Latency: {rzpTestResult.latencyMs}ms | Mode: {rzpTestResult.mode}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 2. Direct Bank Details (NEFT / RTGS / IMPS) */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-6">
+                  <div className="border-b border-slate-100 pb-3 flex items-center gap-3">
+                    <span className="p-2 bg-sky-100 text-sky-800 rounded-xl">
+                      <Landmark className="w-5 h-5" />
+                    </span>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900 font-serif">
+                        Direct Bank &amp; Wire Transfer Details
+                      </h3>
+                      <p className="text-slate-500 text-xs mt-0.5">
+                        These official bank coordinates are displayed on the public payment page (/pay) and generated quotation invoices.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Beneficiary / Account Name
+                      </label>
+                      <input
+                        type="text"
+                        value={rzpAccountName}
+                        onChange={(e) => setRzpAccountName(e.target.value)}
+                        placeholder="LTS BAGS PRIVATE LIMITED"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Bank Name &amp; Branch
+                      </label>
+                      <input
+                        type="text"
+                        value={rzpBankName}
+                        onChange={(e) => setRzpBankName(e.target.value)}
+                        placeholder="Yes Bank (Lower Parel, Mumbai Branch)"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Current Account Number
+                      </label>
+                      <input
+                        type="text"
+                        value={rzpAccountNumber}
+                        onChange={(e) => setRzpAccountNumber(e.target.value)}
+                        placeholder="041961900001163"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        IFSC Code
+                      </label>
+                      <input
+                        type="text"
+                        value={rzpIfscCode}
+                        onChange={(e) => setRzpIfscCode(e.target.value.toUpperCase())}
+                        placeholder="YESB0000419"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono uppercase text-slate-800 font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        UPI ID / VPA
+                      </label>
+                      <input
+                        type="text"
+                        value={rzpUpiId}
+                        onChange={(e) => setRzpUpiId(e.target.value)}
+                        placeholder="ltsbags@yesbank"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        GSTIN Number
+                      </label>
+                      <input
+                        type="text"
+                        value={rzpGstNumber}
+                        onChange={(e) => setRzpGstNumber(e.target.value.toUpperCase())}
+                        placeholder="27AAGCL1568H1ZC"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono uppercase text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sidebar Guides & Quick Links */}
+              <div className="lg:col-span-4 space-y-6">
+                
+                {/* Public Pay Portal Card */}
+                <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 text-white shadow-lg space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="p-2 bg-white/10 rounded-xl">
+                      <QrCode className="w-5 h-5 text-sky-400" />
+                    </span>
+                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      Live Portal
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-base font-serif">Customer Payment Portal</h4>
+                    <p className="text-slate-300 text-xs mt-1 leading-relaxed">
+                      Clients and corporate buyers can securely pay sample fees, advance tokens, and custom order balances directly on:
+                    </p>
+                    <div className="mt-3 p-2.5 bg-slate-950/80 rounded-xl border border-slate-700 font-mono text-[11px] text-sky-300 flex items-center justify-between">
+                      <span className="truncate">https://ltsbags.com/pay</span>
+                      <a
+                        href="/pay"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white"
+                        title="Open in new tab"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  </div>
+                  <a
+                    href="/pay"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block w-full text-center py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl shadow-xs transition-all"
+                  >
+                    Open Payment Page
+                  </a>
+                </div>
+
+                {/* Integration Guide */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4 text-xs text-slate-600">
+                  <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                    <Info className="w-4 h-4 text-sky-600" />
+                    <span>How Razorpay Integration Works</span>
+                  </h4>
+                  <ul className="space-y-2.5 list-disc pl-4 leading-relaxed">
+                    <li>
+                      <strong>Automatic Credential Resolution:</strong> Keys configured here take immediate priority over static environment variables.
+                    </li>
+                    <li>
+                      <strong>Zero Downtime Fallback:</strong> If no API keys are provided or test mode is enabled, a simulation mode allows seamless end-to-end testing without throwing uncaught errors.
+                    </li>
+                    <li>
+                      <strong>Cryptographic Verification:</strong> All transactions are signed with SHA-256 HMAC and verified on the server before issuing payment receipts.
+                    </li>
+                  </ul>
+                </div>
+
+              </div>
+            </div>
+          )}
 
           {/* TAB: AI Product Image Studio Settings */}
           {activeTab === 'images' && (

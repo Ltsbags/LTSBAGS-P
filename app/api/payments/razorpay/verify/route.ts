@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { db } from '@/lib/db';
-import { isRazorpayConfigured } from '@/lib/razorpay';
+import { isRazorpayConfigured, getRazorpayCredentials } from '@/lib/razorpay';
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,16 +27,17 @@ export async function POST(req: NextRequest) {
     }
 
     if (!simulated && isRazorpayConfigured()) {
-      const secret = process.env.RAZORPAY_KEY_SECRET;
+      const creds = getRazorpayCredentials();
+      const secret = creds?.keySecret || process.env.RAZORPAY_KEY_SECRET;
       if (!secret) {
-        return NextResponse.json({ error: 'RAZORPAY_KEY_SECRET is missing' }, { status: 500 });
+        return NextResponse.json({ error: 'RAZORPAY_KEY_SECRET is missing or not configured' }, { status: 500 });
       }
 
       if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
         return NextResponse.json({ error: 'Missing payment signature verification parameters' }, { status: 400 });
       }
 
-      const hmac = crypto.createHmac('sha256', secret);
+      const hmac = crypto.createHmac('sha256', secret.trim());
       hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
       const generatedSignature = hmac.digest('hex');
 

@@ -10,6 +10,16 @@ export async function GET() {
     // Mask sensitive API keys before sending to browser
     const sanitizedSettings = {
       ...rawSettings,
+      paymentGateway: rawSettings.paymentGateway
+        ? {
+            ...rawSettings.paymentGateway,
+            hasKeySecret: Boolean(
+              rawSettings.paymentGateway.razorpayKeySecret || process.env.RAZORPAY_KEY_SECRET
+            ),
+            razorpayKeyId: rawSettings.paymentGateway.razorpayKeyId || process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
+            razorpayKeySecret: '', // never expose raw secret
+          }
+        : undefined,
       imageProcessing: rawSettings.imageProcessing
         ? {
             ...rawSettings.imageProcessing,

@@ -18,7 +18,11 @@ import {
   FileCheck2,
   Sparkles,
   ArrowRight,
-  Info
+  Info,
+  Copy,
+  Check,
+  QrCode,
+  Printer
 } from 'lucide-react';
 
 export default function PaymentGatewayPage() {
@@ -31,7 +35,8 @@ export default function PaymentGatewayPage() {
   const [amount, setAmount] = useState<number>(2500);
   const [purposeNote, setPurposeNote] = useState('Custom Sample Prototyping & Courier Charges');
   const [paymentSuccessData, setPaymentSuccessData] = useState<any>(null);
-  const [gatewayStatus, setGatewayStatus] = useState<{ configured: boolean; keyId: string | null } | null>(null);
+  const [gatewayStatus, setGatewayStatus] = useState<any>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/payments/razorpay/config')
@@ -39,6 +44,14 @@ export default function PaymentGatewayPage() {
       .then((data) => setGatewayStatus(data))
       .catch(() => setGatewayStatus({ configured: false, keyId: null }));
   }, []);
+
+  const copyToClipboard = (text: string, fieldId: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedField(fieldId);
+      setTimeout(() => setCopiedField(null), 2000);
+    }
+  };
 
   const handleTypeChange = (type: 'SAMPLE' | 'ADVANCE' | 'QUOTE' | 'CUSTOM') => {
     setPayType(type);
@@ -56,23 +69,35 @@ export default function PaymentGatewayPage() {
     }
   };
 
+  const upiId = gatewayStatus?.bankDetails?.upiId || 'ltsbags@yesbank';
+  const upiPayUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent('LTS BAGS PRIVATE LIMITED')}&am=${amount}&cu=INR&tn=${encodeURIComponent(purposeNote.substring(0, 50))}`;
+  const upiQrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiPayUrl)}`;
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-sky-500 selection:text-white">
       <Navbar />
 
-      <main className="flex-1 py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
+      <main className="flex-1 py-10 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
         {/* Top Header */}
-        <div className="text-center max-w-2xl mx-auto mb-10">
+        <div className="text-center max-w-3xl mx-auto mb-8">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-bold uppercase tracking-wider mb-4">
             <ShieldCheck className="w-4 h-4 text-sky-400" />
             <span>256-Bit Encrypted B2B Payment Gateway</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Secure Payment Portal
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight font-serif">
+            Secure Payment &amp; Advance Settlement Portal
           </h1>
-          <p className="mt-3 text-slate-400 text-base leading-relaxed">
-            Direct online settlements for LTS Bags sample development, advance bulk orders, and commercial quotations via Razorpay.
+          <p className="mt-3 text-slate-400 text-sm sm:text-base leading-relaxed">
+            Official payment channel for LTS BAGS PRIVATE LIMITED sample prototyping, bulk manufacturing advances, and formal commercial quotations.
           </p>
+
+          {/* Gateway Status Badge */}
+          <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-slate-900 border border-slate-800">
+            <span className={`w-2 h-2 rounded-full ${gatewayStatus?.configured ? 'bg-emerald-400 animate-pulse' : 'bg-sky-400'}`} />
+            <span className="text-slate-300">
+              Gateway: <strong className="text-white">{gatewayStatus?.configured ? (gatewayStatus?.testMode ? 'Razorpay Test Sandbox' : 'Razorpay Live Production') : 'Razorpay Gateway Ready'}</strong>
+            </span>
+          </div>
         </div>
 
         {paymentSuccessData ? (
@@ -83,22 +108,28 @@ export default function PaymentGatewayPage() {
             </div>
             <h2 className="text-2xl font-black text-white">Payment Received Successfully</h2>
             <p className="text-sm text-slate-300 mt-2">
-              Your transaction has been verified and registered in our manufacturing accounting system.
+              Your transaction has been verified and registered in the LTS Bags manufacturing &amp; dispatch ledger.
             </p>
 
-            <div className="mt-6 bg-slate-950/80 rounded-xl p-5 border border-slate-800 text-left space-y-3 text-sm">
+            <div className="mt-6 bg-slate-950/90 rounded-xl p-5 border border-slate-800 text-left space-y-3 text-sm">
               <div className="flex justify-between border-b border-slate-800 pb-2">
                 <span className="text-slate-400">Transaction Reference:</span>
                 <span className="font-mono font-bold text-sky-400">{paymentSuccessData.paymentId}</span>
               </div>
               <div className="flex justify-between border-b border-slate-800 pb-2">
                 <span className="text-slate-400">Amount Paid:</span>
-                <span className="font-bold text-emerald-400">₹{amount.toLocaleString('en-IN')}</span>
+                <span className="font-bold text-emerald-400">₹{(amount || 0).toLocaleString('en-IN')}</span>
               </div>
               <div className="flex justify-between border-b border-slate-800 pb-2">
                 <span className="text-slate-400">Client / Payer:</span>
                 <span className="font-medium text-white">{clientName} {companyName ? `(${companyName})` : ''}</span>
               </div>
+              {quoteNumber && (
+                <div className="flex justify-between border-b border-slate-800 pb-2">
+                  <span className="text-slate-400">Quotation #:</span>
+                  <span className="font-mono text-sky-300">{quoteNumber}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-slate-400">Purpose:</span>
                 <span className="text-slate-200">{purposeNote}</span>
@@ -111,8 +142,8 @@ export default function PaymentGatewayPage() {
                 onClick={() => window.print()}
                 className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm border border-slate-700 flex items-center justify-center gap-2"
               >
-                <Receipt className="w-4 h-4" />
-                <span>Print Tax Receipt</span>
+                <Printer className="w-4 h-4" />
+                <span>Print Payment Voucher</span>
               </button>
               <button
                 type="button"
@@ -134,7 +165,7 @@ export default function PaymentGatewayPage() {
             <div className="lg:col-span-7 bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 sm:p-8 backdrop-blur-xl shadow-xl">
               <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-sky-400" />
-                <span>Select Payment Type & Details</span>
+                <span>Select Payment Type &amp; Details</span>
               </h2>
 
               {/* Payment Type Tabs */}
@@ -175,7 +206,7 @@ export default function PaymentGatewayPage() {
                         setQuoteNumber(e.target.value);
                         setPurposeNote(`Settlement for Quote #${e.target.value}`);
                       }}
-                      className="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                      className="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-mono"
                     />
                   </div>
                 )}
@@ -206,7 +237,7 @@ export default function PaymentGatewayPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">Email (for Tax Invoice)</label>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Email (for Tax Invoice Receipt)</label>
                     <input
                       type="email"
                       placeholder="rajesh@company.com"
@@ -219,7 +250,7 @@ export default function PaymentGatewayPage() {
                     <label className="block text-xs font-bold text-slate-300 mb-1">Mobile / WhatsApp Number</label>
                     <input
                       type="tel"
-                      placeholder="+91 98765 43210"
+                      placeholder="+91 98335 98338"
                       value={clientPhone}
                       onChange={(e) => setClientPhone(e.target.value)}
                       className="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
@@ -271,18 +302,18 @@ export default function PaymentGatewayPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-center gap-6 pt-2 text-[11px] text-slate-400">
+                <div className="flex items-center justify-center gap-6 pt-2 text-[11px] text-slate-400 flex-wrap">
                   <span className="flex items-center gap-1">
                     <Lock className="w-3.5 h-3.5 text-emerald-400" />
                     <span>SSL 256-bit Encrypted</span>
                   </span>
                   <span className="flex items-center gap-1">
                     <Smartphone className="w-3.5 h-3.5 text-sky-400" />
-                    <span>UPI / GPay / Cards / NetBanking</span>
+                    <span>UPI / Cards / NetBanking</span>
                   </span>
                   <span className="flex items-center gap-1">
                     <FileCheck2 className="w-3.5 h-3.5 text-amber-400" />
-                    <span>GST Input Tax Credit Compliant</span>
+                    <span>GST ITC Compliant</span>
                   </span>
                 </div>
               </div>
@@ -291,16 +322,16 @@ export default function PaymentGatewayPage() {
             {/* Sidebar Summary & Alternate Bank Wire Instructions */}
             <div className="lg:col-span-5 space-y-6">
               {/* Order Summary Box */}
-              <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-md">
+              <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 backdrop-blur-md">
                 <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
                   <Receipt className="w-4 h-4 text-sky-400" />
                   <span>Order Settlement Summary</span>
                 </h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between text-slate-300">
-                    <span>Selected Category:</span>
+                    <span>Category:</span>
                     <span className="font-semibold text-white">
-                      {payType === 'SAMPLE' ? 'Sample Prototyping' : payType === 'ADVANCE' ? 'Bulk Production Advance' : payType === 'QUOTE' ? 'Quotation Order' : 'Custom Milestone'}
+                      {payType === 'SAMPLE' ? 'Sample Prototyping' : payType === 'ADVANCE' ? 'Bulk Production Advance' : payType === 'QUOTE' ? 'Quotation Settlement' : 'Custom Milestone'}
                     </span>
                   </div>
                   <div className="flex justify-between text-slate-300">
@@ -316,52 +347,82 @@ export default function PaymentGatewayPage() {
                 </div>
               </div>
 
-              {/* Supported Payment Channels */}
-              <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
-                  Supported Online Methods
+              {/* Instant UPI QR Code Box */}
+              <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 text-center">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-2 flex items-center justify-center gap-2">
+                  <QrCode className="w-4 h-4 text-sky-400" />
+                  <span>Direct Merchant UPI QR</span>
                 </h4>
-                <div className="grid grid-cols-2 gap-2 text-xs text-slate-300">
-                  <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800/80 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    <span>UPI (GPay / PhonePe / Paytm)</span>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800/80 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-sky-400"></span>
-                    <span>Debit & Credit Cards (Visa/MC/RuPay)</span>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800/80 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-indigo-400"></span>
-                    <span>Net Banking (50+ Banks)</span>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800/80 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                    <span>Corporate / Commercial Cards</span>
-                  </div>
+                <p className="text-[11px] text-slate-400 mb-4">
+                  Scan via Google Pay, PhonePe, Paytm, BHIM, or any UPI App
+                </p>
+
+                <div className="inline-block p-3 bg-white rounded-xl shadow-lg mb-3">
+                  <img
+                    src={upiQrImageUrl}
+                    alt="LTS Bags UPI Payment QR"
+                    className="w-36 h-36 mx-auto"
+                  />
+                </div>
+
+                <div className="flex items-center justify-center gap-2 bg-slate-950 px-3 py-2 rounded-lg border border-slate-800 text-xs font-mono text-slate-200">
+                  <span className="text-slate-400">UPI ID:</span>
+                  <span className="font-bold text-sky-400">{upiId}</span>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard(upiId, 'upi')}
+                    className="p-1 hover:text-sky-300 text-slate-400"
+                    title="Copy UPI ID"
+                  >
+                    {copiedField === 'upi' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
                 </div>
               </div>
 
-              {/* Offline Wire / NEFT Alternative */}
-              <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-                  <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Direct RTGS / NEFT Wire Details</span>
+              {/* Direct RTGS / NEFT Wire Details */}
+              <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-2">
+                  <Building2 className="w-4 h-4 text-slate-400" />
+                  <span>Direct RTGS / NEFT Bank Details</span>
                 </h4>
-                <p className="text-xs text-slate-400 mb-3">
-                  For large transactions exceeding ₹2,00,000, you can also transfer directly to our corporate bank account:
-                </p>
                 <div className="space-y-2 text-xs font-mono bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-slate-300">
                   <div className="flex justify-between">
                     <span className="text-slate-400">Beneficiary:</span>
-                    <span className="text-white font-sans font-bold">LTS BAGS PRIVATE LIMITED</span>
+                    <span className="text-white font-sans font-bold">{gatewayStatus?.bankDetails?.accountName || 'LTS BAGS PRIVATE LIMITED'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Account Type:</span>
-                    <span>Current Account</span>
+                    <span className="text-slate-400">Bank Name:</span>
+                    <span>{gatewayStatus?.bankDetails?.bankName || 'Yes Bank (Lower Parel)'}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Account #:</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-white font-bold">{gatewayStatus?.bankDetails?.accountNumber || '041961900001163'}</span>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(gatewayStatus?.bankDetails?.accountNumber || '041961900001163', 'acc')}
+                        className="text-slate-400 hover:text-sky-400 p-0.5"
+                      >
+                        {copiedField === 'acc' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
                     <span className="text-slate-400">IFSC Code:</span>
-                    <span className="text-sky-400 font-bold">HDFC0000123</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sky-400 font-bold">{gatewayStatus?.bankDetails?.ifscCode || 'YESB0000419'}</span>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(gatewayStatus?.bankDetails?.ifscCode || 'YESB0000419', 'ifsc')}
+                        className="text-slate-400 hover:text-sky-400 p-0.5"
+                      >
+                        {copiedField === 'ifsc' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">GSTIN:</span>
+                    <span className="text-slate-300">{gatewayStatus?.bankDetails?.gstNumber || '27AAGCL1568H1ZC'}</span>
                   </div>
                 </div>
               </div>
