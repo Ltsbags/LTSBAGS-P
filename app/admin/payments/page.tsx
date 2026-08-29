@@ -17,7 +17,8 @@ import {
   DollarSign, 
   Receipt,
   Download,
-  Calendar
+  Calendar,
+  ArrowRight
 } from 'lucide-react';
 
 export default function AdminPaymentsPage() {
@@ -235,7 +236,7 @@ export default function AdminPaymentsPage() {
         {/* Search & Filter */}
         <div className="mt-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800/80">
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-            {['ALL', 'BANK_TRANSFER', 'UPI', 'CHEQUE', 'CREDIT_CARD', 'CASH'].map((m) => (
+            {['ALL', 'RAZORPAY', 'BANK_TRANSFER', 'UPI', 'CREDIT_CARD', 'CHEQUE', 'CASH'].map((m) => (
               <button
                 key={m}
                 onClick={() => setMethodFilter(m)}
@@ -250,15 +251,27 @@ export default function AdminPaymentsPage() {
             ))}
           </div>
 
-          <div className="relative w-full md:w-64">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-            <input
-              type="text"
-              placeholder="Search reference or client..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500"
-            />
+          <div className="flex items-center gap-3">
+            <a
+              href="/pay"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-400 hover:text-sky-300 px-3 py-1.5 rounded-lg bg-sky-500/10 border border-sky-500/20"
+            >
+              <span>Open Online Payment Portal</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </a>
+
+            <div className="relative w-full md:w-64">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                placeholder="Search reference or client..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500"
+              />
+            </div>
           </div>
         </div>
 
@@ -438,6 +451,7 @@ export default function AdminPaymentsPage() {
                       onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value as any })}
                       className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100"
                     >
+                      <option value="RAZORPAY">Razorpay Online Gateway</option>
                       <option value="BANK_TRANSFER">Bank Transfer (NEFT/RTGS)</option>
                       <option value="UPI">UPI Payment</option>
                       <option value="CHEQUE">Cheque</option>

@@ -600,7 +600,7 @@ export interface Payment {
   clientName: string;
   companyName: string;
   amount: number;
-  paymentMethod: 'BANK_TRANSFER' | 'UPI' | 'CHEQUE' | 'CREDIT_CARD' | 'CASH';
+  paymentMethod: 'BANK_TRANSFER' | 'UPI' | 'CHEQUE' | 'CREDIT_CARD' | 'CASH' | 'RAZORPAY' | 'ONLINE';
   transactionRef: string;
   paymentDate: string;
   status: 'PENDING' | 'VERIFIED' | 'FAILED';

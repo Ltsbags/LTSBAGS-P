@@ -1431,30 +1431,34 @@ function triggerFirestoreSync(currentData: DatabaseSchema) {
   if (firestoreSyncInitiated) return;
   firestoreSyncInitiated = true;
 
-  seedInitialDataToFirestore(currentData)
-    .then(() => loadAllDataFromFirestore())
-    .then((remoteData) => {
-      if (remoteData && inMemoryCache) {
-        if (remoteData.settings) inMemoryCache.settings = { ...inMemoryCache.settings, ...remoteData.settings };
-        if (remoteData.navigation) inMemoryCache.navigation = remoteData.navigation;
-        if (remoteData.languageSettings) inMemoryCache.languageSettings = remoteData.languageSettings;
-        if (remoteData.categories && remoteData.categories.length > 0) inMemoryCache.categories = remoteData.categories;
-        if (remoteData.products && remoteData.products.length > 0) inMemoryCache.products = remoteData.products;
-        if (remoteData.blogs && remoteData.blogs.length > 0) inMemoryCache.blogs = remoteData.blogs;
-        if (remoteData.enquiries && remoteData.enquiries.length > 0) inMemoryCache.enquiries = remoteData.enquiries;
-        if (remoteData.slides && remoteData.slides.length > 0) inMemoryCache.slides = remoteData.slides;
-        if (remoteData.quotations && remoteData.quotations.length > 0) inMemoryCache.quotations = remoteData.quotations;
-        if (remoteData.payments && remoteData.payments.length > 0) inMemoryCache.payments = remoteData.payments;
-        if (remoteData.media && remoteData.media.length > 0) inMemoryCache.media = remoteData.media;
-        if (remoteData.clients && remoteData.clients.length > 0) inMemoryCache.clients = remoteData.clients;
-        if (remoteData.faqs && remoteData.faqs.length > 0) inMemoryCache.faqs = remoteData.faqs;
-        if (remoteData.testimonials && remoteData.testimonials.length > 0) inMemoryCache.testimonials = remoteData.testimonials;
-        saveData(inMemoryCache);
-      }
-    })
-    .catch((err) => {
-      console.warn('[Firestore] Sync warning:', err);
-    });
+  // Run in background after small delay to allow Next.js runtime network stack to be ready
+  setTimeout(() => {
+    seedInitialDataToFirestore(currentData)
+      .then(() => loadAllDataFromFirestore())
+      .then((remoteData) => {
+        if (remoteData && inMemoryCache) {
+          if (remoteData.settings) inMemoryCache.settings = { ...inMemoryCache.settings, ...remoteData.settings };
+          if (remoteData.navigation) inMemoryCache.navigation = remoteData.navigation;
+          if (remoteData.languageSettings) inMemoryCache.languageSettings = remoteData.languageSettings;
+          if (remoteData.categories && remoteData.categories.length > 0) inMemoryCache.categories = remoteData.categories;
+          if (remoteData.products && remoteData.products.length > 0) inMemoryCache.products = remoteData.products;
+          if (remoteData.blogs && remoteData.blogs.length > 0) inMemoryCache.blogs = remoteData.blogs;
+          if (remoteData.enquiries && remoteData.enquiries.length > 0) inMemoryCache.enquiries = remoteData.enquiries;
+          if (remoteData.slides && remoteData.slides.length > 0) inMemoryCache.slides = remoteData.slides;
+          if (remoteData.quotations && remoteData.quotations.length > 0) inMemoryCache.quotations = remoteData.quotations;
+          if (remoteData.payments && remoteData.payments.length > 0) inMemoryCache.payments = remoteData.payments;
+          if (remoteData.media && remoteData.media.length > 0) inMemoryCache.media = remoteData.media;
+          if (remoteData.clients && remoteData.clients.length > 0) inMemoryCache.clients = remoteData.clients;
+          if (remoteData.faqs && remoteData.faqs.length > 0) inMemoryCache.faqs = remoteData.faqs;
+          if (remoteData.testimonials && remoteData.testimonials.length > 0) inMemoryCache.testimonials = remoteData.testimonials;
+          saveData(inMemoryCache);
+          console.log('[Firestore] Synced and hydrated in-memory cache with remote Firestore data.');
+        }
+      })
+      .catch((err) => {
+        console.info('[Firestore] Background sync note:', err?.message || err);
+      });
+  }, 100);
 }
 
 function ensureDataFile(): DatabaseSchema {

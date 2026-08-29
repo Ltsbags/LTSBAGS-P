@@ -97,12 +97,12 @@ export default function Logo({
     setImgError(false);
   }, [activeLogoUrl]);
 
-  // Height mappings for container
+  // Height mappings for container - increased for crisp, full view of custom uploaded logos
   const containerHeights = {
-    sm: 'h-8 sm:h-9',
-    md: 'h-10 sm:h-12',
-    lg: 'h-12 sm:h-14',
-    xl: 'h-16 sm:h-20',
+    sm: 'h-9 sm:h-10 max-h-10',
+    md: 'h-12 sm:h-14 md:h-16 max-h-16',
+    lg: 'h-14 sm:h-16 md:h-18 max-h-18',
+    xl: 'h-18 sm:h-22 md:h-24 max-h-24',
   };
 
   // Emblem icon dimension classes
@@ -149,7 +149,7 @@ export default function Logo({
             key={activeLogoUrl}
             src={activeLogoUrl}
             alt={logoText || 'LTS BAGS Logo'}
-            className={`${containerHeights[size]} w-auto max-w-[260px] sm:max-w-[320px] object-contain object-center transition-transform duration-200 group-hover:scale-[1.02] drop-shadow-xs`}
+            className={`${containerHeights[size]} w-auto max-w-full object-contain object-center transition-transform duration-200 group-hover:scale-[1.02] drop-shadow-xs`}
             style={{ objectFit: 'contain', objectPosition: 'center' }}
             onError={() => setImgError(true)}
           />
@@ -207,8 +207,8 @@ export default function Logo({
             key={activeLogoUrl}
             src={activeLogoUrl}
             alt={logoText || 'LTS BAGS Logo'}
-            className={`${containerHeights[size]} w-auto max-w-[260px] sm:max-w-[320px] object-contain object-center transition-transform duration-200 group-hover:scale-[1.02] drop-shadow-xs`}
-            style={{ objectFit: 'contain', objectPosition: 'center' }}
+            className={`${containerHeights[size]} w-auto max-w-[280px] sm:max-w-[360px] md:max-w-[420px] object-contain object-left transition-transform duration-200 group-hover:scale-[1.02] drop-shadow-xs`}
+            style={{ objectFit: 'contain', objectPosition: 'left center' }}
             onError={() => setImgError(true)}
           />
         </div>

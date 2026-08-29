@@ -21,8 +21,10 @@ import {
   Phone,
   Mail,
   Calendar,
-  FileText
+  FileText,
+  CreditCard
 } from 'lucide-react';
+import RazorpayPaymentButton from '@/components/RazorpayPaymentButton';
 
 export default function AdminQuotationsPage() {
   const [quotations, setQuotations] = useState<Quotation[]>([]);
@@ -789,10 +791,32 @@ export default function AdminQuotationsPage() {
                 </div>
               </div>
 
-              {/* Terms */}
-              <div className="mt-6 pt-4 border-t border-slate-200 text-[11px] text-slate-600 space-y-1">
-                <h5 className="font-bold text-slate-900 uppercase">Terms & Conditions:</h5>
-                <p className="whitespace-pre-line">{previewQuote.termsAndConditions}</p>
+              {/* Terms & Payment Action */}
+              <div className="mt-6 pt-4 border-t border-slate-200 text-[11px] text-slate-600 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="space-y-1 max-w-md">
+                  <h5 className="font-bold text-slate-900 uppercase">Terms & Conditions:</h5>
+                  <p className="whitespace-pre-line">{previewQuote.termsAndConditions}</p>
+                </div>
+
+                <div className="shrink-0 flex flex-col items-end gap-2">
+                  <span className="text-[10px] uppercase font-bold text-slate-400">Instant Online Settlement:</span>
+                  <RazorpayPaymentButton
+                    amount={previewQuote.totalAmount}
+                    clientName={previewQuote.clientName}
+                    companyName={previewQuote.companyName}
+                    clientEmail={previewQuote.clientEmail}
+                    clientPhone={previewQuote.clientMobile}
+                    quoteNumber={previewQuote.quoteNumber}
+                    quotationId={previewQuote.id}
+                    purpose={`Settlement for Quote ${previewQuote.quoteNumber}`}
+                    buttonText={`Pay ₹${previewQuote.totalAmount.toLocaleString('en-IN')} via Razorpay`}
+                    className="py-2.5 px-4 text-xs bg-sky-600 hover:bg-sky-700 text-white rounded-xl shadow"
+                    onSuccess={() => {
+                      fetchQuotations();
+                      alert('Payment verified and quotation status marked as PAID!');
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>

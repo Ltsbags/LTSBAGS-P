@@ -49,6 +49,30 @@ export function sanitizeForFirestore<T>(obj: T): any {
   return obj;
 }
 
+// Helper to retry operations on transient offline or network delay
+async function withRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 600): Promise<T> {
+  let lastError: any;
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fn();
+    } catch (err: any) {
+      lastError = err;
+      const isOfflineOrNetwork = 
+        err?.message?.includes('offline') || 
+        err?.code === 'unavailable' ||
+        err?.code === 'failed-precondition' ||
+        err?.message?.includes('network');
+      
+      if (isOfflineOrNetwork && i < retries - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs * (i + 1)));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw lastError;
+}
+
 let isSyncingFromFirestore = false;
 let isInitialized = false;
 
@@ -60,9 +84,9 @@ export async function saveDocToFirestore(collectionName: string, docId: string, 
     if (!docId) return;
     const sanitized = sanitizeForFirestore(data);
     const docRef = doc(firestoreDb, collectionName, String(docId));
-    await setDoc(docRef, sanitized, { merge: true });
-  } catch (err) {
-    console.error(`[Firestore] Error saving to ${collectionName}/${docId}:`, err);
+    await withRetry(() => setDoc(docRef, sanitized, { merge: true }), 2, 400);
+  } catch (err: any) {
+    console.warn(`[Firestore] Could not save to ${collectionName}/${docId}:`, err?.message || err);
   }
 }
 
@@ -73,9 +97,9 @@ export async function deleteDocFromFirestore(collectionName: string, docId: stri
   try {
     if (!docId) return;
     const docRef = doc(firestoreDb, collectionName, String(docId));
-    await deleteDoc(docRef);
-  } catch (err) {
-    console.error(`[Firestore] Error deleting ${collectionName}/${docId}:`, err);
+    await withRetry(() => deleteDoc(docRef), 2, 400);
+  } catch (err: any) {
+    console.warn(`[Firestore] Could not delete from ${collectionName}/${docId}:`, err?.message || err);
   }
 }
 
@@ -91,45 +115,45 @@ export async function loadAllDataFromFirestore(): Promise<Partial<DatabaseSchema
 
     // 1. Settings
     try {
-      const settingsDoc = await getDoc(doc(firestoreDb, 'settings', 'global'));
+      const settingsDoc = await withRetry(() => getDoc(doc(firestoreDb, 'settings', 'global')), 3, 500);
       if (settingsDoc.exists()) {
         result.settings = settingsDoc.data() as SiteSettings;
       }
-    } catch (e) {
-      console.warn('[Firestore] Could not load settings:', e);
+    } catch (e: any) {
+      console.info('[Firestore] Settings offline/unavailable, using local defaults:', e?.message || e);
     }
 
     // 2. Navigation
     try {
-      const navDoc = await getDoc(doc(firestoreDb, 'navigation', 'main'));
+      const navDoc = await withRetry(() => getDoc(doc(firestoreDb, 'navigation', 'main')), 3, 500);
       if (navDoc.exists()) {
         result.navigation = navDoc.data() as NavigationMenuConfig;
       }
-    } catch (e) {
-      console.warn('[Firestore] Could not load navigation:', e);
+    } catch (e: any) {
+      console.info('[Firestore] Navigation offline/unavailable, using local defaults:', e?.message || e);
     }
 
     // 3. Languages
     try {
-      const langDoc = await getDoc(doc(firestoreDb, 'settings', 'languages'));
+      const langDoc = await withRetry(() => getDoc(doc(firestoreDb, 'settings', 'languages')), 3, 500);
       if (langDoc.exists()) {
         result.languageSettings = langDoc.data() as LanguageSettings;
       }
-    } catch (e) {
-      console.warn('[Firestore] Could not load languages:', e);
+    } catch (e: any) {
+      console.info('[Firestore] Languages offline/unavailable, using local defaults:', e?.message || e);
     }
 
     // 4. Collections
     const fetchCollection = async <T>(collName: string): Promise<T[]> => {
       try {
-        const snap = await getDocs(collection(firestoreDb, collName));
+        const snap = await withRetry(() => getDocs(collection(firestoreDb, collName)), 3, 500);
         const items: T[] = [];
         snap.forEach((d) => {
           items.push({ ...d.data(), id: d.id } as T);
         });
         return items;
-      } catch (err) {
-        console.warn(`[Firestore] Error loading collection ${collName}:`, err);
+      } catch (err: any) {
+        console.info(`[Firestore] Collection ${collName} offline/unavailable, using local cache:`, err?.message || err);
         return [];
       }
     };
@@ -191,10 +215,10 @@ export async function loadAllDataFromFirestore(): Promise<Partial<DatabaseSchema
  */
 export async function seedInitialDataToFirestore(initialData: DatabaseSchema): Promise<void> {
   if (isInitialized) return;
-  isInitialized = true;
 
   try {
-    const settingsDoc = await getDoc(doc(firestoreDb, 'settings', 'global'));
+    const settingsDoc = await withRetry(() => getDoc(doc(firestoreDb, 'settings', 'global')), 3, 600);
+    isInitialized = true;
     if (!settingsDoc.exists() && initialData.settings) {
       console.log('[Firestore] Seeding initial data to Firestore...');
       await setDoc(doc(firestoreDb, 'settings', 'global'), sanitizeForFirestore(initialData.settings));
@@ -258,8 +282,8 @@ export async function seedInitialDataToFirestore(initialData: DatabaseSchema): P
 
       console.log('[Firestore] Initial seeding complete.');
     }
-  } catch (err) {
-    console.error('[Firestore] Error during seeding:', err);
+  } catch (err: any) {
+    console.info('[Firestore] Seeding check deferred or completed:', err?.message || err);
   }
 }
 
