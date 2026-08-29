@@ -30,19 +30,29 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     const { id } = await params;
     const body = await req.json();
-    const { status, notes, assignedTo, internalNotes } = body;
 
     const existing = db.getEnquiryById(id);
     if (!existing) {
       return NextResponse.json({ error: 'Enquiry not found' }, { status: 404 });
     }
 
-    const updated = db.updateEnquiryStatus(
-      id, 
-      status || existing.status, 
-      notes !== undefined ? notes : internalNotes !== undefined ? internalNotes : existing.notes,
-      assignedTo !== undefined ? assignedTo : existing.assignedTo
-    );
+    // Append timeline item if status changed or note added
+    const timeline = existing.timeline || [];
+    if (body.status && body.status !== existing.status) {
+      timeline.push({
+        status: body.status,
+        note: body.notes || `Status changed to ${body.status}`,
+        author: auth.user.name || 'Staff',
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    const updated = db.updateEnquiry(id, {
+      ...body,
+      timeline,
+      notes: body.notes !== undefined ? body.notes : existing.notes,
+      internalNotes: body.internalNotes !== undefined ? body.internalNotes : existing.internalNotes,
+    });
 
     if (updated) {
       logAuditActivity(
@@ -50,7 +60,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         'UPDATE_ENQUIRY',
         'ENQUIRY',
         id,
-        { status: updated.status, assignedTo: updated.assignedTo }
+        { status: updated.status, assignedTo: updated.assignedTo, priority: updated.priority }
       );
       return NextResponse.json(updated);
     }

@@ -10,8 +10,14 @@ export async function GET(req: NextRequest) {
     const featured = searchParams.get('featured');
     const status = searchParams.get('status');
     const search = searchParams.get('search')?.toLowerCase().trim();
+    const exportCsv = searchParams.get('export') === 'csv';
+    const includeDeleted = searchParams.get('includeDeleted') === 'true';
 
     let products = db.getProducts();
+
+    if (!includeDeleted) {
+      products = products.filter((p) => !p.isDeleted);
+    }
 
     if (categoryId) {
       products = products.filter((p) => p.categoryId === categoryId);
@@ -28,8 +34,35 @@ export async function GET(req: NextRequest) {
           p.name.toLowerCase().includes(search) ||
           (p.sku && p.sku.toLowerCase().includes(search)) ||
           p.materials.toLowerCase().includes(search) ||
-          p.shortDesc.toLowerCase().includes(search)
+          p.shortDesc.toLowerCase().includes(search) ||
+          (p.categoryName && p.categoryName.toLowerCase().includes(search))
       );
+    }
+
+    if (exportCsv) {
+      const headers = ['ID', 'SKU', 'Product Name', 'Category', 'MOQ', 'Materials', 'Status', 'Is Featured', 'Meta Title', 'Created Date'];
+      const rows = products.map((p) => [
+        p.id,
+        p.sku || '',
+        `"${p.name.replace(/"/g, '""')}"`,
+        `"${(p.categoryName || '').replace(/"/g, '""')}"`,
+        p.moq || 100,
+        `"${(p.materials || '').replace(/"/g, '""')}"`,
+        p.status || 'ACTIVE',
+        p.isFeatured ? 'YES' : 'NO',
+        `"${(p.metaTitle || '').replace(/"/g, '""')}"`,
+        p.createdAt ? p.createdAt.split('T')[0] : '',
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+
+      return new NextResponse(csvContent, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/csv; charset=utf-8',
+          'Content-Disposition': `attachment; filename="LTS-Products-Catalog-${new Date().toISOString().split('T')[0]}.csv"`,
+        },
+      });
     }
 
     return NextResponse.json(products);

@@ -25,6 +25,11 @@ import {
   FaqItem,
   TestimonialItem,
   NavigationMenuConfig,
+  Customer,
+  Catalogue,
+  CatalogueItem,
+  RedirectRule,
+  AnalyticsEvent,
   DatabaseSchema
 } from './types';
 import { INITIAL_LANGUAGES } from './i18n/languages';
@@ -3345,6 +3350,427 @@ export const db = {
     return duplicate;
   },
 
+  // Customers CRM
+  getCustomers(search?: string): Customer[] {
+    const data = ensureDataFile();
+    let list = data.customers || [];
+    if (search && search.trim()) {
+      const q = search.toLowerCase().trim();
+      list = list.filter(
+        (c) =>
+          c.name.toLowerCase().includes(q) ||
+          c.companyName.toLowerCase().includes(q) ||
+          c.email.toLowerCase().includes(q) ||
+          c.phone.includes(q) ||
+          (c.city && c.city.toLowerCase().includes(q))
+      );
+    }
+    return list.sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime());
+  },
+
+  getCustomerById(id: string): Customer | undefined {
+    const data = ensureDataFile();
+    return (data.customers || []).find((c) => c.id === id);
+  },
+
+  saveCustomer(customerData: Partial<Customer> & { name: string; email: string }): Customer {
+    const data = ensureDataFile();
+    if (!data.customers) data.customers = [];
+    const now = new Date().toISOString();
+    const index = customerData.id ? data.customers.findIndex((c) => c.id === customerData.id) : -1;
+
+    if (index >= 0) {
+      const updated: Customer = {
+        ...data.customers[index],
+        ...customerData,
+        updatedAt: now,
+      };
+      data.customers[index] = updated;
+      saveData(data);
+      saveDocToFirestore('customers', updated.id, updated);
+      return updated;
+    } else {
+      const newCustomer: Customer = {
+        id: 'cust-' + Date.now(),
+        name: customerData.name,
+        companyName: customerData.companyName || '',
+        email: customerData.email.toLowerCase().trim(),
+        phone: customerData.phone || '',
+        whatsapp: customerData.whatsapp || customerData.phone || '',
+        country: customerData.country || 'India',
+        state: customerData.state || '',
+        city: customerData.city || '',
+        address: customerData.address || '',
+        website: customerData.website || '',
+        industry: customerData.industry || 'Corporate',
+        customerType: customerData.customerType || 'CORPORATE',
+        leadSource: customerData.leadSource || 'Website Enquiry',
+        notes: customerData.notes || '',
+        totalOrders: customerData.totalOrders || 0,
+        totalSpent: customerData.totalSpent || 0,
+        enquiryIds: customerData.enquiryIds || [],
+        quotationIds: customerData.quotationIds || [],
+        createdAt: now,
+        updatedAt: now,
+      };
+      data.customers.unshift(newCustomer);
+      saveData(data);
+      saveDocToFirestore('customers', newCustomer.id, newCustomer);
+      return newCustomer;
+    }
+  },
+
+  deleteCustomer(id: string): boolean {
+    const data = ensureDataFile();
+    if (!data.customers) return false;
+    const lenBefore = data.customers.length;
+    data.customers = data.customers.filter((c) => c.id !== id);
+    if (data.customers.length !== lenBefore) {
+      saveData(data);
+      deleteDocFromFirestore('customers', id);
+      return true;
+    }
+    return false;
+  },
+
+  // Catalogues & PDF Brochure Downloads
+  getCatalogues(onlyActive = false): CatalogueItem[] {
+    const data = ensureDataFile();
+    const list = data.catalogues || [
+      {
+        id: 'cat-pdf-1',
+        title: 'LTS BAGS Corporate & Tech Backpacks 2026 Master Catalogue',
+        description: 'Comprehensive 48-page B2B catalogue featuring executive laptop bags, anti-theft designs, and OEM customization capabilities.',
+        coverImageUrl: 'https://images.unsplash.com/photo-1546938576-6e6a64f317cc?auto=format&fit=crop&q=80&w=600',
+        pdfUrl: '/catalogues/LTS-Corporate-Backpacks-2026.pdf',
+        category: 'Corporate Backpacks',
+        version: 'v2026.1',
+        fileSize: '8.4 MB',
+        viewsCount: 1420,
+        downloadsCount: 685,
+        isActive: true,
+        displayOrder: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'cat-pdf-2',
+        title: 'LTS BAGS Sustainable Jute & Organic Canvas Collection',
+        description: 'Eco-friendly shopping totes, conference seminar bags, and 100% biodegradable natural fabric options for global export.',
+        coverImageUrl: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=600',
+        pdfUrl: '/catalogues/LTS-Eco-Canvas-Jute-2026.pdf',
+        category: 'Eco Canvas & Jute',
+        version: 'v2026.1',
+        fileSize: '5.2 MB',
+        viewsCount: 980,
+        downloadsCount: 430,
+        isActive: true,
+        displayOrder: 2,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'cat-pdf-3',
+        title: 'LTS BAGS Executive Leatherette & Travel Holdall Lookbook',
+        description: 'VIP corporate gifting, weekender duffels, and handcrafted vegan leather accessories with embossing options.',
+        coverImageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=600',
+        pdfUrl: '/catalogues/LTS-Executive-Leatherette-2026.pdf',
+        category: 'Executive Travel',
+        version: 'v2026.1',
+        fileSize: '6.9 MB',
+        viewsCount: 750,
+        downloadsCount: 310,
+        isActive: true,
+        displayOrder: 3,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ];
+    const filtered = onlyActive ? list.filter((c) => c.isActive) : list;
+    return filtered.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  },
+
+  getCatalogueById(id: string): CatalogueItem | undefined {
+    return this.getCatalogues().find((c) => c.id === id);
+  },
+
+  saveCatalogue(item: Partial<CatalogueItem> & { title: string; pdfUrl: string }): CatalogueItem {
+    const data = ensureDataFile();
+    if (!data.catalogues) data.catalogues = this.getCatalogues();
+    const now = new Date().toISOString();
+    const index = item.id ? data.catalogues.findIndex((c) => c.id === item.id) : -1;
+
+    if (index >= 0) {
+      const updated: CatalogueItem = {
+        ...data.catalogues[index],
+        ...item,
+        updatedAt: now,
+      };
+      data.catalogues[index] = updated;
+      saveData(data);
+      saveDocToFirestore('catalogues', updated.id, updated);
+      return updated;
+    } else {
+      const newCat: CatalogueItem = {
+        id: 'cat-pdf-' + Date.now(),
+        title: item.title,
+        description: item.description || '',
+        coverImageUrl: item.coverImageUrl || 'https://images.unsplash.com/photo-1546938576-6e6a64f317cc?auto=format&fit=crop&q=80&w=600',
+        pdfUrl: item.pdfUrl,
+        category: item.category || 'General',
+        version: item.version || 'v2026.1',
+        fileSize: item.fileSize || '5.0 MB',
+        viewsCount: 0,
+        downloadsCount: 0,
+        isActive: item.isActive !== undefined ? item.isActive : true,
+        displayOrder: item.displayOrder || data.catalogues.length + 1,
+        createdAt: now,
+        updatedAt: now,
+      };
+      data.catalogues.push(newCat);
+      saveData(data);
+      saveDocToFirestore('catalogues', newCat.id, newCat);
+      return newCat;
+    }
+  },
+
+  deleteCatalogue(id: string): boolean {
+    const data = ensureDataFile();
+    if (!data.catalogues) data.catalogues = this.getCatalogues();
+    const lenBefore = data.catalogues.length;
+    data.catalogues = data.catalogues.filter((c) => c.id !== id);
+    if (data.catalogues.length !== lenBefore) {
+      saveData(data);
+      deleteDocFromFirestore('catalogues', id);
+      return true;
+    }
+    return false;
+  },
+
+  trackCatalogueDownload(id: string): boolean {
+    const data = ensureDataFile();
+    if (!data.catalogues) data.catalogues = this.getCatalogues();
+    const item = data.catalogues.find((c) => c.id === id);
+    if (item) {
+      item.downloadsCount = (item.downloadsCount || 0) + 1;
+      item.updatedAt = new Date().toISOString();
+      saveData(data);
+      saveDocToFirestore('catalogues', item.id, item);
+      return true;
+    }
+    return false;
+  },
+
+  // 301 / 302 Redirect Manager
+  getRedirects(): RedirectRule[] {
+    const data = ensureDataFile();
+    return data.redirects || [];
+  },
+
+  getRedirectById(id: string): RedirectRule | undefined {
+    const data = ensureDataFile();
+    return (data.redirects || []).find((r) => r.id === id);
+  },
+
+  saveRedirect(ruleData: Partial<RedirectRule> & { sourceUrl: string; targetUrl: string }): RedirectRule {
+    const data = ensureDataFile();
+    if (!data.redirects) data.redirects = [];
+    const now = new Date().toISOString();
+    const index = ruleData.id ? data.redirects.findIndex((r) => r.id === ruleData.id) : -1;
+
+    // Normalize sourceUrl to always start with / and have no trailing slash
+    let source = ruleData.sourceUrl.trim();
+    if (!source.startsWith('/') && !source.startsWith('http')) {
+      source = '/' + source;
+    }
+
+    if (index >= 0) {
+      const updated: RedirectRule = {
+        ...data.redirects[index],
+        ...ruleData,
+        sourceUrl: source,
+        updatedAt: now,
+      };
+      data.redirects[index] = updated;
+      saveData(data);
+      saveDocToFirestore('redirects', updated.id, updated);
+      return updated;
+    } else {
+      const newRule: RedirectRule = {
+        id: 'red-' + Date.now(),
+        sourceUrl: source,
+        targetUrl: ruleData.targetUrl.trim(),
+        statusCode: ruleData.statusCode || 301,
+        isActive: ruleData.isActive !== undefined ? ruleData.isActive : true,
+        hitCount: 0,
+        notes: ruleData.notes || '',
+        createdAt: now,
+        updatedAt: now,
+      };
+      data.redirects.unshift(newRule);
+      saveData(data);
+      saveDocToFirestore('redirects', newRule.id, newRule);
+      return newRule;
+    }
+  },
+
+  deleteRedirect(id: string): boolean {
+    const data = ensureDataFile();
+    if (!data.redirects) return false;
+    const lenBefore = data.redirects.length;
+    data.redirects = data.redirects.filter((r) => r.id !== id);
+    if (data.redirects.length !== lenBefore) {
+      saveData(data);
+      deleteDocFromFirestore('redirects', id);
+      return true;
+    }
+    return false;
+  },
+
+  lookupRedirect(path: string): RedirectRule | undefined {
+    const data = ensureDataFile();
+    if (!data.redirects || data.redirects.length === 0) return undefined;
+    const norm = path.toLowerCase().trim();
+    const rule = data.redirects.find((r) => r.isActive && (r.sourceUrl.toLowerCase() === norm || r.sourceUrl.toLowerCase() === norm + '/'));
+    if (rule) {
+      // Async increment hit count
+      rule.hitCount = (rule.hitCount || 0) + 1;
+      saveData(data);
+      saveDocToFirestore('redirects', rule.id, rule);
+    }
+    return rule;
+  },
+
+  // Analytics & Lead Tracking
+  logAnalyticsEvent(event: Omit<AnalyticsEvent, 'id' | 'createdAt'>): AnalyticsEvent {
+    const data = ensureDataFile();
+    if (!data.analyticsEvents) data.analyticsEvents = [];
+    const newEvent: AnalyticsEvent = {
+      id: 'evt-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+      ...event,
+      createdAt: new Date().toISOString(),
+    };
+    data.analyticsEvents.unshift(newEvent);
+    // Keep max 5,000 events
+    if (data.analyticsEvents.length > 5000) {
+      data.analyticsEvents = data.analyticsEvents.slice(0, 5000);
+    }
+    saveData(data);
+    return newEvent;
+  },
+
+  getAnalyticsEvents(limit = 200, type?: string): AnalyticsEvent[] {
+    const data = ensureDataFile();
+    let list = data.analyticsEvents || [];
+    if (type) {
+      list = list.filter((e) => e.eventType === type);
+    }
+    return list.slice(0, limit);
+  },
+
+  // Soft Delete & Restore for Products
+  softDeleteProduct(id: string): boolean {
+    const data = ensureDataFile();
+    const prod = data.products.find((p) => p.id === id);
+    if (prod) {
+      prod.isDeleted = true;
+      prod.deletedAt = new Date().toISOString();
+      prod.status = 'ARCHIVED';
+      prod.updatedAt = new Date().toISOString();
+      saveData(data);
+      saveDocToFirestore('products', prod.id, prod);
+      return true;
+    }
+    return false;
+  },
+
+  restoreProduct(id: string): boolean {
+    const data = ensureDataFile();
+    const prod = data.products.find((p) => p.id === id);
+    if (prod) {
+      prod.isDeleted = false;
+      prod.deletedAt = undefined;
+      prod.status = 'ACTIVE';
+      prod.updatedAt = new Date().toISOString();
+      saveData(data);
+      saveDocToFirestore('products', prod.id, prod);
+      return true;
+    }
+    return false;
+  },
+
+  // Bulk Operations
+  bulkUpdateProducts(ids: string[], updates: Partial<Product>): number {
+    const data = ensureDataFile();
+    let updatedCount = 0;
+    const now = new Date().toISOString();
+    data.products.forEach((p) => {
+      if (ids.includes(p.id)) {
+        Object.assign(p, updates, { updatedAt: now });
+        saveDocToFirestore('products', p.id, p);
+        updatedCount++;
+      }
+    });
+    if (updatedCount > 0) {
+      saveData(data);
+    }
+    return updatedCount;
+  },
+
+  bulkUpdateEnquiries(ids: string[], updates: Partial<Enquiry>): number {
+    const data = ensureDataFile();
+    let updatedCount = 0;
+    const now = new Date().toISOString();
+    data.enquiries.forEach((e) => {
+      if (ids.includes(e.id)) {
+        Object.assign(e, updates, { updatedAt: now });
+        saveDocToFirestore('enquiries', e.id, e);
+        updatedCount++;
+      }
+    });
+    if (updatedCount > 0) {
+      saveData(data);
+    }
+    return updatedCount;
+  },
+
+  // Global Admin Search (Across Products, Enquiries, Quotes, Customers, Categories, Blogs, Media)
+  getGlobalAdminSearch(query: string) {
+    const data = ensureDataFile();
+    const q = query.toLowerCase().trim();
+    if (!q) return { products: [], enquiries: [], quotations: [], customers: [], categories: [], blogs: [], media: [] };
+
+    const products = data.products
+      .filter((p) => !p.isDeleted && (p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q))))
+      .slice(0, 8);
+
+    const enquiries = data.enquiries
+      .filter((e) => e.name.toLowerCase().includes(q) || e.company.toLowerCase().includes(q) || e.email.toLowerCase().includes(q) || e.mobile.includes(q) || (e.enquiryNumber && e.enquiryNumber.toLowerCase().includes(q)))
+      .slice(0, 8);
+
+    const quotations = (data.quotations || [])
+      .filter((qt) => qt.quoteNumber.toLowerCase().includes(q) || qt.clientName.toLowerCase().includes(q) || qt.companyName.toLowerCase().includes(q))
+      .slice(0, 8);
+
+    const customers = (data.customers || [])
+      .filter((c) => c.name.toLowerCase().includes(q) || c.companyName.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.phone.includes(q))
+      .slice(0, 8);
+
+    const categories = data.categories
+      .filter((c) => c.name.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q))
+      .slice(0, 6);
+
+    const blogs = data.blogs
+      .filter((b) => b.title.toLowerCase().includes(q) || b.slug.toLowerCase().includes(q))
+      .slice(0, 6);
+
+    const media = (data.media || [])
+      .filter((m) => m.title.toLowerCase().includes(q) || (m.altText && m.altText.toLowerCase().includes(q)))
+      .slice(0, 6);
+
+    return { products, enquiries, quotations, customers, categories, blogs, media };
+  },
+
   // Backup & Snapshot
   createBackupSnapshot(): { timestamp: string; data: DatabaseSchema } {
     const data = ensureDataFile();
@@ -3369,6 +3795,10 @@ export const db = {
         products: backupJson.products || current.products,
         blogs: backupJson.blogs || current.blogs,
         enquiries: backupJson.enquiries || current.enquiries,
+        customers: backupJson.customers || current.customers,
+        catalogues: backupJson.catalogues || current.catalogues,
+        redirects: backupJson.redirects || current.redirects,
+        analyticsEvents: backupJson.analyticsEvents || current.analyticsEvents,
         settings: backupJson.settings || current.settings,
         slides: backupJson.slides || current.slides,
         quotations: backupJson.quotations || current.quotations,

@@ -4,12 +4,62 @@ import { requireAdminAuth } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
   try {
-    const auth = await requireAdminAuth(req, ['SUPER_ADMIN', 'SALES_MANAGER']);
+    const auth = await requireAdminAuth(req);
     if (auth.errorResponse || !auth.user) {
       return auth.errorResponse || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const enquiries = db.getEnquiries();
+    const { searchParams } = new URL(req.url);
+    const exportCsv = searchParams.get('export') === 'csv';
+    const status = searchParams.get('status');
+    const search = searchParams.get('search')?.toLowerCase().trim();
+
+    let enquiries = db.getEnquiries();
+
+    if (status) {
+      enquiries = enquiries.filter((e) => e.status.toUpperCase() === status.toUpperCase());
+    }
+
+    if (search) {
+      enquiries = enquiries.filter(
+        (e) =>
+          e.name.toLowerCase().includes(search) ||
+          e.company.toLowerCase().includes(search) ||
+          e.email.toLowerCase().includes(search) ||
+          e.mobile.includes(search) ||
+          (e.productRequirement && e.productRequirement.toLowerCase().includes(search))
+      );
+    }
+
+    if (exportCsv) {
+      const headers = ['ID', 'Customer Name', 'Company', 'Email', 'Mobile', 'WhatsApp', 'Product Requirement', 'Quantity', 'Status', 'Priority', 'Assigned To', 'Follow-up Date', 'Created At'];
+      const rows = enquiries.map((e) => [
+        e.id,
+        `"${(e.name || '').replace(/"/g, '""')}"`,
+        `"${(e.company || '').replace(/"/g, '""')}"`,
+        e.email || '',
+        e.mobile || '',
+        e.whatsapp || '',
+        `"${(e.productRequirement || '').replace(/"/g, '""')}"`,
+        e.quantity || 100,
+        e.status || 'NEW',
+        e.priority || 'MEDIUM',
+        `"${(e.assignedTo || '').replace(/"/g, '""')}"`,
+        e.followUpDate || '',
+        e.createdAt || '',
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+
+      return new NextResponse(csvContent, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/csv; charset=utf-8',
+          'Content-Disposition': `attachment; filename="LTS-Enquiries-${new Date().toISOString().split('T')[0]}.csv"`,
+        },
+      });
+    }
+
     return NextResponse.json(enquiries);
   } catch (error) {
     console.error('Error fetching enquiries:', error);

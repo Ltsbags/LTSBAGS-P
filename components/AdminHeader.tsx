@@ -48,6 +48,55 @@ export default function AdminHeader({ activeTab }: { activeTab?: string }) {
   const [passError, setPassError] = useState('');
   const [passSuccess, setPassSuccess] = useState('');
 
+  // Quick Search state
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<{
+    products: any[];
+    enquiries: any[];
+    quotations: any[];
+    customers: any[];
+    blogs: any[];
+  }>({ products: [], enquiries: [], quotations: [], customers: [], blogs: [] });
+  const [searchLoading, setSearchLoading] = useState(false);
+
+  // Keyboard shortcut Cmd+K or Ctrl+K
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowSearchModal((prev) => !prev);
+      } else if (e.key === 'Escape') {
+        setShowSearchModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Run search when query changes
+  React.useEffect(() => {
+    if (!searchQuery.trim() || searchQuery.length < 2) {
+      setSearchResults({ products: [], enquiries: [], quotations: [], customers: [], blogs: [] });
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setSearchLoading(true);
+      try {
+        const res = await fetch(`/api/admin/search?q=${encodeURIComponent(searchQuery)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSearchResults(data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPassError('');
@@ -97,7 +146,10 @@ export default function AdminHeader({ activeTab }: { activeTab?: string }) {
     { id: 'categories', name: 'Categories', href: '/admin/categories', icon: Layers },
     { id: 'enquiries', name: 'RFQ & Enquiries', href: '/admin/enquiries', icon: MessageSquare },
     { id: 'quotations', name: 'Quotations', href: '/admin/quotations', icon: FileSpreadsheet },
+    { id: 'customers', name: 'Customer CRM', href: '/admin/customers', icon: Users },
+    { id: 'catalogues', name: 'PDF Catalogues', href: '/admin/catalogues', icon: FileText },
     { id: 'payments', name: 'Payments', href: '/admin/payments', icon: CreditCard },
+    { id: 'redirects', name: '301 Redirects', href: '/admin/redirects', icon: Compass },
     { id: 'blogs', name: 'B2B Blog & Guides', href: '/admin/blogs', icon: FileText },
     { id: 'faqs', name: 'FAQs', href: '/admin/faqs', icon: HelpCircle },
     { id: 'testimonials', name: 'Client Reviews', href: '/admin/testimonials', icon: Star },
@@ -149,6 +201,20 @@ export default function AdminHeader({ activeTab }: { activeTab?: string }) {
 
           {/* User info, Password Change, Live Site & Sign Out */}
           <div className="flex items-center gap-2 sm:gap-3 text-xs shrink-0">
+            
+            {/* Global Search Button */}
+            <button
+              onClick={() => setShowSearchModal(true)}
+              className="flex items-center gap-2 bg-slate-950/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700/60 transition-colors font-medium group"
+              title="Search across all modules (Cmd+K)"
+            >
+              <Search className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
+              <span className="hidden sm:inline text-slate-400">Search CMS...</span>
+              <kbd className="hidden lg:inline-block bg-slate-800 text-slate-400 border border-slate-700 text-[9px] font-mono px-1.5 py-0.5 rounded">
+                ⌘K
+              </kbd>
+            </button>
+
             {user && (
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-950/60 border border-slate-800">
                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -304,6 +370,191 @@ export default function AdminHeader({ activeTab }: { activeTab?: string }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Global Quick Search Modal (Cmd+K) */}
+      {showSearchModal && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-start justify-center pt-20 p-4">
+          <div className="bg-slate-900 border border-slate-750 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            
+            {/* Search Input Bar */}
+            <div className="relative border-b border-slate-800 p-4 flex items-center gap-3 bg-slate-950/60">
+              <Search className="w-5 h-5 text-amber-400 shrink-0" />
+              <input
+                type="text"
+                autoFocus
+                placeholder="Search bags, RFQ leads, quotes, clients, articles..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none"
+              />
+              <button
+                onClick={() => setShowSearchModal(false)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 text-xs flex items-center gap-1 font-mono"
+              >
+                <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] text-slate-400 border border-slate-700">ESC</kbd>
+              </button>
+            </div>
+
+            {/* Results Area */}
+            <div className="max-h-[60vh] overflow-y-auto p-4 space-y-4 text-xs">
+              {searchLoading ? (
+                <div className="py-8 text-center text-slate-500 font-mono">Searching database records...</div>
+              ) : !searchQuery.trim() || searchQuery.length < 2 ? (
+                <div className="py-6 text-center space-y-2">
+                  <p className="text-slate-400">Type at least 2 characters to search across LTS BAGS database.</p>
+                  <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-[11px]">
+                    <span className="text-slate-500">Quick suggestions:</span>
+                    <button onClick={() => setSearchQuery('Backpack')} className="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-amber-400 border border-slate-700">Backpack</button>
+                    <button onClick={() => setSearchQuery('Duffel')} className="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-amber-400 border border-slate-700">Duffel</button>
+                    <button onClick={() => setSearchQuery('Corporate')} className="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-amber-400 border border-slate-700">Corporate</button>
+                    <button onClick={() => setSearchQuery('Laptop')} className="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-amber-400 border border-slate-700">Laptop</button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Products */}
+                  {searchResults.products?.length > 0 && (
+                    <div className="space-y-1.5">
+                      <div className="text-[10px] font-mono font-bold uppercase text-amber-400 tracking-wider">
+                        Bag Models ({searchResults.products.length})
+                      </div>
+                      <div className="space-y-1">
+                        {searchResults.products.map((p) => (
+                          <Link
+                            key={p.id}
+                            href="/admin/products"
+                            onClick={() => setShowSearchModal(false)}
+                            className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800/80 transition-colors group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <Package className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
+                              <div>
+                                <div className="font-bold text-white group-hover:text-amber-400 transition-colors">{p.name}</div>
+                                <div className="text-[11px] text-slate-400">{p.categoryName || 'Product'} • SKU: {p.sku || 'N/A'} • MOQ: {p.moq || 100} pcs</div>
+                              </div>
+                            </div>
+                            <span className="text-[10px] font-mono bg-slate-900 border border-slate-700 px-2 py-0.5 rounded text-slate-300">
+                              {p.status || 'PUBLISHED'}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Enquiries */}
+                  {searchResults.enquiries?.length > 0 && (
+                    <div className="space-y-1.5">
+                      <div className="text-[10px] font-mono font-bold uppercase text-sky-400 tracking-wider">
+                        RFQ Enquiries ({searchResults.enquiries.length})
+                      </div>
+                      <div className="space-y-1">
+                        {searchResults.enquiries.map((e) => (
+                          <Link
+                            key={e.id}
+                            href="/admin/enquiries"
+                            onClick={() => setShowSearchModal(false)}
+                            className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800/80 transition-colors group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <MessageSquare className="w-4 h-4 text-sky-400 group-hover:scale-110 transition-transform" />
+                              <div>
+                                <div className="font-bold text-white group-hover:text-sky-400 transition-colors">{e.name} ({e.company || 'Direct'})</div>
+                                <div className="text-[11px] text-slate-400">{e.productRequirement} • Qty: {e.quantity}</div>
+                              </div>
+                            </div>
+                            <span className="text-[10px] font-mono bg-sky-500/20 text-sky-300 border border-sky-500/30 px-2 py-0.5 rounded font-bold">
+                              {e.status}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Quotations */}
+                  {searchResults.quotations?.length > 0 && (
+                    <div className="space-y-1.5">
+                      <div className="text-[10px] font-mono font-bold uppercase text-emerald-400 tracking-wider">
+                        Quotations ({searchResults.quotations.length})
+                      </div>
+                      <div className="space-y-1">
+                        {searchResults.quotations.map((q) => (
+                          <Link
+                            key={q.id}
+                            href="/admin/quotations"
+                            onClick={() => setShowSearchModal(false)}
+                            className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800/80 transition-colors group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <FileSpreadsheet className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+                              <div>
+                                <div className="font-bold text-white group-hover:text-emerald-400 transition-colors">{q.quoteNumber} - {q.clientName}</div>
+                                <div className="text-[11px] text-slate-400">{q.clientCompany || ''} • Total: ₹{Number(q.totalAmount || 0).toLocaleString('en-IN')}</div>
+                              </div>
+                            </div>
+                            <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded font-bold">
+                              {q.status}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Customers */}
+                  {searchResults.customers?.length > 0 && (
+                    <div className="space-y-1.5">
+                      <div className="text-[10px] font-mono font-bold uppercase text-purple-400 tracking-wider">
+                        Customers CRM ({searchResults.customers.length})
+                      </div>
+                      <div className="space-y-1">
+                        {searchResults.customers.map((c) => (
+                          <Link
+                            key={c.id}
+                            href="/admin/customers"
+                            onClick={() => setShowSearchModal(false)}
+                            className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800/80 transition-colors group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <Users className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
+                              <div>
+                                <div className="font-bold text-white group-hover:text-purple-400 transition-colors">{c.name} {c.companyName ? `(${c.companyName})` : ''}</div>
+                                <div className="text-[11px] text-slate-400">{c.email} • {c.phone} • {c.city || 'India'}</div>
+                              </div>
+                            </div>
+                            <span className="text-[10px] font-mono bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded font-bold">
+                              {c.customerType || 'CLIENT'}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {searchResults.products?.length === 0 && 
+                   searchResults.enquiries?.length === 0 && 
+                   searchResults.quotations?.length === 0 && 
+                   searchResults.customers?.length === 0 && (
+                    <div className="py-8 text-center text-slate-500">
+                      No matching records found for "{searchQuery}".
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Footer Shortcut hints */}
+            <div className="bg-slate-950 border-t border-slate-800 px-4 py-2.5 flex items-center justify-between text-[11px] text-slate-400">
+              <div className="flex items-center gap-3 font-mono">
+                <span>Navigate modules instantly</span>
+              </div>
+              <span className="text-[10px] text-slate-500 font-mono">LTS Enterprise CMS v2.5</span>
+            </div>
+
           </div>
         </div>
       )}
