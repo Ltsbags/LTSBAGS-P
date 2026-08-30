@@ -95,15 +95,15 @@ export const IMAGE_PRESETS: Record<ImagePresetKey, ImagePresetConfig> = {
   category_banner: {
     key: 'category_banner',
     label: 'Category Banner',
-    description: 'Wide header banner for catalog and subcategory collection pages.',
-    targetWidth: 1600,
-    targetHeight: 700,
-    aspectRatio: 1600 / 700, // ~16:7 (2.285)
-    aspectRatioLabel: '16:7 (1600 × 700 px)',
+    description: 'Header and collection image for catalog and subcategory collection pages.',
+    targetWidth: 1200,
+    targetHeight: 1200,
+    aspectRatio: 1, // 1:1 Square (1200 × 1200 px)
+    aspectRatioLabel: '1:1 (1200 × 1200 px)',
     defaultFitMode: 'cover',
-    quality: 86,
+    quality: 88,
     allowAlpha: false,
-    responsiveWidths: [1600, 1024, 640],
+    responsiveWidths: [1200, 800, 400],
     category: 'CATEGORIES',
   },
   category_thumb: {

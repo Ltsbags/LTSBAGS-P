@@ -433,12 +433,12 @@ export default function AdminCategoriesPage() {
               </div>
 
               <ImageUploader
-                label="Category Banner Image (1600 × 700 px)"
+                label="Category Banner Image (1200 × 1200 px)"
                 value={editingCat.image || ''}
                 onChange={(url) => setEditingCat({ ...editingCat, image: url })}
                 preset="category_banner"
                 contextName={editingCat.name || 'Category Banner'}
-                aspectRatio="banner"
+                aspectRatio="square"
               />
 
               <div>
