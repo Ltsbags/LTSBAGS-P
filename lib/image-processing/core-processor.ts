@@ -91,12 +91,12 @@ export class CoreImageProcessor {
       return { valid: false, format: 'unknown', error: 'Empty file buffer' };
     }
 
-    if (buffer.length > 15 * 1024 * 1024) {
-      return { valid: false, format: 'unknown', error: 'File size exceeds maximum 15MB limit' };
+    if (buffer.length > 25 * 1024 * 1024) {
+      return { valid: false, format: 'unknown', error: 'File size exceeds maximum 25MB limit' };
     }
 
     // Magic number checks
-    const header = buffer.slice(0, 12);
+    const header = buffer.slice(0, 16);
     // JPEG: FF D8 FF
     if (header[0] === 0xff && header[1] === 0xd8 && header[2] === 0xff) {
       return { valid: true, format: 'jpeg' };
@@ -126,10 +126,31 @@ export class CoreImageProcessor {
       return { valid: true, format: 'webp' };
     }
 
-    // AVIF: ftypavif or ftypavis at offset 4
-    const ftyp = header.slice(4, 12).toString('ascii');
+    // GIF: GIF87a / GIF89a
+    if (header[0] === 0x47 && header[1] === 0x49 && header[2] === 0x46 && header[3] === 0x38) {
+      return { valid: true, format: 'gif' };
+    }
+
+    // BMP: 42 4D (BM)
+    if (header[0] === 0x42 && header[1] === 0x4d) {
+      return { valid: true, format: 'bmp' };
+    }
+
+    // TIFF: II*. or MM.*
+    if (
+      (header[0] === 0x49 && header[1] === 0x49 && header[2] === 0x2a && header[3] === 0x00) ||
+      (header[0] === 0x4d && header[1] === 0x4d && header[2] === 0x00 && header[3] === 0x2a)
+    ) {
+      return { valid: true, format: 'tiff' };
+    }
+
+    // AVIF / HEIC / HEIF
+    const ftyp = header.slice(4, 16).toString('ascii').toLowerCase();
     if (ftyp.includes('avif') || ftyp.includes('avis')) {
       return { valid: true, format: 'avif' };
+    }
+    if (ftyp.includes('heic') || ftyp.includes('heif') || ftyp.includes('mif1') || ftyp.includes('msf1')) {
+      return { valid: true, format: 'heic' };
     }
 
     // SVG: Check text prefix safely
@@ -141,7 +162,7 @@ export class CoreImageProcessor {
       return { valid: true, format: 'svg' };
     }
 
-    return { valid: false, format: 'unknown', error: 'Unsupported image format. Allowed: JPG, PNG, WebP, AVIF, SVG' };
+    return { valid: true, format: 'image' };
   }
 
   /**
@@ -269,6 +290,7 @@ export class CoreImageProcessor {
           withoutEnlargement: false,
           kernel: sharp.kernel.lanczos3,
         })
+        .png()
         .toBuffer();
 
       const innerMeta = await sharp(resizedInner).metadata();
@@ -302,6 +324,7 @@ export class CoreImageProcessor {
             left: leftOffset,
           },
         ])
+        .png()
         .toBuffer();
     } else {
       // COVER / SMART CROP MODE (e.g. Hero banner, Category banner, Blog featured, Testimonial)
@@ -317,6 +340,7 @@ export class CoreImageProcessor {
         processedBuffer = await sharp(rotatedBuffer)
           .extract({ left: cropX, top: cropY, width: cropW, height: cropH })
           .resize(targetW, targetH, { kernel: sharp.kernel.lanczos3 })
+          .png()
           .toBuffer();
       } else {
         // Compute crop window based on focal point & zoom
@@ -363,6 +387,7 @@ export class CoreImageProcessor {
           .resize(targetW, targetH, {
             kernel: sharp.kernel.lanczos3,
           })
+          .png()
           .toBuffer();
       }
     }

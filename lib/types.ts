@@ -426,6 +426,7 @@ export interface Category {
   metaKeywords: string;
   subcategories?: Category[];
   level?: 'MAIN' | 'SUB' | number;
+  isDeleted?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -475,6 +476,7 @@ export interface Product {
   metaKeywords: string;
   imageAltText: string;
   canonicalUrl?: string;
+  isDeleted?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -498,6 +500,7 @@ export interface Blog {
   metaDescription: string;
   metaKeywords: string;
   canonicalUrl?: string;
+  isDeleted?: boolean;
   ogImage?: string;
   altText?: string;
   createdAt: string;
@@ -567,11 +570,14 @@ export interface Enquiry {
   message: string;
   items?: RfqProductItem[];
   status: EnquiryStatus;
+  priority?: string;
   source?: 'FORM' | 'AI_CHATBOT' | 'SAMPLE_REQUEST' | 'WHATSAPP_LEAD' | 'DIRECT' | 'CATALOGUE_DOWNLOAD';
+  timeline?: { status: string; note?: string; author?: string; timestamp: string }[];
   internalNotes?: string;
   notes?: string;
   assignedStaff?: string;
   assignedTo?: string;
+  followUpDate?: string;
   createdAt: string;
   updatedAt: string;
 }

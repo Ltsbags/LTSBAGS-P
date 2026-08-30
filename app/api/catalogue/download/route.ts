@@ -8,19 +8,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Catalogue ID is required' }, { status: 400 });
     }
 
-    db.trackCatalogueDownload(id);
-
     // If user provided contact info before downloading, create an enquiry lead
     if (name && (email || phone)) {
-      const catalogue = db.getCatalogueById(id);
       db.createEnquiry({
         name,
         company: company || 'Direct Download Lead',
         email: email || '',
         mobile: phone || '',
-        productRequirement: `Downloaded PDF Catalogue: ${catalogue?.title || id}`,
+        productRequirement: `Downloaded PDF Catalogue: ${id}`,
         quantity: 100,
-        message: `Catalogue download lead captured via brochure download form. Catalogue: ${catalogue?.title || id}`,
+        message: `Catalogue download lead captured via brochure download form. Catalogue ID: ${id}`,
         source: 'CATALOGUE_DOWNLOAD',
       });
     }

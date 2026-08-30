@@ -540,7 +540,7 @@ export default function AdminHeader({ activeTab }: { activeTab?: string }) {
                    searchResults.quotations?.length === 0 && 
                    searchResults.customers?.length === 0 && (
                     <div className="py-8 text-center text-slate-500">
-                      No matching records found for "{searchQuery}".
+                      No matching records found for &quot;{searchQuery}&quot;.
                     </div>
                   )}
                 </>
