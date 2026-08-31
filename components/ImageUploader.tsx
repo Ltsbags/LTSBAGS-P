@@ -12,7 +12,8 @@ import {
   Sparkles,
   FolderOpen,
   CheckCircle2,
-  Info
+  Info,
+  Maximize2
 } from 'lucide-react';
 import SmartImageStudio from './SmartImageStudio';
 import MediaLibraryPickerModal from './MediaLibraryPickerModal';
@@ -49,6 +50,8 @@ export default function ImageUploader({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [metadataBadge, setMetadataBadge] = useState<{ dimensions?: string; fileSize?: string; savings?: number } | null>(null);
+
+  const [previewFit, setPreviewFit] = useState<'contain' | 'cover'>('contain');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const presetConfig = getPresetConfig(preset);
@@ -178,20 +181,22 @@ export default function ImageUploader({
 
       {value ? (
         /* Image Preview Box */
-        <div className="relative group rounded-xl overflow-hidden border-2 border-slate-200 bg-slate-900/5 shadow-xs transition-all hover:border-blue-500/50">
+        <div className="relative group rounded-xl overflow-hidden border-2 border-slate-200 bg-white shadow-xs transition-all hover:border-blue-500/50">
           <div
             style={containerAspectStyle}
-            className="w-full max-h-[260px] relative flex items-center justify-center bg-slate-100 overflow-hidden"
+            className="w-full max-h-[260px] relative flex items-center justify-center bg-white overflow-hidden p-2"
           >
             <img
               src={value}
-              alt="Uploaded optimized preview"
+              alt="Uploaded preview"
               referrerPolicy="no-referrer"
-              className={`max-w-full max-h-full ${
-                presetConfig.defaultFitMode === 'contain' ? 'object-contain object-center p-2' : 'w-full h-full object-cover object-center'
+              className={`max-w-full max-h-full transition-all ${
+                previewFit === 'contain'
+                  ? 'object-contain object-center'
+                  : 'w-full h-full object-cover object-center'
               }`}
               style={{
-                objectFit: presetConfig.defaultFitMode === 'contain' ? 'contain' : 'cover',
+                objectFit: previewFit === 'contain' ? 'contain' : 'cover',
                 objectPosition: 'center',
               }}
             />
@@ -202,7 +207,7 @@ export default function ImageUploader({
               </div>
             )}
 
-            {/* Quality Badge Overlay */}
+            {/* Quality Badge Overlay & Quick Fit Toggle */}
             <div className="absolute top-2 left-2 flex items-center gap-1.5 pointer-events-none">
               <span className="px-2 py-0.5 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold rounded-md flex items-center gap-1 border border-slate-700/60">
                 <Sparkles className="w-3 h-3 text-blue-400" />
@@ -213,6 +218,19 @@ export default function ImageUploader({
                   -{metadataBadge.savings}% size
                 </span>
               ) : null}
+            </div>
+
+            {/* Framing Mode Switch */}
+            <div className="absolute top-2 right-2 flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setPreviewFit(previewFit === 'contain' ? 'cover' : 'contain')}
+                className="px-2 py-0.5 bg-slate-900/80 hover:bg-slate-900 text-white text-[10px] font-semibold rounded-md flex items-center gap-1 border border-slate-700/60 shadow-xs transition-colors cursor-pointer"
+                title={previewFit === 'contain' ? 'Current: Auto-Fit (Whole Image). Click for Cover Fill' : 'Current: Cover Fill. Click for Auto-Fit'}
+              >
+                <Maximize2 className="w-3 h-3 text-amber-400" />
+                <span>{previewFit === 'contain' ? 'Auto-Fit (Full Bag)' : 'Cover (Fill)'}</span>
+              </button>
             </div>
           </div>
 
