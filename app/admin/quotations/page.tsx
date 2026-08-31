@@ -96,6 +96,47 @@ export default function AdminQuotationsPage() {
       }
     };
     load();
+
+    // Check URL parameters for direct creation / convert from RFQ
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const action = urlParams.get('action');
+      if (action === 'new' || action === 'convert') {
+        const customerName = urlParams.get('customerName') || '';
+        const company = urlParams.get('company') || '';
+        const email = urlParams.get('email') || '';
+        const phone = urlParams.get('phone') || '';
+        const productName = urlParams.get('productName') || 'Custom B2B Bag Order';
+        const quantity = parseInt(urlParams.get('quantity') || '250', 10);
+
+        setActiveQuoteId(null);
+        setFormData({
+          quoteNumber: `QT-2026-${Math.floor(100 + Math.random() * 900)}`,
+          clientName: customerName,
+          companyName: company,
+          clientEmail: email,
+          clientMobile: phone,
+          status: 'DRAFT',
+          validUntil: new Date(Date.now() + 86400000 * 30).toISOString().split('T')[0],
+          termsAndConditions: '1. 50% Advance along with Purchase Order, balance 50% prior to dispatch.\n2. Delivery timeline: 12-15 days after physical sample approval.\n3. Prices inclusive of customized logo branding.',
+          notes: action === 'convert' ? 'Created from RFQ Enquiry.' : '',
+          discount: 0,
+          items: [
+            {
+              id: 'item-1',
+              productName: productName,
+              description: 'Heavy duty B2B corporate bag manufacturing with custom branding',
+              quantity: isNaN(quantity) || quantity <= 0 ? 250 : quantity,
+              unitPrice: 650,
+              gstPercent: 18,
+              amount: (isNaN(quantity) || quantity <= 0 ? 250 : quantity) * 650,
+            }
+          ],
+        });
+        setIsModalOpen(true);
+      }
+    }
+
     return () => {
       ignore = true;
     };

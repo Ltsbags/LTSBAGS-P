@@ -18,6 +18,7 @@ import {
   Check,
   Bot,
   FileText,
+  FileSpreadsheet,
   Sparkles,
   Download,
   ExternalLink,
@@ -667,20 +668,38 @@ export default function AdminEnquiriesPage() {
             </div>
 
             {/* Modal Footer Actions */}
-            <div className="px-6 py-4 bg-slate-950 border-t border-slate-800 flex items-center justify-between gap-3">
-              <a
-                href={generateWhatsAppLink(selectedEnquiry)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs inline-flex items-center gap-2 shadow-md transition-all"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>Follow Up via WhatsApp</span>
-              </a>
+            <div className="px-6 py-4 bg-slate-950 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <a
+                  href={`/admin/quotations?action=convert&rfqId=${selectedEnquiry.id}&customerName=${encodeURIComponent(selectedEnquiry.name)}&company=${encodeURIComponent(selectedEnquiry.company || '')}&email=${encodeURIComponent(selectedEnquiry.email)}&phone=${encodeURIComponent(selectedEnquiry.mobile)}&productName=${encodeURIComponent(selectedEnquiry.productRequirement || 'Custom B2B Bag Order')}&quantity=${selectedEnquiry.quantity || 100}`}
+                  className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-xl text-xs inline-flex items-center gap-1.5 shadow-md transition-all"
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  <span>Create Quotation</span>
+                </a>
+
+                <a
+                  href={`/admin/follow-ups?action=new&name=${encodeURIComponent(selectedEnquiry.name)}&company=${encodeURIComponent(selectedEnquiry.company || '')}&phone=${encodeURIComponent(selectedEnquiry.mobile)}&email=${encodeURIComponent(selectedEnquiry.email)}`}
+                  className="bg-pink-600 hover:bg-pink-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs inline-flex items-center gap-1.5 shadow-md transition-all"
+                >
+                  <Calendar className="w-4 h-4" />
+                  <span>Log Follow-up</span>
+                </a>
+
+                <a
+                  href={generateWhatsAppLink(selectedEnquiry)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs inline-flex items-center gap-2 shadow-md transition-all"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>WhatsApp</span>
+                </a>
+              </div>
 
               <button
                 onClick={() => setSelectedEnquiry(null)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl text-xs"
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl text-xs cursor-pointer"
               >
                 Close Window
               </button>

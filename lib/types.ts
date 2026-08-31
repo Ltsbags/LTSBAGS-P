@@ -1,4 +1,15 @@
-export type AdminRole = 'SUPER_ADMIN' | 'CONTENT_MANAGER' | 'SALES_MANAGER' | 'EDITOR' | 'SEO_SPECIALIST';
+export type AdminRole = 
+  | 'SUPER_ADMIN' 
+  | 'ADMIN'
+  | 'SALES_MANAGER' 
+  | 'SALES_EXECUTIVE'
+  | 'SEO_MANAGER'
+  | 'CONTENT_MANAGER' 
+  | 'PRODUCTION_MANAGER'
+  | 'ACCOUNTANT'
+  | 'VIEWER'
+  | 'EDITOR' 
+  | 'SEO_SPECIALIST';
 
 export interface AdminUser {
   id: string;
@@ -698,11 +709,160 @@ export interface LanguageSettings {
   uiTranslations: Record<string, Record<string, string>>;
 }
 
+export type CustomerPipelineStatus = 
+  | 'NEW_LEAD'
+  | 'CONTACTED'
+  | 'REQUIREMENT_RECEIVED'
+  | 'QUOTATION_SENT'
+  | 'NEGOTIATION'
+  | 'ORDER_CONFIRMED'
+  | 'PRODUCTION'
+  | 'DELIVERED'
+  | 'REPEAT_CUSTOMER'
+  | 'LOST';
+
+export interface CustomerActivity {
+  id: string;
+  type: 'NOTE' | 'CALL' | 'EMAIL' | 'WHATSAPP' | 'MEETING' | 'RFQ' | 'QUOTATION' | 'PAYMENT' | 'STATUS_CHANGE';
+  title: string;
+  description?: string;
+  author: string;
+  timestamp: string;
+}
+
+export interface Customer {
+  id: string;
+  customerNumber?: string;
+  name: string;
+  companyName: string;
+  email: string;
+  phone: string;
+  whatsapp?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
+  gstNumber?: string;
+  website?: string;
+  status: CustomerPipelineStatus;
+  leadSource?: string;
+  assignedSalesPerson?: string;
+  lastContactedDate?: string;
+  nextFollowUpDate?: string;
+  totalRfqs?: number;
+  totalQuotations?: number;
+  totalOrders?: number;
+  totalSpend?: number;
+  notes?: string;
+  tags?: string[];
+  timeline?: CustomerActivity[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type FollowUpPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+export type FollowUpStatus = 'DUE' | 'OVERDUE' | 'UPCOMING' | 'COMPLETED' | 'CANCELLED';
+
+export interface FollowUp {
+  id: string;
+  title: string;
+  customerId?: string;
+  customerName: string;
+  companyName?: string;
+  phone?: string;
+  email?: string;
+  enquiryId?: string;
+  rfqNumber?: string;
+  quotationId?: string;
+  quoteNumber?: string;
+  followUpDate: string; // YYYY-MM-DD
+  followUpTime?: string; // HH:mm
+  assignedEmployee: string;
+  assignedEmployeeEmail?: string;
+  priority: FollowUpPriority;
+  status: FollowUpStatus;
+  notes: string;
+  reminderSent?: boolean;
+  completedAt?: string;
+  completedNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type NotificationType = 
+  | 'NEW_RFQ'
+  | 'NEW_CUSTOMER'
+  | 'NEW_CONTACT'
+  | 'QUOTATION_ACCEPTED'
+  | 'QUOTATION_REJECTED'
+  | 'PAYMENT_RECEIVED'
+  | 'FOLLOWUP_DUE'
+  | 'FOLLOWUP_OVERDUE'
+  | 'ADMIN_LOGIN'
+  | 'SECURITY_ALERT'
+  | 'SEO_ISSUE'
+  | 'BACKUP_ALERT';
+
+export interface AdminNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  link?: string;
+  isRead: boolean;
+  priority?: 'INFO' | 'WARNING' | 'ALERT' | 'SUCCESS';
+  createdAt: string;
+}
+
+export interface ManufacturingMaterial {
+  id: string;
+  name: string;
+  code?: string;
+  category: 'FABRIC' | 'LINING' | 'ZIPPER' | 'RUNNER' | 'BUCKLE' | 'WEBBING' | 'FOAM' | 'THREAD' | 'ACCESSORY';
+  description?: string;
+  gsmDenier?: string;
+  colors?: string[];
+  inStock?: boolean;
+  unit?: string;
+  supplierName?: string;
+}
+
+export interface ManufacturingProcessInfo {
+  id: string;
+  name: string;
+  department: string;
+  standardLeadTimeDays: number;
+  dailyCapacityUnits: number;
+  description: string;
+  qcCheckpoints: string[];
+}
+
+export interface ManufacturingConfig {
+  factoryName: string;
+  totalFactoryArea: string;
+  workforceCount: number;
+  dailyCapacity: number;
+  monthlyCapacity: number;
+  productionLinesCount: number;
+  materials: ManufacturingMaterial[];
+  processes: ManufacturingProcessInfo[];
+  customizationPrintingMethods: string[];
+  packagingOptions: string[];
+  qualityControlStandards: string[];
+  certificationsList: string[];
+  updatedAt?: string;
+}
+
 export interface DatabaseSchema {
   categories: Category[];
   products: Product[];
   blogs: Blog[];
   enquiries: Enquiry[];
+  customers?: Customer[];
+  followUps?: FollowUp[];
+  notifications?: AdminNotification[];
+  manufacturing?: ManufacturingConfig;
   settings?: SiteSettings;
   slides?: HeroSlide[];
   quotations?: Quotation[];

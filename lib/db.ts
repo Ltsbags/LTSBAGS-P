@@ -25,6 +25,11 @@ import {
   FaqItem,
   TestimonialItem,
   NavigationMenuConfig,
+  Customer,
+  CustomerPipelineStatus,
+  FollowUp,
+  AdminNotification,
+  ManufacturingConfig,
   DatabaseSchema
 } from './types';
 import { INITIAL_LANGUAGES } from './i18n/languages';
@@ -1160,6 +1165,292 @@ const INITIAL_PAYMENTS: Payment[] = [
   },
 ];
 
+const INITIAL_CUSTOMERS: Customer[] = [
+  {
+    id: 'cust-101',
+    customerNumber: 'CUST-2026-001',
+    name: 'Rajesh Sharma',
+    companyName: 'Infosys Talent Engagement',
+    email: 'r.sharma@infosys-example.com',
+    phone: '+91 98765 43210',
+    whatsapp: '+91 98765 43210',
+    address: 'Electronics City, Hosur Road',
+    city: 'Bengaluru',
+    state: 'Karnataka',
+    country: 'India',
+    postalCode: '560100',
+    gstNumber: '29AABCI1234F1Z8',
+    status: 'QUOTATION_SENT',
+    leadSource: 'B2B Form',
+    assignedSalesPerson: 'Sales Team',
+    lastContactedDate: new Date(Date.now() - 86400000 * 2).toISOString().split('T')[0],
+    nextFollowUpDate: new Date().toISOString().split('T')[0],
+    totalRfqs: 1,
+    totalQuotations: 1,
+    totalOrders: 0,
+    totalSpend: 0,
+    notes: 'Large enterprise client for Q3 corporate onboarding kits.',
+    tags: ['Corporate', 'High Volume', 'Backpacks'],
+    timeline: [
+      {
+        id: 'act-1',
+        type: 'RFQ',
+        title: 'Initial RFQ received for 1,200 Executive Backpacks',
+        description: 'Target delivery Q3 orientation week.',
+        author: 'System',
+        timestamp: new Date(Date.now() - 86400000 * 3).toISOString(),
+      },
+      {
+        id: 'act-2',
+        type: 'QUOTATION',
+        title: 'Quotation QT-2026-101 sent',
+        description: 'Total amount ₹11,83,600 inclusive of 18% GST.',
+        author: 'Sales Manager',
+        timestamp: new Date(Date.now() - 86400000 * 2).toISOString(),
+      }
+    ],
+    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+    updatedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+  },
+  {
+    id: 'cust-102',
+    customerNumber: 'CUST-2026-002',
+    name: 'Sarah Jenkins',
+    companyName: 'Apex Logistics & Freight',
+    email: 's.jenkins@apexlogistics-example.com',
+    phone: '+1 415 555 0192',
+    whatsapp: '+1 415 555 0192',
+    address: '450 California St, Suite 1200',
+    city: 'San Francisco',
+    state: 'California',
+    country: 'United States',
+    postalCode: '94104',
+    status: 'ORDER_CONFIRMED',
+    leadSource: 'AI Chatbot',
+    assignedSalesPerson: 'Export Desk',
+    lastContactedDate: new Date(Date.now() - 86400000 * 1).toISOString().split('T')[0],
+    nextFollowUpDate: new Date(Date.now() + 86400000 * 4).toISOString().split('T')[0],
+    totalRfqs: 1,
+    totalQuotations: 1,
+    totalOrders: 1,
+    totalSpend: 432500,
+    notes: 'Approved 300 Leatherette Duffel bags. 50% advance UTR verified.',
+    tags: ['Export', 'Duffel', 'Repeat Potential'],
+    timeline: [
+      {
+        id: 'act-3',
+        type: 'PAYMENT',
+        title: '50% Advance Payment Verified (₹2,16,250)',
+        description: 'UTR: UTR9823148123 verified by Accounts.',
+        author: 'Accountant',
+        timestamp: new Date(Date.now() - 86400000 * 1).toISOString(),
+      }
+    ],
+    createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
+    updatedAt: new Date(Date.now() - 86400000 * 1).toISOString(),
+  },
+];
+
+const INITIAL_FOLLOW_UPS: FollowUp[] = [
+  {
+    id: 'fol-101',
+    title: 'Follow up on Quote QT-2026-101 (1,200 Backpacks)',
+    customerId: 'cust-101',
+    customerName: 'Rajesh Sharma',
+    companyName: 'Infosys Talent Engagement',
+    phone: '+91 98765 43210',
+    email: 'r.sharma@infosys-example.com',
+    enquiryId: 'enq-101',
+    rfqNumber: 'RFQ-101',
+    quotationId: 'quote-101',
+    quoteNumber: 'QT-2026-101',
+    followUpDate: new Date().toISOString().split('T')[0],
+    followUpTime: '14:30',
+    assignedEmployee: 'Sales Lead',
+    assignedEmployeeEmail: 'sales@ltsbags.com',
+    priority: 'HIGH',
+    status: 'DUE',
+    notes: 'Check if procurement committee approved sample specs and PO creation.',
+    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+    updatedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+  },
+  {
+    id: 'fol-102',
+    title: 'Send production progress photos for Apex Duffel order',
+    customerId: 'cust-102',
+    customerName: 'Sarah Jenkins',
+    companyName: 'Apex Logistics & Freight',
+    phone: '+1 415 555 0192',
+    email: 's.jenkins@apexlogistics-example.com',
+    enquiryId: 'enq-102',
+    rfqNumber: 'RFQ-102',
+    quotationId: 'quote-102',
+    quoteNumber: 'QT-2026-102',
+    followUpDate: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+    followUpTime: '17:00',
+    assignedEmployee: 'Production Manager',
+    assignedEmployeeEmail: 'production@ltsbags.com',
+    priority: 'MEDIUM',
+    status: 'UPCOMING',
+    notes: 'Share laser debossing logo test patch photos before stitching line run.',
+    createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
+    updatedAt: new Date(Date.now() - 86400000 * 1).toISOString(),
+  }
+];
+
+const INITIAL_NOTIFICATIONS: AdminNotification[] = [
+  {
+    id: 'notif-1',
+    type: 'NEW_RFQ',
+    title: 'New High-Volume RFQ Received',
+    message: 'Rajesh Sharma from Infosys requested quotation for 1,200 Executive Backpacks.',
+    link: '/admin/enquiries',
+    isRead: false,
+    priority: 'ALERT',
+    createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+  },
+  {
+    id: 'notif-2',
+    type: 'PAYMENT_RECEIVED',
+    title: 'Bank Transfer Payment Verified',
+    message: '₹2,16,250 received from Apex Logistics for quotation QT-2026-102.',
+    link: '/admin/payments',
+    isRead: false,
+    priority: 'SUCCESS',
+    createdAt: new Date(Date.now() - 3600000 * 8).toISOString(),
+  },
+  {
+    id: 'notif-3',
+    type: 'FOLLOWUP_DUE',
+    title: 'Follow-up Due Today',
+    message: 'Follow-up with Rajesh Sharma (Infosys) regarding quotation decision.',
+    link: '/admin/follow-ups',
+    isRead: false,
+    priority: 'WARNING',
+    createdAt: new Date().toISOString(),
+  }
+];
+
+const INITIAL_MANUFACTURING: ManufacturingConfig = {
+  factoryName: 'LTS BAGS PRIVATE LIMITED Main Manufacturing Facility',
+  totalFactoryArea: '25,000+ Sq. Ft. Integrated Manufacturing Floor',
+  workforceCount: 160,
+  dailyCapacity: 10000,
+  monthlyCapacity: 250000,
+  productionLinesCount: 8,
+  materials: [
+    {
+      id: 'mat-1',
+      name: '1680D Ballistic Nylon',
+      code: 'MAT-NY-1680',
+      category: 'FABRIC',
+      description: 'Heavy duty, water-repellent, high-tear strength weave for premium executive & laptop bags.',
+      gsmDenier: '1680 Denier / 420 GSM',
+      colors: ['Black', 'Navy Blue', 'Charcoal Grey', 'Olive'],
+      inStock: true,
+      unit: 'Meters',
+      supplierName: 'Certified OEM Mill',
+    },
+    {
+      id: 'mat-2',
+      name: '900D Matte Melange Polyester (Water-Resistant)',
+      code: 'MAT-POLY-900',
+      category: 'FABRIC',
+      description: 'Sophisticated dual-tone texture for corporate gifts, lifestyle and school bags.',
+      gsmDenier: '900 Denier / 320 GSM',
+      colors: ['Heather Grey', 'Denim Blue', 'Maroon', 'Slate'],
+      inStock: true,
+      unit: 'Meters',
+      supplierName: 'Textile Partner India',
+    },
+    {
+      id: 'mat-3',
+      name: 'YKK Reverse Water-Resistant Coil Zippers',
+      code: 'MAT-ZIP-YKK8',
+      category: 'ZIPPER',
+      description: '#5 & #8 Smooth Glide Heavy Load Industrial Teeth.',
+      inStock: true,
+      unit: 'Rolls',
+    },
+    {
+      id: 'mat-4',
+      name: 'High-Density Breathable EVA Foam Cushioning',
+      code: 'MAT-FOAM-EVA',
+      category: 'FOAM',
+      description: '8mm to 12mm Ergonomic lumbar and shoulder strap padding.',
+      inStock: true,
+      unit: 'Sheets',
+    },
+  ],
+  processes: [
+    {
+      id: 'proc-1',
+      name: 'Automated Computerized Laser & Die Cutting',
+      department: 'Cutting Department',
+      standardLeadTimeDays: 2,
+      dailyCapacityUnits: 15000,
+      description: 'Multi-layer precision cutting table with 0.1mm dimensional tolerance.',
+      qcCheckpoints: ['Pattern Alignment', 'Fabric Flaw Scanning', 'Grain Line Verifications'],
+    },
+    {
+      id: 'proc-2',
+      name: 'Heavy Industrial Bartack & Lockstitch Assembly',
+      department: 'Stitching Department',
+      standardLeadTimeDays: 7,
+      dailyCapacityUnits: 10000,
+      description: 'Japanese Juki automated programmable bartack machines for stress-point reinforcement.',
+      qcCheckpoints: ['100% In-Line Stitch Count Check (7-8 stitches/inch)', 'Strap Pull Tensile Test', 'Seam Integrity'],
+    },
+    {
+      id: 'proc-3',
+      name: 'Corporate Branding & Custom Logo Printing',
+      department: 'Printing & Embroidery Department',
+      standardLeadTimeDays: 3,
+      dailyCapacityUnits: 8000,
+      description: 'Multi-head Tajima embroidery, UV Flatbed, Screen, and Laser Debossing.',
+      qcCheckpoints: ['Pantone Color Matching (Delta E < 1.0)', 'Wash & Rub Fastness Test', 'Adhesion Scratch Test'],
+    },
+    {
+      id: 'proc-4',
+      name: 'Final Quality Inspection & Export Packaging',
+      department: 'QC & Packaging',
+      standardLeadTimeDays: 2,
+      dailyCapacityUnits: 12000,
+      description: '100% Final inspection under calibrated D65 light booths, thread trimming, desiccant pouch & individual polybagging.',
+      qcCheckpoints: ['Drop Test', 'Zipper 500-Cycle Endurance', 'Barcode & Master Carton Verification'],
+    }
+  ],
+  customizationPrintingMethods: [
+    '3D High-Definition Multi-Color Embroidery',
+    'Industrial Screen Printing (Plastisol / Non-Toxic Pigment)',
+    'Full-Color Heat Transfer Digital Vinyl Printing',
+    'Laser Engraved Metal Nameplates & Badges',
+    'Heat Debossing / Embossing on Genuine & PU Leather',
+    'Sublimation All-Over Panel Printing',
+    'Custom Molded Rubber & Silicon Badges'
+  ],
+  packagingOptions: [
+    'Individual Biodegradable Polybag with Silica Gel',
+    'Premium Corporate Gift Box with Foil Stamping',
+    'Corrugated Master Carton (7-Ply Heavy Duty Export Grade)',
+    'Custom Barcode Labeling & Amazon FBA Ready Packing'
+  ],
+  qualityControlStandards: [
+    'AQL 2.5 Major / 4.0 Minor Acceptance Sampling',
+    '100% In-Line Stitching & Seam Burst Inspection',
+    'Drop Impact Test with 15kg to 25kg Rated Payload',
+    'Color Fastness to Rubbing & Accelerated Weathering (ISO 105-X12)',
+    'REACH & RoHS Compliant Eco-Friendly Dyes & Fabrics'
+  ],
+  certificationsList: [
+    'ISO 9001:2015 Quality Management System',
+    'MSME Registered Enterprise (Govt. of India)',
+    'AQL 2.5 Certified Final Inspection Protocol',
+    'Sedex SMETA Ethical Trade Audited Facility Ready'
+  ],
+  updatedAt: new Date().toISOString(),
+};
+
 const INITIAL_MEDIA: MediaAsset[] = [
   {
     id: 'med-1',
@@ -1684,6 +1975,22 @@ function ensureDataFile(): DatabaseSchema {
       parsed.payments = INITIAL_PAYMENTS;
       dirty = true;
     }
+    if (!parsed.customers || parsed.customers.length === 0) {
+      parsed.customers = INITIAL_CUSTOMERS;
+      dirty = true;
+    }
+    if (!parsed.followUps || parsed.followUps.length === 0) {
+      parsed.followUps = INITIAL_FOLLOW_UPS;
+      dirty = true;
+    }
+    if (!parsed.notifications || parsed.notifications.length === 0) {
+      parsed.notifications = INITIAL_NOTIFICATIONS;
+      dirty = true;
+    }
+    if (!parsed.manufacturing) {
+      parsed.manufacturing = INITIAL_MANUFACTURING;
+      dirty = true;
+    }
     if (!parsed.media || parsed.media.length === 0) {
       parsed.media = INITIAL_MEDIA;
       dirty = true;
@@ -2134,18 +2441,307 @@ export const db = {
     return false;
   },
 
-  // Overview Stats
-  getStats() {
+  // Overview Stats (Database-driven real B2B KPIs with date filters)
+  getStats(dateFilter: string = 'all', customStart?: string, customEnd?: string) {
     const data = ensureDataFile();
     const slides = data.slides || INITIAL_SLIDES;
+    const products = data.products || [];
+    const categories = data.categories || [];
+    const enquiries = data.enquiries || [];
+    const quotations = data.quotations || [];
+    const payments = data.payments || [];
+    const customers = data.customers || [];
+    const followUps = data.followUps || [];
+    const blogs = data.blogs || [];
+    const manufacturing = data.manufacturing || INITIAL_MANUFACTURING;
+
+    // Date filtering helper
+    const now = new Date();
+    const isWithinDate = (dateStr?: string) => {
+      if (!dateStr) return true;
+      if (dateFilter === 'all') return true;
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return true;
+
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const yesterdayStart = new Date(todayStart.getTime() - 86400000);
+      const sevenDaysAgo = new Date(todayStart.getTime() - 7 * 86400000);
+      const thirtyDaysAgo = new Date(todayStart.getTime() - 30 * 86400000);
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+
+      switch (dateFilter) {
+        case 'today':
+          return d >= todayStart;
+        case 'yesterday':
+          return d >= yesterdayStart && d < todayStart;
+        case 'last7days':
+          return d >= sevenDaysAgo;
+        case 'last30days':
+          return d >= thirtyDaysAgo;
+        case 'thisMonth':
+          return d >= monthStart;
+        case 'lastMonth':
+          return d >= lastMonthStart && d <= lastMonthEnd;
+        case 'custom':
+          if (customStart && customEnd) {
+            const start = new Date(customStart);
+            const end = new Date(customEnd + 'T23:59:59');
+            return d >= start && d <= end;
+          }
+          return true;
+        default:
+          return true;
+      }
+    };
+
+    const filteredEnquiries = enquiries.filter((e) => isWithinDate(e.createdAt));
+    const filteredQuotations = quotations.filter((q) => isWithinDate(q.createdAt));
+    const filteredPayments = payments.filter((p) => isWithinDate(p.createdAt || p.paymentDate));
+    const filteredCustomers = customers.filter((c) => isWithinDate(c.createdAt));
+    const filteredFollowUps = followUps.filter((f) => isWithinDate(f.createdAt || f.followUpDate));
+
+    // Products metrics
+    const totalProducts = products.length;
+    const publishedProducts = products.filter((p) => p.isPublished !== false).length;
+    const draftProducts = products.filter((p) => p.isPublished === false).length;
+    const featuredProducts = products.filter((p) => p.isFeatured).length;
+
+    // Categories metrics
+    const totalCategories = categories.length;
+    const mainCategories = categories.filter((c) => !c.parentId).length;
+    const subCategories = categories.filter((c) => !!c.parentId).length;
+
+    // RFQ Metrics
+    const totalRfqs = enquiries.length;
+    const filteredRfqsCount = filteredEnquiries.length;
+    const newRfqs = filteredEnquiries.filter((e) => e.status === 'NEW').length;
+    const pendingRfqs = filteredEnquiries.filter((e) => e.status === 'IN_PROGRESS' || e.status === 'NEW' || e.status === 'CONTACTED').length;
+    const quotedRfqs = filteredEnquiries.filter((e) => e.status === 'QUOTED').length;
+    const samplesSentRfqs = filteredEnquiries.filter((e) => e.status === 'SAMPLE_SENT').length;
+    const confirmedRfqs = filteredEnquiries.filter((e) => e.status === 'CONFIRMED' || e.status === 'CLOSED').length;
+    const lostRfqs = filteredEnquiries.filter((e) => e.status === 'CANCELLED' || e.status === 'LOST').length;
+
+    // Quotations Metrics
+    const totalQuotationsCount = quotations.length;
+    const filteredQuotesCount = filteredQuotations.length;
+    const quotationsSent = filteredQuotations.filter((q) => q.status === 'SENT' || q.status === 'ACCEPTED').length;
+    const acceptedQuotations = filteredQuotations.filter((q) => q.status === 'ACCEPTED').length;
+    const rejectedQuotations = filteredQuotations.filter((q) => q.status === 'REJECTED').length;
+    const draftQuotations = filteredQuotations.filter((q) => q.status === 'DRAFT').length;
+    
+    const totalQuotationsValue = filteredQuotations.reduce((acc, q) => acc + (q.totalAmount || 0), 0);
+    const acceptedQuotationsValue = filteredQuotations
+      .filter((q) => q.status === 'ACCEPTED')
+      .reduce((acc, q) => acc + (q.totalAmount || 0), 0);
+
+    // Payments Metrics
+    const totalPaymentsCount = payments.length;
+    const verifiedPayments = filteredPayments.filter((p) => p.status === 'VERIFIED').length;
+    const pendingPayments = filteredPayments.filter((p) => p.status === 'PENDING').length;
+    const totalRevenue = filteredPayments
+      .filter((p) => p.status === 'VERIFIED')
+      .reduce((acc, p) => acc + (p.amount || 0), 0);
+    const pendingRevenue = filteredPayments
+      .filter((p) => p.status === 'PENDING')
+      .reduce((acc, p) => acc + (p.amount || 0), 0);
+
+    // Customer & CRM Metrics
+    const totalCustomers = customers.length;
+    const newLeads = customers.filter((c) => c.status === 'NEW_LEAD').length;
+    const repeatCustomers = customers.filter((c) => c.status === 'REPEAT_CUSTOMER' || (c.totalOrders || 0) > 1).length;
+    const orderConfirmedCustomers = customers.filter((c) => c.status === 'ORDER_CONFIRMED' || c.status === 'DELIVERED').length;
+
+    // Follow-ups Metrics
+    const todayStr = new Date().toISOString().split('T')[0];
+    const followUpsDue = followUps.filter((f) => f.status === 'DUE' || (f.followUpDate === todayStr && f.status !== 'COMPLETED')).length;
+    const followUpsOverdue = followUps.filter((f) => f.status === 'OVERDUE' || (f.followUpDate < todayStr && f.status !== 'COMPLETED' && f.status !== 'CANCELLED')).length;
+    const followUpsUpcoming = followUps.filter((f) => f.followUpDate > todayStr && f.status !== 'COMPLETED' && f.status !== 'CANCELLED').length;
+    const followUpsCompleted = followUps.filter((f) => f.status === 'COMPLETED').length;
+
+    // Monthly Chart Trend calculation (Last 6 months)
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthlyTrends = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const mYear = d.getFullYear();
+      const mMonth = d.getMonth();
+      const label = `${monthNames[mMonth]} ${mYear}`;
+
+      const mRfqs = enquiries.filter((e) => {
+        const ed = new Date(e.createdAt);
+        return ed.getFullYear() === mYear && ed.getMonth() === mMonth;
+      }).length;
+
+      const mQuotes = quotations.filter((q) => {
+        const qd = new Date(q.createdAt);
+        return qd.getFullYear() === mYear && qd.getMonth() === mMonth;
+      });
+
+      const mQuotesValue = mQuotes.reduce((acc, q) => acc + (q.totalAmount || 0), 0);
+
+      const mPayments = payments.filter((p) => {
+        const pd = new Date(p.createdAt || p.paymentDate);
+        return pd.getFullYear() === mYear && pd.getMonth() === mMonth && p.status === 'VERIFIED';
+      });
+      const mRevenue = mPayments.reduce((acc, p) => acc + (p.amount || 0), 0);
+
+      monthlyTrends.push({
+        month: label,
+        rfqs: mRfqs,
+        quotesCount: mQuotes.length,
+        quotesValue: mQuotesValue,
+        revenue: mRevenue,
+      });
+    }
+
+    // Category product distribution
+    const categoryDistribution = categories.slice(0, 8).map((c) => {
+      const count = products.filter((p) => p.categorySlug === c.slug || p.categoryId === c.id).length;
+      return {
+        name: c.name,
+        slug: c.slug,
+        count,
+      };
+    });
+
+    // Recent activity stream (Merged RFQs, Quotations, Payments, Follow-ups)
+    const recentActivities: Array<{
+      id: string;
+      type: 'RFQ' | 'QUOTATION' | 'PAYMENT' | 'FOLLOWUP';
+      title: string;
+      subtitle: string;
+      amount?: number;
+      status: string;
+      timestamp: string;
+      link: string;
+    }> = [];
+
+    enquiries.slice(0, 5).forEach((e) => {
+      recentActivities.push({
+        id: `act-rfq-${e.id}`,
+        type: 'RFQ',
+        title: `New RFQ from ${e.name} (${e.company || 'Enterprise Client'})`,
+        subtitle: `${e.quantity ? e.quantity + ' units' : 'Custom MOQ'} • ${e.productRequirement || 'Custom Bag'}`,
+        status: e.status,
+        timestamp: e.createdAt,
+        link: '/admin/enquiries',
+      });
+    });
+
+    quotations.slice(0, 5).forEach((q) => {
+      recentActivities.push({
+        id: `act-quote-${q.id}`,
+        type: 'QUOTATION',
+        title: `Quotation ${q.quoteNumber} for ${q.clientName}`,
+        subtitle: `${q.companyName || 'Corporate Client'} • Valid until ${q.validUntil || 'N/A'}`,
+        amount: q.totalAmount,
+        status: q.status,
+        timestamp: q.createdAt,
+        link: '/admin/quotations',
+      });
+    });
+
+    payments.slice(0, 5).forEach((p) => {
+      recentActivities.push({
+        id: `act-pay-${p.id}`,
+        type: 'PAYMENT',
+        title: `Payment ${p.paymentNumber} from ${p.clientName}`,
+        subtitle: `${p.companyName || ''} • Ref: ${p.transactionRef || 'NEFT/IMPS'}`,
+        amount: p.amount,
+        status: p.status,
+        timestamp: p.createdAt || p.paymentDate,
+        link: '/admin/payments',
+      });
+    });
+
+    followUps.slice(0, 5).forEach((f) => {
+      recentActivities.push({
+        id: `act-fol-${f.id}`,
+        type: 'FOLLOWUP',
+        title: `Follow-up: ${f.title}`,
+        subtitle: `Assigned: ${f.assignedEmployee} • ${f.customerName}`,
+        status: f.status,
+        timestamp: f.followUpDate,
+        link: '/admin/follow-ups',
+      });
+    });
+
+    recentActivities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
     return {
-      totalProducts: data.products.length,
-      totalCategories: data.categories.length,
-      totalBlogs: data.blogs.length,
-      totalEnquiries: data.enquiries.length,
+      // Products
+      totalProducts,
+      publishedProducts,
+      draftProducts,
+      featuredProducts,
+
+      // Categories
+      totalCategories,
+      mainCategories,
+      subCategories,
+
+      // RFQs
+      totalRfqs,
+      filteredRfqsCount,
+      newRfqs,
+      pendingRfqs,
+      quotedRfqs,
+      samplesSentRfqs,
+      confirmedRfqs,
+      lostRfqs,
+      newEnquiriesCount: newRfqs,
+
+      // Quotations
+      totalQuotations: totalQuotationsCount,
+      filteredQuotesCount,
+      quotationsSent,
+      acceptedQuotations,
+      rejectedQuotations,
+      draftQuotations,
+      totalQuotationsValue,
+      acceptedQuotationsValue,
+
+      // Payments
+      totalPayments: totalPaymentsCount,
+      verifiedPayments,
+      pendingPayments,
+      totalRevenue,
+      pendingRevenue,
+
+      // Customers / CRM
+      totalCustomers,
+      newLeads,
+      repeatCustomers,
+      orderConfirmedCustomers,
+
+      // Follow-ups
+      followUpsDue,
+      followUpsOverdue,
+      followUpsUpcoming,
+      followUpsCompleted,
+
+      // Manufacturing Specs
+      manufacturing: {
+        dailyCapacity: manufacturing.dailyCapacity,
+        monthlyCapacity: manufacturing.monthlyCapacity,
+        workforceCount: manufacturing.workforceCount,
+        productionLinesCount: manufacturing.productionLinesCount,
+        totalMaterials: manufacturing.materials?.length || 0,
+        totalProcesses: manufacturing.processes?.length || 0,
+      },
+
+      // Slides & Blogs & Traffic
+      totalBlogs: blogs.length,
       totalSlides: slides.length,
       activeSlides: slides.filter((s) => s.isActive).length,
-      newEnquiriesCount: data.enquiries.filter((e) => e.status === 'NEW').length,
+
+      // Analytics & Trends
+      monthlyTrends,
+      categoryDistribution,
+      recentActivities: recentActivities.slice(0, 10),
+      selectedFilter: dateFilter,
     };
   },
 
@@ -3363,6 +3959,284 @@ export const db = {
     data.blogs.push(duplicate);
     saveData(data);
     return duplicate;
+  },
+
+  // CRM & Customers
+  getCustomers(search?: string, status?: string): Customer[] {
+    const data = ensureDataFile();
+    let list = data.customers || INITIAL_CUSTOMERS;
+    if (status && status !== 'ALL') {
+      list = list.filter((c) => c.status === status);
+    }
+    if (search && search.trim()) {
+      const q = search.toLowerCase().trim();
+      list = list.filter(
+        (c) =>
+          c.name.toLowerCase().includes(q) ||
+          c.companyName.toLowerCase().includes(q) ||
+          c.email.toLowerCase().includes(q) ||
+          c.phone.includes(q) ||
+          (c.city && c.city.toLowerCase().includes(q))
+      );
+    }
+    return [...list].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  },
+
+  getCustomerById(id: string): Customer | undefined {
+    const data = ensureDataFile();
+    const list = data.customers || INITIAL_CUSTOMERS;
+    return list.find((c) => c.id === id);
+  },
+
+  saveCustomer(custData: Partial<Customer> & { name: string; email: string }): Customer {
+    const data = ensureDataFile();
+    if (!data.customers) data.customers = [...INITIAL_CUSTOMERS];
+    const now = new Date().toISOString();
+    const index = custData.id ? data.customers.findIndex((c) => c.id === custData.id) : -1;
+
+    if (index >= 0) {
+      const existing = data.customers[index];
+      const updated: Customer = {
+        ...existing,
+        ...custData,
+        updatedAt: now,
+      };
+      data.customers[index] = updated;
+      saveData(data);
+      saveDocToFirestore('customers', updated.id, updated);
+      return updated;
+    } else {
+      const newCust: Customer = {
+        id: 'cust-' + Date.now(),
+        customerNumber: custData.customerNumber || `CUST-2026-${String(data.customers.length + 1).padStart(3, '0')}`,
+        name: custData.name,
+        companyName: custData.companyName || '',
+        email: custData.email,
+        phone: custData.phone || '',
+        whatsapp: custData.whatsapp || custData.phone || '',
+        address: custData.address || '',
+        city: custData.city || '',
+        state: custData.state || '',
+        country: custData.country || 'India',
+        postalCode: custData.postalCode || '',
+        gstNumber: custData.gstNumber || '',
+        website: custData.website || '',
+        status: custData.status || 'NEW_LEAD',
+        leadSource: custData.leadSource || 'Direct B2B Enquiry',
+        assignedSalesPerson: custData.assignedSalesPerson || 'Sales Desk',
+        lastContactedDate: custData.lastContactedDate || now.split('T')[0],
+        nextFollowUpDate: custData.nextFollowUpDate || new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
+        totalRfqs: custData.totalRfqs || 0,
+        totalQuotations: custData.totalQuotations || 0,
+        totalOrders: custData.totalOrders || 0,
+        totalSpend: custData.totalSpend || 0,
+        notes: custData.notes || '',
+        tags: custData.tags || ['Corporate B2B'],
+        timeline: custData.timeline || [
+          {
+            id: 'act-' + Date.now(),
+            type: 'NOTE',
+            title: 'Lead Profile Created in CRM',
+            description: 'New B2B account added.',
+            author: 'System',
+            timestamp: now,
+          },
+        ],
+        createdAt: now,
+        updatedAt: now,
+      };
+      data.customers.unshift(newCust);
+      saveData(data);
+      saveDocToFirestore('customers', newCust.id, newCust);
+      return newCust;
+    }
+  },
+
+  deleteCustomer(id: string): boolean {
+    const data = ensureDataFile();
+    if (!data.customers) data.customers = [...INITIAL_CUSTOMERS];
+    const lenBefore = data.customers.length;
+    data.customers = data.customers.filter((c) => c.id !== id);
+    if (data.customers.length !== lenBefore) {
+      saveData(data);
+      deleteDocFromFirestore('customers', id);
+      return true;
+    }
+    return false;
+  },
+
+  addCustomerActivity(customerId: string, activity: { type: any; title: string; description?: string; author?: string }): Customer | undefined {
+    const data = ensureDataFile();
+    if (!data.customers) data.customers = [...INITIAL_CUSTOMERS];
+    const cust = data.customers.find((c) => c.id === customerId);
+    if (!cust) return undefined;
+
+    if (!cust.timeline) cust.timeline = [];
+    const newAct = {
+      id: 'act-' + Date.now(),
+      type: activity.type || 'NOTE',
+      title: activity.title,
+      description: activity.description || '',
+      author: activity.author || 'Sales Team',
+      timestamp: new Date().toISOString(),
+    };
+    cust.timeline.unshift(newAct);
+    cust.updatedAt = new Date().toISOString();
+    saveData(data);
+    saveDocToFirestore('customers', cust.id, cust);
+    return cust;
+  },
+
+  // Follow-ups Management
+  getFollowUps(statusFilter?: string, employeeFilter?: string): FollowUp[] {
+    const data = ensureDataFile();
+    let list = data.followUps || INITIAL_FOLLOW_UPS;
+    const today = new Date().toISOString().split('T')[0];
+
+    // Dynamic status computation
+    list = list.map((f) => {
+      if (f.status === 'COMPLETED' || f.status === 'CANCELLED') return f;
+      if (f.followUpDate < today) return { ...f, status: 'OVERDUE' as const };
+      if (f.followUpDate === today) return { ...f, status: 'DUE' as const };
+      return { ...f, status: 'UPCOMING' as const };
+    });
+
+    if (statusFilter && statusFilter !== 'ALL') {
+      list = list.filter((f) => f.status === statusFilter);
+    }
+    if (employeeFilter && employeeFilter !== 'ALL') {
+      list = list.filter((f) => f.assignedEmployee === employeeFilter);
+    }
+
+    return [...list].sort((a, b) => new Date(a.followUpDate).getTime() - new Date(b.followUpDate).getTime());
+  },
+
+  getFollowUpById(id: string): FollowUp | undefined {
+    const data = ensureDataFile();
+    const list = data.followUps || INITIAL_FOLLOW_UPS;
+    return list.find((f) => f.id === id);
+  },
+
+  saveFollowUp(item: Partial<FollowUp> & { title: string; customerName: string; followUpDate: string; assignedEmployee: string }): FollowUp {
+    const data = ensureDataFile();
+    if (!data.followUps) data.followUps = [...INITIAL_FOLLOW_UPS];
+    const now = new Date().toISOString();
+    const index = item.id ? data.followUps.findIndex((f) => f.id === item.id) : -1;
+
+    if (index >= 0) {
+      const updated: FollowUp = {
+        ...data.followUps[index],
+        ...item,
+        updatedAt: now,
+      };
+      data.followUps[index] = updated;
+      saveData(data);
+      saveDocToFirestore('followUps', updated.id, updated);
+      return updated;
+    } else {
+      const newFollow: FollowUp = {
+        id: 'fol-' + Date.now(),
+        title: item.title,
+        customerId: item.customerId,
+        customerName: item.customerName,
+        companyName: item.companyName || '',
+        phone: item.phone || '',
+        email: item.email || '',
+        enquiryId: item.enquiryId,
+        rfqNumber: item.rfqNumber,
+        quotationId: item.quotationId,
+        quoteNumber: item.quoteNumber,
+        followUpDate: item.followUpDate,
+        followUpTime: item.followUpTime || '11:00',
+        assignedEmployee: item.assignedEmployee,
+        assignedEmployeeEmail: item.assignedEmployeeEmail || 'sales@ltsbags.com',
+        priority: item.priority || 'MEDIUM',
+        status: item.status || 'DUE',
+        notes: item.notes || '',
+        createdAt: now,
+        updatedAt: now,
+      };
+      data.followUps.unshift(newFollow);
+      saveData(data);
+      saveDocToFirestore('followUps', newFollow.id, newFollow);
+      return newFollow;
+    }
+  },
+
+  deleteFollowUp(id: string): boolean {
+    const data = ensureDataFile();
+    if (!data.followUps) data.followUps = [...INITIAL_FOLLOW_UPS];
+    const lenBefore = data.followUps.length;
+    data.followUps = data.followUps.filter((f) => f.id !== id);
+    if (data.followUps.length !== lenBefore) {
+      saveData(data);
+      deleteDocFromFirestore('followUps', id);
+      return true;
+    }
+    return false;
+  },
+
+  // Notifications
+  getNotifications(limit = 20): AdminNotification[] {
+    const data = ensureDataFile();
+    const list = data.notifications || INITIAL_NOTIFICATIONS;
+    return list.slice(0, limit);
+  },
+
+  createNotification(notif: Omit<AdminNotification, 'id' | 'createdAt'>): AdminNotification {
+    const data = ensureDataFile();
+    if (!data.notifications) data.notifications = [...INITIAL_NOTIFICATIONS];
+    const newNotif: AdminNotification = {
+      id: 'notif-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+      ...notif,
+      createdAt: new Date().toISOString(),
+    };
+    data.notifications.unshift(newNotif);
+    if (data.notifications.length > 100) {
+      data.notifications = data.notifications.slice(0, 100);
+    }
+    saveData(data);
+    return newNotif;
+  },
+
+  markNotificationAsRead(id: string): boolean {
+    const data = ensureDataFile();
+    if (!data.notifications) data.notifications = [...INITIAL_NOTIFICATIONS];
+    const notif = data.notifications.find((n) => n.id === id);
+    if (notif) {
+      notif.isRead = true;
+      saveData(data);
+      return true;
+    }
+    return false;
+  },
+
+  markAllNotificationsAsRead(): boolean {
+    const data = ensureDataFile();
+    if (!data.notifications) data.notifications = [...INITIAL_NOTIFICATIONS];
+    data.notifications.forEach((n) => (n.isRead = true));
+    saveData(data);
+    return true;
+  },
+
+  // Manufacturing Operations & Specifications
+  getManufacturingConfig(): ManufacturingConfig {
+    const data = ensureDataFile();
+    return data.manufacturing || INITIAL_MANUFACTURING;
+  },
+
+  saveManufacturingConfig(config: Partial<ManufacturingConfig>): ManufacturingConfig {
+    const data = ensureDataFile();
+    const current = data.manufacturing || INITIAL_MANUFACTURING;
+    const updated: ManufacturingConfig = {
+      ...current,
+      ...config,
+      updatedAt: new Date().toISOString(),
+    };
+    data.manufacturing = updated;
+    saveData(data);
+    saveDocToFirestore('manufacturing', 'global', updated);
+    return updated;
   },
 
   // Backup & Snapshot

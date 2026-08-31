@@ -32,7 +32,14 @@ import {
   X,
   Lock,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Bell,
+  CheckCheck,
+  Factory,
+  CalendarCheck,
+  Sparkles,
+  TrendingUp,
+  Workflow
 } from 'lucide-react';
 import Logo from './Logo';
 import { useAdminAuth } from '@/lib/useAdminAuth';
@@ -48,6 +55,57 @@ export default function AdminHeader({ activeTab }: { activeTab?: string }) {
   const [passError, setPassError] = useState('');
   const [passSuccess, setPassSuccess] = useState('');
 
+  // Notifications State
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch('/api/admin/notifications');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setNotifications(data);
+        }
+      }
+    } catch (err) {
+      // benign
+    }
+  };
+
+  React.useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const markAllNotificationsRead = async () => {
+    try {
+      await fetch('/api/admin/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'markAllRead' }),
+      });
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    } catch (e) {
+      // benign
+    }
+  };
+
+  const markSingleRead = async (id: string) => {
+    try {
+      await fetch('/api/admin/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'markRead', id }),
+      });
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
+    } catch (e) {
+      // benign
+    }
+  };
+
   // Quick Search state
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,8 +114,9 @@ export default function AdminHeader({ activeTab }: { activeTab?: string }) {
     enquiries: any[];
     quotations: any[];
     customers: any[];
+    followUps: any[];
     blogs: any[];
-  }>({ products: [], enquiries: [], quotations: [], customers: [], blogs: [] });
+  }>({ products: [], enquiries: [], quotations: [], customers: [], followUps: [], blogs: [] });
   const [searchLoading, setSearchLoading] = useState(false);
 
   // Keyboard shortcut Cmd+K or Ctrl+K
@@ -68,6 +127,7 @@ export default function AdminHeader({ activeTab }: { activeTab?: string }) {
         setShowSearchModal((prev) => !prev);
       } else if (e.key === 'Escape') {
         setShowSearchModal(false);
+        setShowNotifications(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -77,7 +137,7 @@ export default function AdminHeader({ activeTab }: { activeTab?: string }) {
   // Run search when query changes
   React.useEffect(() => {
     if (!searchQuery.trim() || searchQuery.length < 2) {
-      setSearchResults({ products: [], enquiries: [], quotations: [], customers: [], blogs: [] });
+      setSearchResults({ products: [], enquiries: [], quotations: [], customers: [], followUps: [], blogs: [] });
       return;
     }
     const timer = setTimeout(async () => {
@@ -142,27 +202,29 @@ export default function AdminHeader({ activeTab }: { activeTab?: string }) {
 
   const navItems = [
     { id: 'dashboard', name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-    { id: 'products', name: 'Products', href: '/admin/products', icon: Package },
+    { id: 'products', name: 'Products & SKUs', href: '/admin/products', icon: Package },
     { id: 'categories', name: 'Categories', href: '/admin/categories', icon: Layers },
-    { id: 'enquiries', name: 'RFQ & Enquiries', href: '/admin/enquiries', icon: MessageSquare },
-    { id: 'quotations', name: 'Quotations', href: '/admin/quotations', icon: FileSpreadsheet },
-    { id: 'customers', name: 'Customer CRM', href: '/admin/customers', icon: Users },
+    { id: 'enquiries', name: 'B2B RFQ Pipeline', href: '/admin/enquiries', icon: MessageSquare },
+    { id: 'quotations', name: 'Quotations & Invoices', href: '/admin/quotations', icon: FileSpreadsheet },
+    { id: 'customers', name: 'CRM & Pipeline', href: '/admin/customers', icon: Users },
+    { id: 'follow-ups', name: 'Follow-ups & Tasks', href: '/admin/follow-ups', icon: CalendarCheck },
+    { id: 'manufacturing', name: 'Factory & Specs', href: '/admin/manufacturing', icon: Factory },
+    { id: 'payments', name: 'Payments & UTR', href: '/admin/payments', icon: CreditCard },
     { id: 'catalogues', name: 'PDF Catalogues', href: '/admin/catalogues', icon: FileText },
-    { id: 'payments', name: 'Payments', href: '/admin/payments', icon: CreditCard },
-    { id: 'redirects', name: '301 Redirects', href: '/admin/redirects', icon: Compass },
-    { id: 'blogs', name: 'B2B Blog & Guides', href: '/admin/blogs', icon: FileText },
-    { id: 'faqs', name: 'FAQs', href: '/admin/faqs', icon: HelpCircle },
-    { id: 'testimonials', name: 'Client Reviews', href: '/admin/testimonials', icon: Star },
-    { id: 'navigation', name: 'Navigation Menus', href: '/admin/navigation', icon: Compass },
-    { id: 'factory-gallery', name: 'Factory Photos', href: '/admin/factory-gallery', icon: Building2 },
+    { id: 'seo', name: 'SEO & Sitemap Hub', href: '/admin/seo', icon: Globe },
+    { id: 'blogs', name: 'B2B Insights & Blog', href: '/admin/blogs', icon: FileText },
+    { id: 'faqs', name: 'Buyer FAQs', href: '/admin/faqs', icon: HelpCircle },
+    { id: 'testimonials', name: 'Client Testimonials', href: '/admin/testimonials', icon: Star },
+    { id: 'factory-gallery', name: 'Factory Floor Visuals', href: '/admin/factory-gallery', icon: Building2 },
     { id: 'certifications', name: 'Certifications', href: '/admin/certifications', icon: ShieldCheck },
     { id: 'slides', name: 'Hero Sliders', href: '/admin/slides', icon: Sliders },
     { id: 'gallery', name: 'Media Library', href: '/admin/gallery', icon: ImageIcon },
-    { id: 'languages', name: 'Languages & i18n', href: '/admin/languages', icon: Languages },
-    { id: 'clients', name: 'Sectors & Logos', href: '/admin/clients', icon: Building2 },
-    { id: 'content', name: 'SEO & Page Texts', href: '/admin/content', icon: Globe },
+    { id: 'navigation', name: 'Navigation Menus', href: '/admin/navigation', icon: Compass },
+    { id: 'languages', name: 'Global Languages', href: '/admin/languages', icon: Languages },
+    { id: 'clients', name: 'Corporate Clients', href: '/admin/clients', icon: Building2 },
+    { id: 'content', name: 'Page Texts & Copy', href: '/admin/content', icon: Globe },
     { id: 'settings', name: 'Company & Contact Info', href: '/admin/settings', icon: Settings },
-    { id: 'users', name: 'Staff Users & Roles', href: '/admin/users', icon: Users, requiresSuperAdmin: true },
+    { id: 'users', name: 'Staff & Permissions', href: '/admin/users', icon: Users, requiresSuperAdmin: true },
     { id: 'audit-logs', name: 'Security Audit Logs', href: '/admin/audit-logs', icon: History },
     { id: 'backup', name: 'Data Backup & Export', href: '/admin/backup', icon: Database, requiresSuperAdmin: true },
   ];
@@ -171,14 +233,23 @@ export default function AdminHeader({ activeTab }: { activeTab?: string }) {
     switch (role) {
       case 'SUPER_ADMIN':
         return <span className="bg-red-500/20 text-red-300 border border-red-500/30 text-[10px] font-mono px-2 py-0.5 rounded font-bold">SUPER ADMIN</span>;
-      case 'CONTENT_MANAGER':
-        return <span className="bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[10px] font-mono px-2 py-0.5 rounded font-bold">CONTENT MGR</span>;
+      case 'ADMIN':
+        return <span className="bg-orange-500/20 text-orange-300 border border-orange-500/30 text-[10px] font-mono px-2 py-0.5 rounded font-bold">ADMIN</span>;
       case 'SALES_MANAGER':
         return <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono px-2 py-0.5 rounded font-bold">SALES LEAD</span>;
+      case 'SALES_EXECUTIVE':
+        return <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono px-2 py-0.5 rounded font-bold">SALES EXEC</span>;
+      case 'PRODUCTION_MANAGER':
+        return <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-mono px-2 py-0.5 rounded font-bold">PRODUCTION</span>;
+      case 'ACCOUNTANT':
+        return <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-mono px-2 py-0.5 rounded font-bold">ACCOUNTS</span>;
+      case 'CONTENT_MANAGER':
+        return <span className="bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[10px] font-mono px-2 py-0.5 rounded font-bold">CONTENT MGR</span>;
       case 'SEO_SPECIALIST':
+      case 'SEO_MANAGER':
         return <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-mono px-2 py-0.5 rounded font-bold">SEO EXPERT</span>;
       default:
-        return <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-mono px-2 py-0.5 rounded font-bold">STAFF</span>;
+        return <span className="bg-slate-500/20 text-slate-300 border border-slate-500/30 text-[10px] font-mono px-2 py-0.5 rounded font-bold">STAFF</span>;
     }
   };
 
@@ -209,11 +280,88 @@ export default function AdminHeader({ activeTab }: { activeTab?: string }) {
               title="Search across all modules (Cmd+K)"
             >
               <Search className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
-              <span className="hidden sm:inline text-slate-400">Search CMS...</span>
+              <span className="hidden sm:inline text-slate-400">Search CRM...</span>
               <kbd className="hidden lg:inline-block bg-slate-800 text-slate-400 border border-slate-700 text-[9px] font-mono px-1.5 py-0.5 rounded">
                 ⌘K
               </kbd>
             </button>
+
+            {/* Notification Bell Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 bg-slate-950/80 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-700/60 transition-colors cursor-pointer"
+                title="System & B2B Notifications"
+              >
+                <Bell className="w-4 h-4 text-amber-400" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl z-50 overflow-hidden text-xs">
+                  <div className="p-3.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Bell className="w-4 h-4 text-amber-400" />
+                      <span className="font-bold text-slate-100">B2B Activity Center</span>
+                      {unreadCount > 0 && (
+                        <span className="bg-amber-500/20 text-amber-300 text-[10px] font-mono px-2 py-0.5 rounded font-bold">
+                          {unreadCount} unread
+                        </span>
+                      )}
+                    </div>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={markAllNotificationsRead}
+                        className="text-[11px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-semibold"
+                      >
+                        <CheckCheck className="w-3.5 h-3.5" />
+                        Mark all read
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-800/80">
+                    {notifications.length === 0 ? (
+                      <div className="p-6 text-center text-slate-500">No recent notifications</div>
+                    ) : (
+                      notifications.map((n) => (
+                        <div
+                          key={n.id}
+                          onClick={() => markSingleRead(n.id)}
+                          className={`p-3 transition-colors ${
+                            n.isRead ? 'bg-slate-900 text-slate-400' : 'bg-slate-800/40 text-slate-200'
+                          } hover:bg-slate-800 flex items-start gap-2.5 cursor-pointer`}
+                        >
+                          <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${n.isRead ? 'bg-transparent' : 'bg-amber-400'}`} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="font-semibold text-slate-200 truncate">{n.title}</span>
+                              <span className="text-[10px] text-slate-500 shrink-0 font-mono">
+                                {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">{n.message}</p>
+                            {n.link && (
+                              <Link
+                                href={n.link}
+                                onClick={() => setShowNotifications(false)}
+                                className="inline-block mt-1.5 text-[11px] text-amber-400 hover:underline font-semibold"
+                              >
+                                View details →
+                              </Link>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {user && (
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-950/60 border border-slate-800">
@@ -535,10 +683,41 @@ export default function AdminHeader({ activeTab }: { activeTab?: string }) {
                     </div>
                   )}
 
+                  {/* Follow-ups */}
+                  {searchResults.followUps?.length > 0 && (
+                    <div className="space-y-1.5">
+                      <div className="text-[10px] font-mono font-bold uppercase text-amber-400 tracking-wider">
+                        Follow-ups & Tasks ({searchResults.followUps.length})
+                      </div>
+                      <div className="space-y-1">
+                        {searchResults.followUps.map((f) => (
+                          <Link
+                            key={f.id}
+                            href="/admin/follow-ups"
+                            onClick={() => setShowSearchModal(false)}
+                            className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800/80 transition-colors group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <CalendarCheck className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
+                              <div>
+                                <div className="font-bold text-white group-hover:text-amber-400 transition-colors">{f.title}</div>
+                                <div className="text-[11px] text-slate-400">{f.customerName} • Due: {f.followUpDate}</div>
+                              </div>
+                            </div>
+                            <span className="text-[10px] font-mono bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-bold">
+                              {f.status}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {searchResults.products?.length === 0 && 
                    searchResults.enquiries?.length === 0 && 
                    searchResults.quotations?.length === 0 && 
-                   searchResults.customers?.length === 0 && (
+                   searchResults.customers?.length === 0 &&
+                   searchResults.followUps?.length === 0 && (
                     <div className="py-8 text-center text-slate-500">
                       No matching records found for &quot;{searchQuery}&quot;.
                     </div>
