@@ -30,6 +30,7 @@ import {
   FollowUp,
   AdminNotification,
   ManufacturingConfig,
+  PdfCatalogue,
   DatabaseSchema
 } from './types';
 import { INITIAL_LANGUAGES } from './i18n/languages';
@@ -1995,6 +1996,10 @@ function ensureDataFile(): DatabaseSchema {
       parsed.media = INITIAL_MEDIA;
       dirty = true;
     }
+    if (!parsed.catalogues || parsed.catalogues.length === 0) {
+      parsed.catalogues = INITIAL_CATALOGUES;
+      dirty = true;
+    }
     
     inMemoryCache = parsed;
 
@@ -2014,6 +2019,7 @@ function ensureDataFile(): DatabaseSchema {
       quotations: INITIAL_QUOTATIONS,
       payments: INITIAL_PAYMENTS,
       media: INITIAL_MEDIA,
+      catalogues: INITIAL_CATALOGUES,
       settings: INITIAL_SETTINGS,
       users: INITIAL_USERS,
       faqs: INITIAL_FAQS,
@@ -4283,7 +4289,199 @@ export const db = {
       return false;
     }
   },
+
+  // PDF Catalogues
+  getCatalogues(onlyActive = false): PdfCatalogue[] {
+    const data = ensureDataFile();
+    const catalogues = data.catalogues || INITIAL_CATALOGUES;
+    const list = onlyActive ? catalogues.filter((c) => c.isActive) : catalogues;
+    return [...list].sort((a, b) => a.displayOrder - b.displayOrder);
+  },
+
+  getCatalogueById(id: string): PdfCatalogue | undefined {
+    const data = ensureDataFile();
+    const catalogues = data.catalogues || INITIAL_CATALOGUES;
+    return catalogues.find((c) => c.id === id);
+  },
+
+  saveCatalogue(catData: Partial<PdfCatalogue> & { title: string; fileUrl: string }): PdfCatalogue {
+    const data = ensureDataFile();
+    const catalogues = data.catalogues || INITIAL_CATALOGUES;
+    const now = new Date().toISOString();
+    const index = catData.id ? catalogues.findIndex((c) => c.id === catData.id) : -1;
+
+    if (index >= 0) {
+      const updated: PdfCatalogue = {
+        ...catalogues[index],
+        ...catData,
+        updatedAt: now,
+      };
+      catalogues[index] = updated;
+      data.catalogues = catalogues;
+      saveData(data);
+      saveDocToFirestore('catalogues', updated.id, updated);
+      return updated;
+    } else {
+      const maxOrder = catalogues.reduce((max, c) => (c.displayOrder > max ? c.displayOrder : max), 0);
+      const newCat: PdfCatalogue = {
+        id: 'cat-' + Date.now(),
+        title: catData.title,
+        description: catData.description || '',
+        fileUrl: catData.fileUrl,
+        originalFileName: catData.originalFileName || catData.fileUrl.split('/').pop() || 'catalogue.pdf',
+        fileSize: catData.fileSize || '5.0 MB',
+        fileSizeBytes: catData.fileSizeBytes,
+        coverImageUrl: catData.coverImageUrl || '',
+        category: catData.category || 'Corporate Backpacks',
+        version: catData.version || 'v2026.1',
+        displayOrder: catData.displayOrder !== undefined ? catData.displayOrder : maxOrder + 1,
+        downloadCount: catData.downloadCount || 0,
+        isActive: catData.isActive !== undefined ? catData.isActive : true,
+        createdAt: now,
+        updatedAt: now,
+      };
+      catalogues.push(newCat);
+      data.catalogues = catalogues;
+      saveData(data);
+      saveDocToFirestore('catalogues', newCat.id, newCat);
+      return newCat;
+    }
+  },
+
+  deleteCatalogue(id: string): boolean {
+    const data = ensureDataFile();
+    const catalogues = data.catalogues || INITIAL_CATALOGUES;
+    const filtered = catalogues.filter((c) => c.id !== id);
+    if (filtered.length !== catalogues.length) {
+      data.catalogues = filtered;
+      saveData(data);
+      deleteDocFromFirestore('catalogues', id);
+      return true;
+    }
+    return false;
+  },
+
+  incrementCatalogueDownload(id: string): number {
+    const data = ensureDataFile();
+    const catalogues = data.catalogues || INITIAL_CATALOGUES;
+    const cat = catalogues.find((c) => c.id === id);
+    if (cat) {
+      cat.downloadCount = (cat.downloadCount || 0) + 1;
+      cat.updatedAt = new Date().toISOString();
+      data.catalogues = catalogues;
+      saveData(data);
+      saveDocToFirestore('catalogues', cat.id, cat);
+      return cat.downloadCount;
+    }
+    return 0;
+  },
+
+  reorderCatalogues(orders: { id: string; displayOrder: number }[]): boolean {
+    const data = ensureDataFile();
+    const catalogues = data.catalogues || INITIAL_CATALOGUES;
+    const orderMap = new Map(orders.map((o) => [o.id, o.displayOrder]));
+
+    catalogues.forEach((c) => {
+      if (orderMap.has(c.id)) {
+        c.displayOrder = orderMap.get(c.id)!;
+        c.updatedAt = new Date().toISOString();
+        saveDocToFirestore('catalogues', c.id, c);
+      }
+    });
+
+    data.catalogues = catalogues;
+    saveData(data);
+    return true;
+  },
 };
+
+const INITIAL_CATALOGUES: PdfCatalogue[] = [
+  {
+    id: 'cat-1',
+    title: 'LTS Corporate Backpacks 2026 Master Catalogue',
+    description: 'Comprehensive 48-page technical specification sheet and model catalog for premium executive laptop backpacks, water-resistant Cordura series, and corporate gifting units.',
+    fileUrl: '/catalogues/LTS-Brochure-2026.pdf',
+    originalFileName: 'LTS-Brochure-2026.pdf',
+    fileSize: '6.5 MB',
+    fileSizeBytes: 6815744,
+    coverImageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800',
+    category: 'Corporate Backpacks',
+    version: 'v2026.1',
+    displayOrder: 1,
+    downloadCount: 142,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cat-2',
+    title: 'Executive Laptop Bags & Tech Messengers',
+    description: 'Ultra-slim shockproof laptop briefcases, convertible messenger bags, TSA-compliant checkpoint designs with customized metal logo embossing and YKK hardware.',
+    fileUrl: '/catalogues/LTS-Executive-Laptop-Bags-2026.pdf',
+    originalFileName: 'LTS-Executive-Laptop-Bags-2026.pdf',
+    fileSize: '4.8 MB',
+    fileSizeBytes: 5033164,
+    coverImageUrl: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&q=80&w=800',
+    category: 'Executive Laptop Bags',
+    version: 'v2026.1',
+    displayOrder: 2,
+    downloadCount: 98,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cat-3',
+    title: 'Heavy-Duty Travel Duffels & Sports Series',
+    description: 'Waterproof gym duffels, separated shoe-pocket weekenders, military-grade polyester sports bags, and modular luggage models for sports clubs and fitness corporate events.',
+    fileUrl: '/catalogues/LTS-Travel-Duffels-2026.pdf',
+    originalFileName: 'LTS-Travel-Duffels-2026.pdf',
+    fileSize: '5.2 MB',
+    fileSizeBytes: 5452595,
+    coverImageUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&q=80&w=800',
+    category: 'Duffel & Travel Bags',
+    version: 'v2026.1',
+    displayOrder: 3,
+    downloadCount: 76,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cat-4',
+    title: 'Eco-Friendly Jute, Canvas & Cotton Totes',
+    description: '100% biodegradable organic cotton and heavy laminated jute tote bags for exhibitions, retail shopping promotions, FMCG brand launches, and sustainable corporate merch.',
+    fileUrl: '/catalogues/LTS-Eco-Totes-2026.pdf',
+    originalFileName: 'LTS-Eco-Totes-2026.pdf',
+    fileSize: '3.4 MB',
+    fileSizeBytes: 3565158,
+    coverImageUrl: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800',
+    category: 'Eco Totes & Shopping Bags',
+    version: 'v2026.1',
+    displayOrder: 4,
+    downloadCount: 114,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cat-5',
+    title: 'School Bags, Ergonomic Daypacks & College Rucksacks',
+    description: 'Orthopedic padded back panels, 3-compartment multi-pocket daypacks, reinforced bar-tack stitching, and high-visibility reflective strip school series.',
+    fileUrl: '/catalogues/LTS-School-Daypacks-2026.pdf',
+    originalFileName: 'LTS-School-Daypacks-2026.pdf',
+    fileSize: '4.1 MB',
+    fileSizeBytes: 4299161,
+    coverImageUrl: 'https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&q=80&w=800',
+    category: 'School & College Bags',
+    version: 'v2026.1',
+    displayOrder: 5,
+    downloadCount: 63,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+];
 
 const INITIAL_CLIENTS: Client[] = [
   {

@@ -26,7 +26,8 @@ import type {
   LanguageSettings,
   EntityTranslation,
   AdminUser,
-  AuditLog
+  AuditLog,
+  PdfCatalogue
 } from './types';
 
 // Helper to remove undefined values since Firestore rejects them
@@ -211,6 +212,7 @@ export async function loadAllDataFromFirestore(): Promise<Partial<DatabaseSchema
       clients,
       faqs,
       testimonials,
+      catalogues,
     ] = await Promise.all([
       fetchCollection<Category>('categories'),
       fetchCollection<Product>('products'),
@@ -223,6 +225,7 @@ export async function loadAllDataFromFirestore(): Promise<Partial<DatabaseSchema
       fetchCollection<Client>('clients'),
       fetchCollection<FaqItem>('faqs'),
       fetchCollection<TestimonialItem>('testimonials'),
+      fetchCollection<PdfCatalogue>('catalogues'),
     ]);
 
     if (categories.length > 0) result.categories = categories;
@@ -236,6 +239,7 @@ export async function loadAllDataFromFirestore(): Promise<Partial<DatabaseSchema
     if (clients.length > 0) result.clients = clients;
     if (faqs.length > 0) result.faqs = faqs;
     if (testimonials.length > 0) result.testimonials = testimonials;
+    if (catalogues.length > 0) result.catalogues = catalogues;
 
     // Restore any uploaded images from Firestore to disk in the background (if quota not exceeded)
     if (!isFirestoreQuotaExceeded()) {

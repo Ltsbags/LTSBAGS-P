@@ -10,15 +10,20 @@ import {
   Sparkles, 
   ArrowRight,
   ShieldCheck,
-  BookOpen
+  BookOpen,
+  Layers,
+  FileCheck
 } from 'lucide-react';
-import { CompanyContactInfo } from '@/lib/types';
+import { CompanyContactInfo, PdfCatalogue } from '@/lib/types';
+import Image from 'next/image';
 
 export default function CatalogueSection() {
   const [email, setEmail] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [catalogues, setCatalogues] = useState<PdfCatalogue[]>([]);
+  const [selectedCatalogueId, setSelectedCatalogueId] = useState<string>('');
   const [contact, setContact] = useState<Partial<CompanyContactInfo>>({
     phone1: '+91 9833598338',
     socialWhatsapp: '+919833598338',
@@ -33,11 +38,26 @@ export default function CatalogueSection() {
         }
       })
       .catch(() => {});
+
+    fetch('/api/catalogues')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.catalogues && Array.isArray(data.catalogues)) {
+          setCatalogues(data.catalogues);
+          if (data.catalogues.length > 0) {
+            setSelectedCatalogueId(data.catalogues[0].id);
+          }
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const whatsappNumber = (contact.socialWhatsapp || '+919833598338').replace(/[^\d]/g, '');
+  const activeCat = catalogues.find((c) => c.id === selectedCatalogueId) || catalogues[0];
+  const downloadUrl = activeCat ? activeCat.fileUrl : '/api/catalogue/download';
+
   const whatsappCatalogueUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    'Hello LTS Bags, please send me your latest B2B Product Catalogue PDF with factory specifications.'
+    `Hello LTS Bags, please send me your latest B2B Product Catalogue PDF (${activeCat?.title || '2026 Master Edition'}) with technical specifications.`
   )}`;
 
   const handleDownload = async (e: React.FormEvent) => {
@@ -46,27 +66,24 @@ export default function CatalogueSection() {
 
     try {
       // Record lead in database
-      if (email || whatsapp) {
-        await fetch('/api/enquiries', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: 'Catalogue Requester',
-            email: email || 'catalogue@ltsbags.com',
-            mobile: whatsapp || '+91 9833598338',
-            productRequirement: 'Complete B2B Bag Catalogue Download',
-            quantity: 'Catalogue',
-            message: `Catalogue downloaded by Email: ${email}, WhatsApp: ${whatsapp}`,
-          }),
-        });
-      }
+      await fetch('/api/catalogue/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: selectedCatalogueId || activeCat?.id,
+          name: email.split('@')[0] || 'Corporate Buyer',
+          email: email || 'catalogue@ltsbags.com',
+          phone: whatsapp || '+91 9833598338',
+          company: 'Catalogue Download Lead',
+        }),
+      });
 
-      // Trigger catalogue download route
-      window.open('/api/catalogue/download', '_blank');
+      // Trigger direct file download
+      window.open(downloadUrl, '_blank');
       setSubmitted(true);
     } catch (err) {
       console.error(err);
-      window.open('/api/catalogue/download', '_blank');
+      window.open(downloadUrl, '_blank');
     } finally {
       setDownloading(false);
     }
@@ -91,17 +108,44 @@ export default function CatalogueSection() {
               </div>
 
               <h2 className="text-3xl sm:text-4xl font-black tracking-tight font-sans">
-                Download Our Bag Catalogue
+                Download Our B2B Bag Catalogues
               </h2>
 
               <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl">
-                Explore our full range of corporate backpacks, executive laptop bags, duffel travel bags, eco totes, and school bags with detailed dimensions, fabric options, and MOQ guidelines.
+                Explore our full technical range of corporate backpacks, executive laptop bags, duffel travel bags, eco totes, and school bags with detailed dimensions, fabric options, and MOQ tiers.
               </p>
+
+              {/* Dynamic Catalogue Selection Chips if multiple */}
+              {catalogues.length > 0 && (
+                <div className="space-y-2 pt-1">
+                  <div className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-[#72AFDB]" />
+                    <span>Select Collection to Download:</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {catalogues.slice(0, 5).map((cat) => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => setSelectedCatalogueId(cat.id)}
+                        className={`text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer text-left ${
+                          selectedCatalogueId === cat.id
+                            ? 'bg-[#72AFDB] text-slate-950 font-bold border-[#72AFDB] shadow-md'
+                            : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:border-slate-500'
+                        }`}
+                      >
+                        {cat.category || cat.title}
+                        <span className="opacity-70 text-[10px] ml-1.5 font-mono">({cat.fileSize || 'PDF'})</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-300 pt-2">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>16 Product Category Specs</span>
+                  <span>Technical Dimension Specs</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -120,7 +164,7 @@ export default function CatalogueSection() {
               {/* Direct Quick Action Buttons */}
               <div className="pt-4 flex flex-wrap items-center gap-4">
                 <a
-                  href="/api/catalogue/download"
+                  href={downloadUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-[#72AFDB] hover:bg-[#5C9BC7] text-white font-bold text-sm px-6 py-3.5 rounded-xl transition-all shadow-md flex items-center gap-2"
@@ -145,7 +189,7 @@ export default function CatalogueSection() {
             <div className="lg:col-span-5">
               <div className="bg-slate-900/90 rounded-2xl p-6 sm:p-8 border border-slate-700/80 shadow-lg space-y-4">
                 <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#72AFDB]/20 text-[#72AFDB] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-[#72AFDB]/20 text-[#72AFDB] flex items-center justify-center shrink-0">
                     <FileText className="w-5 h-5" />
                   </div>
                   <div>
@@ -166,7 +210,7 @@ export default function CatalogueSection() {
                       Your download has started. Our sales team has also emailed you the complete PDF spec sheet.
                     </p>
                     <a
-                      href="/api/catalogue/download"
+                      href={downloadUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs font-bold text-[#72AFDB] hover:underline pt-2"
@@ -177,6 +221,17 @@ export default function CatalogueSection() {
                   </div>
                 ) : (
                   <form onSubmit={handleDownload} className="space-y-3">
+                    {/* Selected Catalogue badge */}
+                    {activeCat && (
+                      <div className="p-2.5 bg-slate-800/80 rounded-xl border border-slate-700 flex items-center gap-2.5 text-xs">
+                        <FileCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <div className="truncate">
+                          <span className="text-slate-400">Selected: </span>
+                          <span className="font-bold text-white truncate">{activeCat.title}</span>
+                        </div>
+                      </div>
+                    )}
+
                     <div>
                       <label className="block text-xs font-medium text-slate-300 mb-1">
                         Corporate Email Address
@@ -210,7 +265,7 @@ export default function CatalogueSection() {
                       className="w-full bg-[#72AFDB] hover:bg-[#5C9BC7] text-white font-bold py-3 px-4 rounded-xl text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
                     >
                       <Download className="w-4 h-4" />
-                      <span>{downloading ? 'Preparing PDF...' : 'Download Full Catalogue (PDF)'}</span>
+                      <span>{downloading ? 'Preparing PDF...' : 'Download Selected Catalogue (PDF)'}</span>
                     </button>
 
                     <p className="text-[10px] text-slate-400 text-center">

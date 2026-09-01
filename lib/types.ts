@@ -182,6 +182,24 @@ export interface Client {
   updatedAt: string;
 }
 
+export interface PdfCatalogue {
+  id: string;
+  title: string;
+  description?: string;
+  fileUrl: string;
+  originalFileName?: string;
+  fileSize?: string;
+  fileSizeBytes?: number;
+  coverImageUrl?: string;
+  category?: string;
+  version?: string;
+  displayOrder: number;
+  downloadCount: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface HomepageContent {
   cataloguePdfUrl?: string;
   heroHeading?: string;
@@ -877,4 +895,5 @@ export interface DatabaseSchema {
   faqs?: FaqItem[];
   testimonials?: TestimonialItem[];
   navigation?: NavigationMenuConfig;
+  catalogues?: PdfCatalogue[];
 }

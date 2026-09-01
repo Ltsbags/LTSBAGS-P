@@ -22,14 +22,17 @@ export async function GET(
     if (existsSync(diskPath)) {
       const fileBuffer = await readFile(diskPath);
       const ext = path.extname(fileName).toLowerCase();
-      let contentType = 'image/webp';
-      if (ext === '.png') contentType = 'image/png';
+      let contentType = 'application/octet-stream';
+      if (ext === '.pdf') contentType = 'application/pdf';
+      else if (ext === '.webp') contentType = 'image/webp';
+      else if (ext === '.png') contentType = 'image/png';
       else if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
       else if (ext === '.svg') contentType = 'image/svg+xml';
 
       return new NextResponse(fileBuffer, {
         headers: {
           'Content-Type': contentType,
+          'Content-Disposition': ext === '.pdf' ? `inline; filename="${fileName}"` : 'inline',
           'Cache-Control': 'public, max-age=31536000, immutable',
         },
       });
