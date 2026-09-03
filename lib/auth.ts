@@ -231,10 +231,20 @@ export function hasPermission(role: AdminRole, action: 'manage_products' | 'mana
 /**
  * Enforce admin authentication on API routes
  */
+export type AuthResult = {
+  errorResponse?: NextResponse;
+  user?: AdminUser;
+  session?: AdminSession;
+  id?: string;
+  name?: string;
+  email?: string;
+  role?: AdminRole;
+};
+
 export async function requireAdminAuth(
   req: NextRequest,
   requiredRole?: AdminRole | AdminRole[]
-): Promise<{ errorResponse?: NextResponse; user?: AdminUser; session?: AdminSession }> {
+): Promise<AuthResult> {
   // Rate limit check
   const ip = getClientIp(req);
   if (!checkApiRateLimit(ip, 200, 60000)) {
@@ -268,34 +278,86 @@ export async function requireAdminAuth(
     }
   }
 
-  return { user: auth.user, session: auth.session };
+  return {
+    user: auth.user,
+    session: auth.session,
+    id: auth.user.id,
+    name: auth.user.name,
+    email: auth.user.email,
+    role: auth.user.role,
+  };
 }
 
 /**
  * Log an audit activity securely (no passwords or secrets stored)
  */
 export function logAuditActivity(
-  user: { id: string; name: string; email: string },
-  action: string,
-  resource: string,
+  userOrOptions:
+    | { id: string; name: string; email?: string }
+    | {
+        adminId?: string;
+        adminName?: string;
+        adminEmail?: string;
+        userId?: string;
+        userName?: string;
+        userEmail?: string;
+        user?: { id: string; name: string; email?: string };
+        action: string;
+        resource: string;
+        resourceId?: string;
+        details?: any;
+        ipAddress?: string;
+      },
+  action?: string,
+  resource?: string,
   resourceId?: string,
   details?: Record<string, any>,
   ipAddress?: string
 ): AuditLog {
-  const sanitizedDetails = details ? { ...details } : {};
+  let finalUserId = 'unknown';
+  let finalUserName = 'Admin';
+  let finalUserEmail = 'admin@ltsbags.com';
+  let finalAction = action || 'UNKNOWN';
+  let finalResource = resource || 'GENERAL';
+  let finalResourceId = resourceId || '';
+  let finalDetails: Record<string, any> = details ? { ...details } : {};
+  let finalIp = ipAddress || '127.0.0.1';
+
+  // Check if called with single object parameter
+  if (userOrOptions && typeof userOrOptions === 'object' && ('action' in userOrOptions || 'adminId' in userOrOptions)) {
+    const opts = userOrOptions as any;
+    finalUserId = opts.adminId || opts.userId || opts.user?.id || 'unknown';
+    finalUserName = opts.adminName || opts.userName || opts.user?.name || 'Admin';
+    finalUserEmail = opts.adminEmail || opts.userEmail || opts.user?.email || 'admin@ltsbags.com';
+    finalAction = opts.action || finalAction;
+    finalResource = opts.resource || finalResource;
+    finalResourceId = opts.resourceId || finalResourceId;
+    if (opts.details) {
+      finalDetails = typeof opts.details === 'object' ? { ...opts.details } : { message: String(opts.details) };
+    }
+    if (opts.ipAddress) {
+      finalIp = opts.ipAddress;
+    }
+  } else if (userOrOptions && typeof userOrOptions === 'object' && 'id' in userOrOptions) {
+    const u = userOrOptions as any;
+    finalUserId = u.id || 'unknown';
+    finalUserName = u.name || 'Admin';
+    finalUserEmail = u.email || 'admin@ltsbags.com';
+  }
+
   // Strip any accidental sensitive keys
-  delete (sanitizedDetails as any).password;
-  delete (sanitizedDetails as any).passwordHash;
-  delete (sanitizedDetails as any).token;
+  delete (finalDetails as any).password;
+  delete (finalDetails as any).passwordHash;
+  delete (finalDetails as any).token;
 
   return db.createAuditLog({
-    userId: user.id,
-    userName: user.name,
-    userEmail: user.email,
-    action,
-    resource,
-    resourceId: resourceId || '',
-    details: sanitizedDetails,
-    ipAddress: ipAddress || '127.0.0.1',
+    userId: finalUserId,
+    userName: finalUserName,
+    userEmail: finalUserEmail,
+    action: finalAction,
+    resource: finalResource,
+    resourceId: finalResourceId,
+    details: finalDetails,
+    ipAddress: finalIp,
   });
 }

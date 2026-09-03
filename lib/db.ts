@@ -2510,8 +2510,8 @@ export const db = {
 
     // Products metrics
     const totalProducts = products.length;
-    const publishedProducts = products.filter((p) => p.isPublished !== false).length;
-    const draftProducts = products.filter((p) => p.isPublished === false).length;
+    const publishedProducts = products.filter((p) => p.status === 'ACTIVE' || p.status === 'PUBLISHED' || p.isPublished === true || (p.isPublished !== false && p.status !== 'DRAFT')).length;
+    const draftProducts = products.filter((p) => p.status === 'DRAFT' || p.status === 'INACTIVE' || p.isPublished === false).length;
     const featuredProducts = products.filter((p) => p.isFeatured).length;
 
     // Categories metrics

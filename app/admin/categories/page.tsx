@@ -18,8 +18,82 @@ import {
   ExternalLink,
   ChevronRight,
   FolderTree,
-  ListFilter
+  ListFilter,
+  Sparkles,
+  Check
 } from 'lucide-react';
+
+// Helper to auto-generate high-ranking SEO fields for categories
+function buildCategorySeo(name: string, parentName?: string, description?: string) {
+  const cleanName = (name || '').trim();
+  if (!cleanName) {
+    return {
+      slug: '',
+      metaTitle: '',
+      metaDescription: '',
+      metaKeywords: '',
+    };
+  }
+
+  // 1. URL Slug
+  const slug = cleanName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+  // 2. Meta Title (Optimal: 45-60 characters, Google limits to ~60 chars)
+  let metaTitle = '';
+  if (parentName && parentName.trim()) {
+    metaTitle = `${cleanName} Manufacturer in India | LTS Bags`;
+    if (metaTitle.length > 60) {
+      metaTitle = `${cleanName} | LTS Bags India`;
+    }
+  } else {
+    metaTitle = `${cleanName} Manufacturer in India | LTS Bags`;
+    if (metaTitle.length < 42) {
+      metaTitle = `${cleanName} Manufacturer & Wholesale | LTS Bags`;
+    }
+  }
+
+  // 3. Meta Description (Optimal: 130-155 characters)
+  let metaDescription = '';
+  if (description && description.trim().length > 30) {
+    const trimmed = description.trim();
+    if (trimmed.length <= 150) {
+      metaDescription = trimmed.endsWith('.')
+        ? `${trimmed} Custom wholesale orders by LTS Bags.`
+        : `${trimmed}. Custom wholesale orders by LTS Bags.`;
+    } else {
+      metaDescription = trimmed.slice(0, 147) + '...';
+    }
+  } else {
+    metaDescription = `Wholesale manufacturer of custom ${cleanName.toLowerCase()} in India. Direct factory bulk pricing, premium materials, logo printing & fast samples by LTS Bags.`;
+  }
+  if (metaDescription.length > 160) {
+    metaDescription = metaDescription.slice(0, 157) + '...';
+  }
+
+  // 4. Meta Keywords
+  const baseKeywords = [
+    cleanName.toLowerCase(),
+    `${cleanName.toLowerCase()} manufacturer`,
+    `custom ${cleanName.toLowerCase()}`,
+    `wholesale ${cleanName.toLowerCase()} india`,
+    `bulk ${cleanName.toLowerCase()} supplier`,
+    parentName ? `${parentName.toLowerCase()} factory` : '',
+    'lts bags mumbai',
+    'b2b bag manufacturer india'
+  ].filter(Boolean);
+
+  const metaKeywords = Array.from(new Set(baseKeywords)).join(', ');
+
+  return {
+    slug,
+    metaTitle,
+    metaDescription,
+    metaKeywords,
+  };
+}
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -29,6 +103,8 @@ export default function AdminCategoriesPage() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCat, setEditingCat] = useState<Partial<Category> | null>(null);
+  const [autoSyncSeo, setAutoSyncSeo] = useState<boolean>(true);
+  const [seoGeneratedNotice, setSeoGeneratedNotice] = useState<string>('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -67,6 +143,8 @@ export default function AdminCategoriesPage() {
 
   const openNewModal = (preselectedParentId?: string) => {
     const parent = preselectedParentId ? categories.find((c) => c.id === preselectedParentId) : undefined;
+    setAutoSyncSeo(true);
+    setSeoGeneratedNotice('');
     setEditingCat({
       name: '',
       slug: '',
@@ -74,7 +152,7 @@ export default function AdminCategoriesPage() {
       parentSlug: parent ? parent.slug : '',
       level: preselectedParentId ? 'SUB' : 'MAIN',
       description: '',
-      image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800',
+      image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800',
       metaTitle: '',
       metaDescription: '',
       metaKeywords: '',
@@ -85,6 +163,10 @@ export default function AdminCategoriesPage() {
 
   const openEditModal = (cat: Category) => {
     setEditingCat({ ...cat });
+    // If existing category has missing or empty SEO fields, prompt or enable auto-sync
+    const hasMissingSeo = !cat.metaTitle || !cat.metaDescription || !cat.metaKeywords;
+    setAutoSyncSeo(hasMissingSeo);
+    setSeoGeneratedNotice('');
     setError('');
     setModalOpen(true);
   };
@@ -110,32 +192,91 @@ export default function AdminCategoriesPage() {
 
   const handleNameChange = (name: string) => {
     if (!editingCat) return;
-    const generatedSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    setEditingCat({
-      ...editingCat,
-      name,
-      slug: editingCat.slug ? editingCat.slug : generatedSlug,
-    });
+    const parent = categories.find((c) => c.id === editingCat.parentId);
+    const parentName = parent?.name;
+
+    if (autoSyncSeo) {
+      const seo = buildCategorySeo(name, parentName, editingCat.description);
+      setEditingCat({
+        ...editingCat,
+        name,
+        slug: seo.slug,
+        metaTitle: seo.metaTitle,
+        metaDescription: seo.metaDescription,
+        metaKeywords: seo.metaKeywords,
+      });
+    } else {
+      const generatedSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      setEditingCat({
+        ...editingCat,
+        name,
+        slug: editingCat.slug ? editingCat.slug : generatedSlug,
+      });
+    }
+  };
+
+  const handleDescriptionChange = (description: string) => {
+    if (!editingCat) return;
+    if (autoSyncSeo && editingCat.name) {
+      const parent = categories.find((c) => c.id === editingCat.parentId);
+      const seo = buildCategorySeo(editingCat.name, parent?.name, description);
+      setEditingCat({
+        ...editingCat,
+        description,
+        metaDescription: seo.metaDescription,
+      });
+    } else {
+      setEditingCat({
+        ...editingCat,
+        description,
+      });
+    }
   };
 
   const handleParentChange = (parentId: string) => {
     if (!editingCat) return;
-    if (!parentId) {
+    const parent = categories.find((c) => c.id === parentId);
+    const parentSlug = parent?.slug || '';
+    const level = parentId ? 'SUB' : 'MAIN';
+
+    if (autoSyncSeo && editingCat.name) {
+      const seo = buildCategorySeo(editingCat.name, parent?.name, editingCat.description);
       setEditingCat({
         ...editingCat,
-        parentId: '',
-        parentSlug: '',
-        level: 'MAIN',
+        parentId: parentId || '',
+        parentSlug,
+        level,
+        metaTitle: seo.metaTitle,
+        metaKeywords: seo.metaKeywords,
       });
     } else {
-      const parent = categories.find((c) => c.id === parentId);
       setEditingCat({
         ...editingCat,
-        parentId,
-        parentSlug: parent?.slug || '',
-        level: 'SUB',
+        parentId: parentId || '',
+        parentSlug,
+        level,
       });
     }
+  };
+
+  const handleManualAutoGenerateSeo = () => {
+    if (!editingCat) return;
+    if (!editingCat.name) {
+      setError('Please enter a Category Name first to auto-generate SEO fields.');
+      return;
+    }
+    const parent = categories.find((c) => c.id === editingCat.parentId);
+    const seo = buildCategorySeo(editingCat.name, parent?.name, editingCat.description);
+    setEditingCat({
+      ...editingCat,
+      slug: seo.slug,
+      metaTitle: seo.metaTitle,
+      metaDescription: seo.metaDescription,
+      metaKeywords: seo.metaKeywords,
+    });
+    setAutoSyncSeo(true);
+    setSeoGeneratedNotice('Category SEO Fields auto-generated successfully!');
+    setTimeout(() => setSeoGeneratedNotice(''), 3500);
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -306,8 +447,8 @@ export default function AdminCategoriesPage() {
                 return (
                   <div key={c.id} className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs flex flex-col justify-between space-y-4">
                     <div className="space-y-3">
-                      <div className="aspect-16/9 rounded-xl overflow-hidden bg-slate-100 relative">
-                        <img src={c.image} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                      <div className="aspect-16/9 rounded-xl overflow-hidden bg-slate-50 relative flex items-center justify-center p-2 border border-slate-200/60">
+                        <img src={c.image} alt={c.name} referrerPolicy="no-referrer" className="max-w-full max-h-full object-contain object-center" />
                         <div className="absolute top-2 left-2">
                           {parent ? (
                             <span className="bg-indigo-900/90 backdrop-blur-xs text-indigo-100 text-[10px] font-bold px-2 py-0.5 rounded-md border border-indigo-700">
@@ -446,61 +587,136 @@ export default function AdminCategoriesPage() {
                 <textarea
                   rows={2}
                   value={editingCat.description || ''}
-                  onChange={(e) => setEditingCat({ ...editingCat, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500"
+                  onChange={(e) => handleDescriptionChange(e.target.value)}
+                  placeholder="e.g. Slim, protective padded laptop sleeves and slipcases customizable with debossed or printed logos."
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500 text-xs"
                 />
               </div>
 
-              {/* SEO FIELDS */}
-              <div className="pt-3 border-t border-slate-200 space-y-3 bg-amber-50/50 p-4 rounded-xl border border-amber-200/60">
-                <div className="flex items-center gap-1.5 font-bold text-amber-900 text-xs">
-                  <Globe className="w-4 h-4 text-amber-700" />
-                  <span>Category SEO Fields</span>
+              {/* SEO FIELDS - Auto-generated and Synchronized */}
+              <div className="pt-3 border-t border-slate-200 space-y-3 bg-gradient-to-b from-amber-50/80 to-amber-50/40 p-4 rounded-xl border border-amber-200/80">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-1.5 font-bold text-amber-950 text-xs">
+                    <Globe className="w-4 h-4 text-amber-700" />
+                    <span>Category SEO Fields</span>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-1.5 py-0.5 rounded-full border border-emerald-300">
+                      Auto-Generated
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <label className="flex items-center gap-1 text-[11px] font-semibold text-slate-700 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={autoSyncSeo}
+                        onChange={(e) => setAutoSyncSeo(e.target.checked)}
+                        className="rounded text-amber-600 focus:ring-amber-500 w-3.5 h-3.5"
+                      />
+                      <span>Auto-Sync from Name</span>
+                    </label>
+
+                    <button
+                      type="button"
+                      onClick={handleManualAutoGenerateSeo}
+                      className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] rounded-lg shadow-xs flex items-center gap-1 transition-colors cursor-pointer"
+                      title="Regenerate all SEO fields from Category Name & Description"
+                    >
+                      <Sparkles className="w-3 h-3 text-amber-200" />
+                      <span>Auto-Fill SEO</span>
+                    </button>
+                  </div>
+                </div>
+
+                {seoGeneratedNotice && (
+                  <div className="p-2 bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold rounded-md flex items-center gap-1.5 animate-fade-in">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>{seoGeneratedNotice}</span>
+                  </div>
+                )}
+
+                {/* Google Search Result Live Preview Snippet */}
+                <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-xs space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 block">
+                    Google Search Result Live Preview
+                  </span>
+                  <div className="text-[11px] text-emerald-700 font-mono truncate">
+                    https://ltsbags.com/products/{editingCat.parentId ? `${editingCat.parentSlug || 'parent'}/` : ''}{editingCat.slug || 'category-slug'}
+                  </div>
+                  <div className="text-xs font-bold text-blue-700 hover:underline truncate">
+                    {editingCat.metaTitle || `${editingCat.name || 'Category'} Manufacturer in India | LTS Bags`}
+                  </div>
+                  <div className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
+                    {editingCat.metaDescription || `Wholesale manufacturer of custom ${editingCat.name?.toLowerCase() || 'bags'} in India. Direct factory bulk pricing & fast samples.`}
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">SEO URL Slug *</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-slate-700 font-semibold">SEO URL Slug *</label>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      /products/{editingCat.parentId ? `${editingCat.parentSlug || 'parent'}/` : ''}{editingCat.slug || ''}
+                    </span>
+                  </div>
                   <input
                     type="text"
                     required
                     value={editingCat.slug || ''}
-                    onChange={(e) => setEditingCat({ ...editingCat, slug: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg font-mono text-xs"
+                    onChange={(e) => {
+                      setAutoSyncSeo(false);
+                      setEditingCat({ ...editingCat, slug: e.target.value });
+                    }}
+                    placeholder="e.g. laptop-sleeves-cases"
+                    className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg font-mono text-xs focus:ring-2 focus:ring-amber-500 outline-none"
                   />
-                  <p className="text-[10px] text-slate-500 mt-0.5">
-                    Live URL: {editingCat.parentId ? `/products/${editingCat.parentSlug || 'parent'}/${editingCat.slug || 'slug'}` : `/products/${editingCat.slug || 'slug'}`}
-                  </p>
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-slate-700 font-semibold">Meta Title</label>
-                    <span className={`text-[10px] ${(editingCat.metaTitle?.length || 0) > 65 ? 'text-amber-600 font-bold' : 'text-slate-400'}`}>
-                      {editingCat.metaTitle?.length || 0}/65 chars
+                    <span className={`text-[10px] font-medium ${
+                      (editingCat.metaTitle?.length || 0) >= 42 && (editingCat.metaTitle?.length || 0) <= 60 
+                        ? 'text-emerald-600 font-bold' 
+                        : (editingCat.metaTitle?.length || 0) > 65 
+                          ? 'text-red-600 font-bold' 
+                          : 'text-slate-400'
+                    }`}>
+                      {editingCat.metaTitle?.length || 0}/65 chars {(editingCat.metaTitle?.length || 0) >= 42 && (editingCat.metaTitle?.length || 0) <= 60 ? '• Optimal' : ''}
                     </span>
                   </div>
                   <input
                     type="text"
                     value={editingCat.metaTitle || ''}
-                    onChange={(e) => setEditingCat({ ...editingCat, metaTitle: e.target.value })}
-                    placeholder="e.g. Backpack Manufacturer in India | LTS Bags"
-                    className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs"
+                    onChange={(e) => {
+                      setAutoSyncSeo(false);
+                      setEditingCat({ ...editingCat, metaTitle: e.target.value });
+                    }}
+                    placeholder="e.g. Laptop Sleeve Manufacturer in India | LTS Bags"
+                    className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none"
                   />
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-slate-700 font-semibold">Meta Description</label>
-                    <span className={`text-[10px] ${(editingCat.metaDescription?.length || 0) > 165 ? 'text-amber-600 font-bold' : 'text-slate-400'}`}>
-                      {editingCat.metaDescription?.length || 0}/165 chars
+                    <span className={`text-[10px] font-medium ${
+                      (editingCat.metaDescription?.length || 0) >= 120 && (editingCat.metaDescription?.length || 0) <= 160 
+                        ? 'text-emerald-600 font-bold' 
+                        : (editingCat.metaDescription?.length || 0) > 165 
+                          ? 'text-red-600 font-bold' 
+                          : 'text-slate-400'
+                    }`}>
+                      {editingCat.metaDescription?.length || 0}/165 chars {(editingCat.metaDescription?.length || 0) >= 120 && (editingCat.metaDescription?.length || 0) <= 160 ? '• Optimal' : ''}
                     </span>
                   </div>
                   <textarea
                     rows={2}
                     value={editingCat.metaDescription || ''}
-                    onChange={(e) => setEditingCat({ ...editingCat, metaDescription: e.target.value })}
-                    placeholder="e.g. Custom backpacks manufactured in India for schools, colleges, businesses and bulk orders..."
-                    className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs"
+                    onChange={(e) => {
+                      setAutoSyncSeo(false);
+                      setEditingCat({ ...editingCat, metaDescription: e.target.value });
+                    }}
+                    placeholder="e.g. Custom branded laptop sleeves and protective cases manufactured in bulk. Request factory pricing."
+                    className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none"
                   />
                 </div>
 
@@ -509,9 +725,12 @@ export default function AdminCategoriesPage() {
                   <input
                     type="text"
                     value={editingCat.metaKeywords || ''}
-                    onChange={(e) => setEditingCat({ ...editingCat, metaKeywords: e.target.value })}
-                    placeholder="backpack manufacturer, custom backpacks Mumbai, wholesale bags India"
-                    className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs"
+                    onChange={(e) => {
+                      setAutoSyncSeo(false);
+                      setEditingCat({ ...editingCat, metaKeywords: e.target.value });
+                    }}
+                    placeholder="laptop sleeve manufacturer, neoprene laptop cases wholesale, custom branded laptop sleeves"
+                    className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 outline-none"
                   />
                 </div>
               </div>

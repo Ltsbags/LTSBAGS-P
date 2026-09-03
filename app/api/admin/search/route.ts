@@ -5,7 +5,7 @@ import { requireAdminAuth } from '@/lib/auth';
 export async function GET(req: NextRequest) {
   try {
     const authResult = await requireAdminAuth(req);
-    if (authResult instanceof NextResponse) return authResult;
+    if (authResult.errorResponse) return authResult.errorResponse;
 
     const { searchParams } = new URL(req.url);
     const q = (searchParams.get('q') || '').toLowerCase().trim();
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     const products = allProducts
       .filter((p) => p.name.toLowerCase().includes(q) || p.slug.includes(q) || (p.materials && p.materials.toLowerCase().includes(q)))
       .slice(0, 5)
-      .map((p) => ({ id: p.id, name: p.name, categorySlug: p.categorySlug, isFeatured: p.isFeatured }));
+      .map((p) => ({ id: p.id, name: p.name, categoryId: p.categoryId, categoryName: p.categoryName, isFeatured: p.isFeatured }));
 
     const enquiries = allEnquiries
       .filter((e) => e.name.toLowerCase().includes(q) || (e.company && e.company.toLowerCase().includes(q)) || (e.productRequirement && e.productRequirement.toLowerCase().includes(q)) || e.email.toLowerCase().includes(q))

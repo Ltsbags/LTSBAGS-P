@@ -474,6 +474,7 @@ export interface Product {
   sku?: string;
   categoryId: string;
   categoryName?: string;
+  categorySlug?: string;
   subcategory?: string;
   images: string[];
   galleryImages?: ProcessedProductImage[];
@@ -498,6 +499,7 @@ export interface Product {
   priceDisplay?: string;
   specifications: ProductSpecification[];
   isFeatured: boolean;
+  isPublished?: boolean;
   status: 'ACTIVE' | 'INACTIVE' | 'PUBLISHED' | 'DRAFT' | 'ARCHIVED';
   sortOrder?: number;
   metaTitle: string;
@@ -546,6 +548,7 @@ export type EnquiryStatus =
   | 'PRODUCTION'
   | 'COMPLETED'
   | 'CANCELLED'
+  | 'LOST'
   | 'QUOTE_SENT'
   | 'SAMPLE_REQUESTED'
   | 'SAMPLE_SENT'
@@ -869,6 +872,20 @@ export interface ManufacturingConfig {
   packagingOptions: string[];
   qualityControlStandards: string[];
   certificationsList: string[];
+  supportedMaterials?: string[];
+  customizationOptions?: {
+    brandingMethods: string[];
+    packagingTypes?: string[];
+    accessories?: string[];
+    [key: string]: any;
+  };
+  leadTimes?: {
+    samplingDays?: number;
+    bulkProductionDays?: number;
+    urgentTurnaroundDays?: number;
+    [key: string]: any;
+  };
+  [key: string]: any;
   updatedAt?: string;
 }
 

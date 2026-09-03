@@ -5,7 +5,7 @@ import { requireAdminAuth, logAuditActivity } from '@/lib/auth';
 export async function GET(req: NextRequest) {
   try {
     const authResult = await requireAdminAuth(req);
-    if (authResult instanceof NextResponse) return authResult;
+    if (authResult.errorResponse) return authResult.errorResponse;
 
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status') || undefined;
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const authResult = await requireAdminAuth(req);
-    if (authResult instanceof NextResponse) return authResult;
+    if (authResult.errorResponse) return authResult.errorResponse;
 
     const body = await req.json();
     if (!body.title || !body.customerName || !body.followUpDate) {
@@ -32,8 +32,9 @@ export async function POST(req: NextRequest) {
     const saved = db.saveFollowUp(body);
 
     logAuditActivity({
-      adminId: authResult.id,
-      adminName: authResult.name,
+      adminId: authResult.id || authResult.user?.id,
+      adminName: authResult.name || authResult.user?.name,
+      adminEmail: authResult.email || authResult.user?.email,
       action: body.id ? 'UPDATE' : 'CREATE',
       resource: 'FOLLOW_UP',
       details: `${body.id ? 'Updated' : 'Created'} follow-up: ${saved.title}`,

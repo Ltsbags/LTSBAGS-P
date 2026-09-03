@@ -85,10 +85,11 @@ export default function AdminManufacturingPage() {
 
   const handleAddMaterial = () => {
     if (!newMaterial.trim() || !config) return;
-    if (!config.supportedMaterials.includes(newMaterial.trim())) {
+    const currentMaterials = config.supportedMaterials || [];
+    if (!currentMaterials.includes(newMaterial.trim())) {
       setConfig({
         ...config,
-        supportedMaterials: [...config.supportedMaterials, newMaterial.trim()],
+        supportedMaterials: [...currentMaterials, newMaterial.trim()],
       });
     }
     setNewMaterial('');
@@ -96,20 +97,22 @@ export default function AdminManufacturingPage() {
 
   const handleRemoveMaterial = (index: number) => {
     if (!config) return;
+    const currentMaterials = config.supportedMaterials || [];
     setConfig({
       ...config,
-      supportedMaterials: config.supportedMaterials.filter((_, i) => i !== index),
+      supportedMaterials: currentMaterials.filter((_, i) => i !== index),
     });
   };
 
   const handleAddPrintType = () => {
     if (!newPrintType.trim() || !config) return;
-    if (!config.customizationOptions.brandingMethods.includes(newPrintType.trim())) {
+    const currentMethods = config.customizationOptions?.brandingMethods || [];
+    if (!currentMethods.includes(newPrintType.trim())) {
       setConfig({
         ...config,
         customizationOptions: {
-          ...config.customizationOptions,
-          brandingMethods: [...config.customizationOptions.brandingMethods, newPrintType.trim()],
+          brandingMethods: [...currentMethods, newPrintType.trim()],
+          ...(config.customizationOptions || {}),
         },
       });
     }
@@ -118,11 +121,12 @@ export default function AdminManufacturingPage() {
 
   const handleRemovePrintType = (index: number) => {
     if (!config) return;
+    const currentMethods = config.customizationOptions?.brandingMethods || [];
     setConfig({
       ...config,
       customizationOptions: {
-        ...config.customizationOptions,
-        brandingMethods: config.customizationOptions.brandingMethods.filter((_, i) => i !== index),
+        ...(config.customizationOptions || {}),
+        brandingMethods: currentMethods.filter((_, i) => i !== index),
       },
     });
   };

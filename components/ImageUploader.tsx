@@ -13,7 +13,9 @@ import {
   FolderOpen,
   CheckCircle2,
   Info,
-  Maximize2
+  Maximize2,
+  ZoomIn,
+  X
 } from 'lucide-react';
 import SmartImageStudio from './SmartImageStudio';
 import MediaLibraryPickerModal from './MediaLibraryPickerModal';
@@ -52,6 +54,7 @@ export default function ImageUploader({
   const [metadataBadge, setMetadataBadge] = useState<{ dimensions?: string; fileSize?: string; savings?: number } | null>(null);
 
   const [previewFit, setPreviewFit] = useState<'contain' | 'cover'>('contain');
+  const [showFullscreenModal, setShowFullscreenModal] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const presetConfig = getPresetConfig(preset);
@@ -184,20 +187,31 @@ export default function ImageUploader({
         <div className="relative group rounded-xl overflow-hidden border-2 border-slate-200 bg-white shadow-xs transition-all hover:border-blue-500/50">
           <div
             style={containerAspectStyle}
-            className="w-full max-h-[260px] relative flex items-center justify-center bg-white overflow-hidden p-2"
+            className="w-full min-h-[260px] sm:min-h-[300px] max-h-[380px] relative flex items-center justify-center bg-slate-900/5 dark:bg-slate-900/90 overflow-hidden p-3 sm:p-4"
           >
+            {/* Subtle grid backdrop for contrast */}
+            <div
+              className="absolute inset-0 opacity-20 pointer-events-none"
+              style={{
+                backgroundImage: 'radial-gradient(#64748b 1px, transparent 1px)',
+                backgroundSize: '16px 16px',
+              }}
+            />
+
             <img
               src={value}
               alt="Uploaded preview"
               referrerPolicy="no-referrer"
-              className={`max-w-full max-h-full transition-all ${
-                previewFit === 'contain'
-                  ? 'object-contain object-center'
-                  : 'w-full h-full object-cover object-center'
-              }`}
+              className="max-w-full max-h-full transition-all drop-shadow-md select-none cursor-zoom-in"
+              onClick={() => setShowFullscreenModal(true)}
               style={{
-                objectFit: previewFit === 'contain' ? 'contain' : 'cover',
+                objectFit: 'contain',
                 objectPosition: 'center',
+                maxWidth: '100%',
+                maxHeight: '100%',
+                width: 'auto',
+                height: 'auto',
+                display: 'block',
               }}
             />
             {uploading && (
@@ -207,7 +221,7 @@ export default function ImageUploader({
               </div>
             )}
 
-            {/* Quality Badge Overlay & Quick Fit Toggle */}
+            {/* Quality Badge Overlay */}
             <div className="absolute top-2 left-2 flex items-center gap-1.5 pointer-events-none">
               <span className="px-2 py-0.5 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold rounded-md flex items-center gap-1 border border-slate-700/60">
                 <Sparkles className="w-3 h-3 text-blue-400" />
@@ -220,16 +234,19 @@ export default function ImageUploader({
               ) : null}
             </div>
 
-            {/* Framing Mode Switch */}
-            <div className="absolute top-2 right-2 flex items-center gap-1">
+            {/* Auto-Full indicator and Fullscreen Zoom */}
+            <div className="absolute top-2 right-2 flex items-center gap-1.5">
+              <span className="px-2 py-0.5 bg-emerald-950/85 backdrop-blur-md text-emerald-300 text-[10px] font-bold rounded-md flex items-center gap-1 border border-emerald-500/40 shadow-xs">
+                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                <span>Auto-Full (100% Uncropped)</span>
+              </span>
               <button
                 type="button"
-                onClick={() => setPreviewFit(previewFit === 'contain' ? 'cover' : 'contain')}
-                className="px-2 py-0.5 bg-slate-900/80 hover:bg-slate-900 text-white text-[10px] font-semibold rounded-md flex items-center gap-1 border border-slate-700/60 shadow-xs transition-colors cursor-pointer"
-                title={previewFit === 'contain' ? 'Current: Auto-Fit (Whole Image). Click for Cover Fill' : 'Current: Cover Fill. Click for Auto-Fit'}
+                onClick={() => setShowFullscreenModal(true)}
+                className="p-1 bg-slate-900/80 hover:bg-slate-900 text-white rounded-md border border-slate-700/60 shadow-xs transition-colors cursor-pointer"
+                title="View Fullsize Uncropped Image"
               >
-                <Maximize2 className="w-3 h-3 text-amber-400" />
-                <span>{previewFit === 'contain' ? 'Auto-Fit (Full Bag)' : 'Cover (Fill)'}</span>
+                <ZoomIn className="w-3.5 h-3.5 text-slate-200" />
               </button>
             </div>
           </div>
@@ -336,6 +353,37 @@ export default function ImageUploader({
         onSelect={handleMediaPickerSelect}
         categoryFilter={presetConfig.category}
       />
+
+      {/* Fullscreen Uncropped Lightbox Modal */}
+      {showFullscreenModal && value && (
+        <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+          <div className="w-full max-w-4xl flex items-center justify-between text-white mb-2 px-2">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-sm">Full Image Preview (100% Uncropped)</span>
+              <span className="text-[11px] bg-emerald-600/90 text-emerald-100 px-2 py-0.5 rounded-md font-semibold flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3 text-emerald-300" />
+                Auto-Full: No Cropping
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowFullscreenModal(false)}
+              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="relative w-full max-w-4xl max-h-[82vh] flex items-center justify-center p-4 bg-slate-900/95 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
+            <img
+              src={value}
+              alt="Fullscreen uncropped preview"
+              referrerPolicy="no-referrer"
+              className="max-w-full max-h-[75vh] object-contain object-center rounded-lg"
+              style={{ objectFit: 'contain', objectPosition: 'center' }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

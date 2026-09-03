@@ -421,9 +421,9 @@ export default function AdminDashboardPage() {
                     <YAxis yAxisId="right" orientation="right" stroke="#64748b" fontSize={11} tickFormatter={(v) => `₹${(v/100000).toFixed(1)}L`} />
                     <Tooltip 
                       contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', fontSize: '12px' }}
-                      formatter={(val: any, name: string) => {
+                      formatter={(val: any, name: any) => {
                         if (name === 'Quotation Value') return [`₹${Number(val).toLocaleString('en-IN')}`, name];
-                        return [val, name];
+                        return [val, name || ''];
                       }}
                     />
                     <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />

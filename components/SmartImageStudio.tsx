@@ -56,7 +56,7 @@ export default function SmartImageStudio({
   const [selectedPreset, setSelectedPreset] = useState<ImagePresetKey>(
     (initialPreset as ImagePresetKey) in IMAGE_PRESETS ? (initialPreset as ImagePresetKey) : 'general'
   );
-  const [fitMode, setFitMode] = useState<'cover' | 'contain' | 'smart_crop'>('cover');
+  const [fitMode, setFitMode] = useState<'cover' | 'contain' | 'smart_crop'>('contain');
   const [bgMode, setBgMode] = useState<'white' | 'transparent' | 'original'>('white');
   const [focalPoint, setFocalPoint] = useState<{ x: number; y: number }>({ x: 50, y: 50 });
   const [rotation, setRotation] = useState<number>(0);

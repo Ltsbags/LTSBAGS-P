@@ -5,7 +5,7 @@ import { requireAdminAuth } from '@/lib/auth';
 export async function GET(req: NextRequest) {
   try {
     const authResult = await requireAdminAuth(req);
-    if (authResult instanceof NextResponse) return authResult;
+    if (authResult.errorResponse) return authResult.errorResponse;
 
     const notifs = db.getNotifications(50);
     return NextResponse.json(notifs);
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const authResult = await requireAdminAuth(req);
-    if (authResult instanceof NextResponse) return authResult;
+    if (authResult.errorResponse) return authResult.errorResponse;
 
     const body = await req.json();
     if (body.action === 'markAllRead') {

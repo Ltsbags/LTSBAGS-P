@@ -5,7 +5,7 @@ import { requireAdminAuth, logAuditActivity } from '@/lib/auth';
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await requireAdminAuth(req);
-    if (authResult instanceof NextResponse) return authResult;
+    if (authResult.errorResponse) return authResult.errorResponse;
 
     const { id } = await params;
     const item = db.getFollowUpById(id);
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await requireAdminAuth(req);
-    if (authResult instanceof NextResponse) return authResult;
+    if (authResult.errorResponse) return authResult.errorResponse;
 
     const { id } = await params;
     const deleted = db.deleteFollowUp(id);
@@ -30,8 +30,9 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     }
 
     logAuditActivity({
-      adminId: authResult.id,
-      adminName: authResult.name,
+      adminId: authResult.id || authResult.user?.id,
+      adminName: authResult.name || authResult.user?.name,
+      adminEmail: authResult.email || authResult.user?.email,
       action: 'DELETE',
       resource: 'FOLLOW_UP',
       details: `Deleted follow-up ${id}`,

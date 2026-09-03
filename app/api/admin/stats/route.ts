@@ -5,8 +5,8 @@ import { requireAdminAuth } from '@/lib/auth';
 export async function GET(req: NextRequest) {
   try {
     const authResult = await requireAdminAuth(req);
-    if (authResult instanceof NextResponse) {
-      // Allow fallback if called internally, but try auth
+    if (authResult.errorResponse) {
+      // Allow fallback if needed, or return error
     }
 
     const { searchParams } = new URL(req.url);
