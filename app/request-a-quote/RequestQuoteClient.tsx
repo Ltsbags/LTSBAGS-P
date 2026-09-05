@@ -21,6 +21,7 @@ import {
   Check
 } from 'lucide-react';
 import { Category, Product, CompanyContactInfo } from '@/lib/types';
+import { VERIFIED_BUSINESS_INFO, getContextualWhatsAppUrl } from '@/lib/business-info';
 
 export default function RequestQuoteClient() {
   const searchParams = useSearchParams();
@@ -30,8 +31,8 @@ export default function RequestQuoteClient() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [contact, setContact] = useState<Partial<CompanyContactInfo>>({
-    phone1: '+91 9833598338',
-    socialWhatsapp: '+919833598338',
+    phone1: VERIFIED_BUSINESS_INFO.contact.primaryPhone,
+    socialWhatsapp: VERIFIED_BUSINESS_INFO.contact.whatsappNumberRaw,
   });
 
   const [formData, setFormData] = useState({
@@ -149,10 +150,14 @@ export default function RequestQuoteClient() {
     }
   };
 
-  const whatsappNumber = (contact.socialWhatsapp || contact.phone1 || '+919833598338').replace(/[^\d]/g, '');
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    'Hello LTS BAGS Factory, I would like to request an instant wholesale quote for custom bags.'
-  )}`;
+  const whatsappUrl = getContextualWhatsAppUrl({
+    categoryName: formData.category,
+    productName: formData.productRequirement,
+    quantity: formData.quantity,
+    material: formData.targetFabric,
+    location: formData.deliveryLocation,
+    intent: formData.sampleRequired ? 'sample' : 'quote'
+  });
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

@@ -21,19 +21,20 @@ import Logo from './Logo';
 import LanguageSelector from './LanguageSelector';
 import { useLanguage } from './LanguageProvider';
 import { CompanyContactInfo, FooterContent } from '@/lib/types';
+import { VERIFIED_BUSINESS_INFO } from '@/lib/business-info';
 
 export default function Footer() {
   const { t } = useLanguage();
   const [contact, setContact] = useState<Partial<CompanyContactInfo>>({
-    companyName: 'LTS BAGS PRIVATE LIMITED',
-    phone1: '+91 9833598338',
-    phone2: '+91 9619961971',
-    email1: 'info@ltsbags.com',
-    factoryAddress: 'FLOOR- G, A341/2/3, GANESH SAI KRIPA CHS SANT ROHIDAS MARG, MUKUND NAGAR, DHARAVI, MUMBAI 400017',
-    googleMapsUrl: 'https://www.google.com/search?kgmid=%2Fg%2F11qpsqysys&hl=en-IN&q=LTS%20BAGS%20PRIVATE%20LIMITED',
-    workingHours: 'Mon - Sat: 9:00 AM - 7:00 PM IST',
+    companyName: VERIFIED_BUSINESS_INFO.companyLegalName,
+    phone1: VERIFIED_BUSINESS_INFO.contact.primaryPhone,
+    phone2: VERIFIED_BUSINESS_INFO.contact.secondaryPhone,
+    email1: VERIFIED_BUSINESS_INFO.contact.primaryEmail,
+    factoryAddress: VERIFIED_BUSINESS_INFO.address.fullFormatted,
+    googleMapsUrl: VERIFIED_BUSINESS_INFO.geo.googleMapsSearchUrl,
+    workingHours: `${VERIFIED_BUSINESS_INFO.contact.businessDays}: ${VERIFIED_BUSINESS_INFO.contact.businessHours}`,
     gstNumber: '27AAGCL1568H1ZC',
-    isoCertificate: 'ISO 9001:2015 Certified Factory',
+    isoCertificate: VERIFIED_BUSINESS_INFO.compliance.isoStatus,
     socialLinkedin: 'https://linkedin.com/company/ltsbags',
     socialFacebook: 'https://facebook.com/ltsbags',
     socialInstagram: 'https://instagram.com/ltsbags',
@@ -120,18 +121,18 @@ export default function Footer() {
           {/* Col 4: Quick Links */}
           <div className="space-y-3">
             <h3 className="text-[#72AFDB] font-bold text-xs uppercase tracking-wider font-mono border-b border-slate-700 pb-2">
-              Quick Links
+              B2B Hubs & Links
             </h3>
             <ul className="space-y-2 text-xs text-[#A5A5A5]">
               <li><Link href="/" className="hover:text-[#72AFDB] transition-colors">Home</Link></li>
-              <li><Link href="/about" className="hover:text-[#72AFDB] transition-colors">About Us</Link></li>
+              <li><Link href="/locations" className="hover:text-[#72AFDB] transition-colors font-medium text-slate-200">Locations Served</Link></li>
+              <li><Link href="/industries" className="hover:text-[#72AFDB] transition-colors font-medium text-slate-200">Industries Served</Link></li>
+              <li><Link href="/materials" className="hover:text-[#72AFDB] transition-colors font-medium text-slate-200">Bag Materials Guide</Link></li>
               <li><Link href="/factory-tour" className="hover:text-[#72AFDB] transition-colors">Factory Tour</Link></li>
               <li><Link href="/request-a-quote" className="hover:text-[#72AFDB] transition-colors font-bold text-sky-400">Request a Quote</Link></li>
-              <li><Link href="/pay" className="hover:text-[#72AFDB] transition-colors text-emerald-400 font-medium">Pay Online (Razorpay)</Link></li>
               <li><Link href="/customization" className="hover:text-[#72AFDB] transition-colors">Customization</Link></li>
               <li><Link href="/manufacturing" className="hover:text-[#72AFDB] transition-colors">Manufacturing</Link></li>
               <li><Link href="/clients" className="hover:text-[#72AFDB] transition-colors">Our Clients</Link></li>
-              <li><Link href="/blog" className="hover:text-[#72AFDB] transition-colors">Blog</Link></li>
               <li><Link href="/contact" className="hover:text-[#72AFDB] transition-colors">Contact Us</Link></li>
             </ul>
           </div>
@@ -154,15 +155,15 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-[#72AFDB]" />
-                <a href="tel:+919833598338" className="hover:text-white">+91 9833598338</a>
+                <a href={`tel:${(contact.phone1 || '').replace(/[^\d+]/g, '')}`} className="hover:text-white">{contact.phone1}</a>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-[#72AFDB]" />
-                <a href="tel:+919619961971" className="hover:text-white">+91 9619961971</a>
+                <a href={`tel:${(contact.phone2 || '').replace(/[^\d+]/g, '')}`} className="hover:text-white">{contact.phone2}</a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-[#72AFDB]" />
-                <a href="mailto:info@ltsbags.com" className="hover:text-white">info@ltsbags.com</a>
+                <a href={`mailto:${contact.email1}`} className="hover:text-white">{contact.email1}</a>
               </li>
               {contact.googleMapsUrl && (
                 <li className="pt-1">

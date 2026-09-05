@@ -22,23 +22,24 @@ import {
   Factory
 } from 'lucide-react';
 import { AboutPageContent, CompanyContactInfo } from '@/lib/types';
+import { VERIFIED_BUSINESS_INFO } from '@/lib/business-info';
 
 export default function AboutPage() {
   const [about, setAbout] = useState<Partial<AboutPageContent>>({
-    headline: 'Over a Decade of Engineering Premium Luggage & Custom Corporate Bags',
-    subtitle: 'Empowering international corporations, brand distributors, and retail chains with state-of-the-art bag production, strict quality control, and direct factory pricing.',
-    storyContent: 'LTS BAGS PRIVATE LIMITED operates a modern manufacturing facility equipped with computerized pattern lasers, heavy-duty bar-tacking stitch machines, and automated hydraulic embossing presses. We specialize in OEM (Original Equipment Manufacturing) and ODM (Original Design Manufacturing) solutions for corporate employee onboarding kits, IT tech companies, university athletic programs, and retail bag exporters.',
-    missionContent: 'To deliver world-class luggage and custom bag solutions with uncompromising quality, innovative craftsmanship, and reliable on-time execution for every B2B client globally.',
-    visionContent: 'To be India\'s most trusted global partner in sustainable bag manufacturing, recognized for technological excellence, ethical production, and bespoke design versatility.',
-    factoryCapacity: '50,000 Sq. Ft. Facility | 250+ Skilled Artisans | 100,000+ Units Monthly Capacity',
-    qualityPolicy: 'ISO 9001:2015 & BSCI Compliant Plant. Every bag manufactured in our factory adheres to stringent ethical labor standards, zero child labor policies, and eco-conscious waste recycling. Fabrics undergo strict tensile and water-resistance testing.',
+    headline: 'Over 14+ Years of Engineering Premium Luggage & Custom Corporate Bags',
+    subtitle: 'Empowering domestic corporations, institutional buyers, and global export distributors with reliable bag production, strict quality control, and direct factory pricing in Mumbai.',
+    storyContent: 'LTS BAGS PRIVATE LIMITED operates a dedicated industrial bag manufacturing facility located in the renowned Dharavi industrial manufacturing hub of Mumbai. We specialize in OEM (Original Equipment Manufacturing) and ODM (Original Design Manufacturing) solutions for corporate employee onboarding kits, IT tech companies, university athletic programs, promotional events, and retail bag exporters.',
+    missionContent: 'To deliver high-durability luggage and custom bag solutions with uncompromising stitching quality, innovative craftsmanship, and reliable on-time execution for every B2B client.',
+    visionContent: 'To be India\'s most trusted B2B bag manufacturing and export partner, recognized for production consistency, ethical labor practices, and responsive customer-first communication.',
+    factoryCapacity: `${VERIFIED_BUSINESS_INFO.factory.locationHub} | ${VERIFIED_BUSINESS_INFO.factory.capacityDescription}`,
+    qualityPolicy: `${VERIFIED_BUSINESS_INFO.compliance.isoStatus}. Every bag manufactured in our facility adheres to strict multi-point quality checks, zero child labor policies, and material inspection. Seams and handles undergo tensile and stress testing before dispatch.`,
     aboutImageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=1000',
   });
 
   const [contact, setContact] = useState<Partial<CompanyContactInfo>>({
-    companyName: 'LTS BAGS PRIVATE LIMITED',
-    phone1: '+91 98335 98338',
-    isoCertificate: 'ISO 9001:2015 & BSCI Compliant Plant',
+    companyName: VERIFIED_BUSINESS_INFO.companyLegalName,
+    phone1: VERIFIED_BUSINESS_INFO.contact.primaryPhone,
+    isoCertificate: VERIFIED_BUSINESS_INFO.compliance.isoStatus,
   });
 
   useEffect(() => {
@@ -91,7 +92,7 @@ export default function AboutPage() {
               
               <div className="lg:col-span-6 space-y-5">
                 <span className="text-amber-700 font-bold text-xs uppercase tracking-widest font-mono bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
-                  15+ Years Factory Excellence
+                  {VERIFIED_BUSINESS_INFO.yearsExperienceText}
                 </span>
                 <h2 className="text-3xl font-black text-slate-900 font-serif leading-tight">
                   {about.headline}
@@ -104,11 +105,11 @@ export default function AboutPage() {
                 <div className="pt-2 grid grid-cols-2 gap-4 text-xs font-semibold text-slate-700">
                   <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg border border-slate-200">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>50,000 Sq. Ft. Facility</span>
+                    <span>Dharavi Mumbai Hub</span>
                   </div>
                   <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg border border-slate-200">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>250+ Skilled Artisans</span>
+                    <span>Master Pattern Cutters</span>
                   </div>
                   <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg border border-slate-200">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -116,7 +117,7 @@ export default function AboutPage() {
                   </div>
                   <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg border border-slate-200">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Global Export Logistics</span>
+                    <span>Pan-India & Global Export</span>
                   </div>
                 </div>
               </div>

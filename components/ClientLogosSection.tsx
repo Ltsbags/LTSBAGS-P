@@ -91,6 +91,11 @@ export default function ClientLogosSection({ initialClients }: ClientLogosSectio
           ))}
         </div>
 
+        {/* E-E-A-T Disclaimer */}
+        <p className="text-center text-[10px] text-slate-500 dark:text-slate-400 mt-6 italic">
+          * Brand marks represent sample OEM/ODM production capabilities. Official public client roster to be confirmed by LTS BAGS.
+        </p>
+
       </div>
     </section>
   );

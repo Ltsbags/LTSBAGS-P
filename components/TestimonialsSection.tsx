@@ -52,13 +52,13 @@ export default function TestimonialsSection({ initialTestimonials }: Testimonial
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
           <span className="text-[#72AFDB] font-bold text-xs uppercase tracking-widest font-mono bg-[#72AFDB]/10 px-3.5 py-1 rounded-full border border-[#72AFDB]/30">
-            Client Verification
+            B2B Client Feedback
           </span>
           <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 font-sans">
             What Bulk Buyers Say About LTS Bags
           </h2>
           <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
-            Real feedback from corporate procurement officers, HR managers, and brand distributors who partner with our factory.
+            Project reviews from corporate procurement managers, brand merchandisers, and institutional buyers partnering with our Mumbai factory.
           </p>
         </div>
 
@@ -96,14 +96,19 @@ export default function TestimonialsSection({ initialTestimonials }: Testimonial
                     {item.role} &bull; <strong className="text-slate-700 dark:text-slate-300">{item.company}</strong>
                   </p>
                 </div>
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
-                  <CheckCircle2 className="w-3 h-3" />
-                  Verified
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/60 px-2 py-0.5 rounded-md border border-slate-300 dark:border-slate-600">
+                  <CheckCircle2 className="w-3 h-3 text-sky-500" />
+                  B2B Client
                 </span>
               </div>
             </div>
           ))}
         </div>
+
+        {/* E-E-A-T Transparency Disclaimer */}
+        <p className="text-center text-[11px] text-slate-500 dark:text-slate-400 mt-10 italic">
+          * Representative client feedback and procurement briefs. Formal signed testimonials to be confirmed by LTS BAGS.
+        </p>
 
       </div>
     </section>

@@ -1,8 +1,12 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import CategoryLandingView from '@/components/CategoryLandingView';
+import SeoLandingPageView from '@/components/SeoLandingPageView';
+import ProgrammaticPageView from '@/components/programmatic-seo/ProgrammaticPageView';
 import { db } from '@/lib/db';
 import { generatePageMetadata } from '@/lib/seo';
+import { getSeoLandingPage } from '@/lib/seo-landing-pages';
+import { seoStorage } from '@/lib/programmatic-seo/storage';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +21,10 @@ const KNOWN_STATIC_ROUTES = new Set([
   'contact',
   'customization',
   'factory-tour',
+  'industries',
+  'locations',
   'manufacturing',
+  'materials',
   'privacy-policy',
   'product',
   'products',
@@ -31,6 +38,30 @@ export async function generateMetadata({ params }: { params: Promise<{ categoryS
   const { categorySlug } = await params;
   if (!categorySlug || KNOWN_STATIC_ROUTES.has(categorySlug)) return {};
 
+  // 1. Check Programmatic SEO Engine database first
+  const programmaticPage = seoStorage.getPageBySlug(categorySlug);
+  if (programmaticPage && programmaticPage.status !== 'ARCHIVED') {
+    return generatePageMetadata({
+      title: programmaticPage.seo_title,
+      description: programmaticPage.meta_description,
+      path: `/${programmaticPage.slug}`,
+      image: programmaticPage.featured_image,
+      noIndex: !programmaticPage.robots_index || programmaticPage.status !== 'PUBLISHED',
+    });
+  }
+
+  // 2. Check if it's a dedicated high-intent SEO Landing Page (legacy fallback)
+  const seoLandingPage = getSeoLandingPage(categorySlug);
+  if (seoLandingPage) {
+    return generatePageMetadata({
+      title: seoLandingPage.metaTitle,
+      description: seoLandingPage.metaDescription,
+      keywords: seoLandingPage.keywords,
+      path: `/${seoLandingPage.slug}`,
+    });
+  }
+
+  // 3. Check if it's a product category
   const category = db.getCategoryBySlug(categorySlug);
   if (!category) return {};
 
@@ -50,6 +81,19 @@ export default async function TopLevelCategoryPage({ params }: { params: Promise
     notFound();
   }
 
+  // 1. Check Programmatic SEO Engine database first
+  const programmaticPage = seoStorage.getPageBySlug(categorySlug);
+  if (programmaticPage && programmaticPage.status !== 'ARCHIVED') {
+    return <ProgrammaticPageView page={programmaticPage} />;
+  }
+
+  // 2. Check if it's a dedicated high-intent SEO Landing Page (legacy fallback)
+  const seoLandingPage = getSeoLandingPage(categorySlug);
+  if (seoLandingPage) {
+    return <SeoLandingPageView page={seoLandingPage} />;
+  }
+
+  // 3. Check if it's a product category
   const category = db.getCategoryBySlug(categorySlug);
 
   if (!category) {

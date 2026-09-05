@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import SchemaScript from '@/components/SchemaScript';
 import { db } from '@/lib/db';
 import { generatePageMetadata, generateOrganizationSchema } from '@/lib/seo';
+import { VERIFIED_BUSINESS_INFO } from '@/lib/business-info';
 import { 
   Building2, 
   ExternalLink, 
@@ -59,13 +60,13 @@ export default function ClientsPage() {
 
               <div className="pt-2 flex flex-wrap items-center gap-6 text-xs text-slate-300 font-medium">
                 <span className="flex items-center gap-1.5 text-emerald-400">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" /> 500+ Active Corporate Accounts
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Direct OEM/ODM Factory in Mumbai
                 </span>
                 <span className="flex items-center gap-1.5 text-sky-400">
-                  <Factory className="w-4 h-4 text-sky-400" /> 10,000+ Daily Production Unit Capacity
+                  <Factory className="w-4 h-4 text-sky-400" /> Scalable Batch & Bulk Production Lines
                 </span>
                 <span className="flex items-center gap-1.5 text-amber-400">
-                  <Award className="w-4 h-4 text-amber-400" /> ISO 9001:2015 Certified Plant
+                  <Award className="w-4 h-4 text-amber-400" /> AQL 2.5 Multi-Point Inspection
                 </span>
               </div>
             </div>
@@ -78,14 +79,19 @@ export default function ClientsPage() {
             
             <div className="text-center max-w-2xl mx-auto space-y-3">
               <span className="text-sky-700 dark:text-sky-300 font-bold text-xs uppercase tracking-widest font-mono bg-sky-50 dark:bg-sky-950/80 px-3 py-1 rounded-full border border-sky-200 dark:border-sky-800">
-                Client Brand Showcase
+                OEM &amp; ODM Capability Showcase
               </span>
               <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 font-serif">
-                Trusted by Industry Leaders
+                Trusted by Businesses &amp; Institutions
               </h2>
               <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm">
                 Custom laptop backpacks, executive briefcases, travel duffels, and onboarding gift kits crafted with precision branding.
               </p>
+              <div className="pt-2">
+                <p className="text-[11px] text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 py-1.5 px-4 rounded-xl border border-amber-200 dark:border-amber-800 inline-block">
+                  * Note: Brand marks and case briefs represent sample OEM/ODM production capabilities. Official public client roster to be confirmed by LTS BAGS.
+                </p>
+              </div>
             </div>
 
             {/* LOGOS RESPONSIVE GRID */}
@@ -133,21 +139,21 @@ export default function ClientsPage() {
             {/* TRUST HIGHLIGHT STATS */}
             <div className="mt-16 bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-8 border border-slate-200/80 dark:border-slate-700/80 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
               <div className="space-y-1">
-                <p className="text-3xl font-black text-sky-600 dark:text-sky-400 font-serif">15+ Years</p>
-                <p className="text-xs font-bold text-slate-800 dark:text-slate-200">Factory Experience</p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">Serving corporate brands nationwide since 2011</p>
+                <p className="text-3xl font-black text-sky-600 dark:text-sky-400 font-serif">14+ Years</p>
+                <p className="text-xs font-bold text-slate-800 dark:text-slate-200">Manufacturing Legacy</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">Founded in 2011 in Dharavi, Mumbai</p>
               </div>
 
               <div className="space-y-1 border-t sm:border-t-0 sm:border-l border-slate-200 dark:border-slate-700 pt-4 sm:pt-0 sm:pl-6">
-                <p className="text-3xl font-black text-sky-600 dark:text-sky-400 font-serif">99.8%</p>
-                <p className="text-xs font-bold text-slate-800 dark:text-slate-200">On-Time Dispatch</p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">Strict adherence to event timelines and delivery dates</p>
+                <p className="text-3xl font-black text-sky-600 dark:text-sky-400 font-serif">5-7 Days</p>
+                <p className="text-xs font-bold text-slate-800 dark:text-slate-200">Golden Sample Lead Time</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">Physical prototype review before bulk production</p>
               </div>
 
               <div className="space-y-1 border-t sm:border-t-0 sm:border-l border-slate-200 dark:border-slate-700 pt-4 sm:pt-0 sm:pl-6">
-                <p className="text-3xl font-black text-sky-600 dark:text-sky-400 font-serif">100% Quality QC</p>
-                <p className="text-xs font-bold text-slate-800 dark:text-slate-200">Zero Defect Guarantee</p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">5-step stress, zipper pull & seam load inspection</p>
+                <p className="text-3xl font-black text-sky-600 dark:text-sky-400 font-serif">AQL 2.5</p>
+                <p className="text-xs font-bold text-slate-800 dark:text-slate-200">Quality Standard</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">Multi-point zipper, handle tensile & seam inspection</p>
               </div>
             </div>
 

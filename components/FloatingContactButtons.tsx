@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Phone, MessageCircle, Send, X, FileText } from 'lucide-react';
 import { CompanyContactInfo } from '@/lib/types';
+import { VERIFIED_BUSINESS_INFO, getContextualWhatsAppUrl } from '@/lib/business-info';
 import QuoteModal from './QuoteModal';
 
 export default function FloatingContactButtons() {
@@ -11,9 +12,9 @@ export default function FloatingContactButtons() {
   const [showPhoneMenu, setShowPhoneMenu] = useState(false);
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [contact, setContact] = useState<Partial<CompanyContactInfo>>({
-    phone1: '+91 9833598338',
-    phone2: '+91 9619961971',
-    socialWhatsapp: '+919833598338',
+    phone1: VERIFIED_BUSINESS_INFO.contact.primaryPhone,
+    phone2: VERIFIED_BUSINESS_INFO.contact.secondaryPhone,
+    socialWhatsapp: VERIFIED_BUSINESS_INFO.contact.whatsappNumberRaw,
   });
 
   useEffect(() => {
@@ -36,15 +37,14 @@ export default function FloatingContactButtons() {
     return null;
   }
 
-  const primaryPhoneDisplay = contact.phone1 || '+91 9833598338';
-  const secondaryPhoneDisplay = contact.phone2 || '+91 9619961971';
+  const primaryPhoneDisplay = contact.phone1 || VERIFIED_BUSINESS_INFO.contact.primaryPhone;
+  const secondaryPhoneDisplay = contact.phone2 || VERIFIED_BUSINESS_INFO.contact.secondaryPhone;
   const primaryPhoneClean = primaryPhoneDisplay.replace(/[^\d+]/g, '');
   const secondaryPhoneClean = secondaryPhoneDisplay.replace(/[^\d+]/g, '');
 
-  const whatsappNumberClean = (contact.socialWhatsapp || primaryPhoneClean).replace(/[^\d]/g, '');
-  const whatsappUrl = `https://wa.me/${whatsappNumberClean}?text=${encodeURIComponent(
-    'Hello LTS BAGS PRIVATE LIMITED (ltsbags.com), I am looking for custom bag manufacturing and bulk wholesale pricing.'
-  )}`;
+  const whatsappUrl = getContextualWhatsAppUrl({
+    intent: 'quote'
+  });
 
   return (
     <>
@@ -111,7 +111,7 @@ export default function FloatingContactButtons() {
           >
             <Phone className="w-5 h-5 text-white" />
             <span className="absolute right-full mr-3 px-3 py-1.5 bg-[#1E293B] text-white text-xs font-bold rounded-lg shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none border border-slate-700">
-              Call Us: +91 9833598338
+              Call Us: {primaryPhoneDisplay}
             </span>
           </button>
 

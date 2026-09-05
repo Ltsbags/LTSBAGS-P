@@ -211,6 +211,7 @@ export default function AdminHeader({ activeTab }: { activeTab?: string }) {
     { id: 'manufacturing', name: 'Factory & Specs', href: '/admin/manufacturing', icon: Factory },
     { id: 'payments', name: 'Payments & UTR', href: '/admin/payments', icon: CreditCard },
     { id: 'catalogues', name: 'PDF Catalogues', href: '/admin/catalogues', icon: FileText },
+    { id: 'programmatic-seo', name: 'Programmatic SEO Engine', href: '/admin/programmatic-seo', icon: Sparkles },
     { id: 'seo', name: 'SEO & Sitemap Hub', href: '/admin/seo', icon: Globe },
     { id: 'blogs', name: 'B2B Insights & Blog', href: '/admin/blogs', icon: FileText },
     { id: 'faqs', name: 'Buyer FAQs', href: '/admin/faqs', icon: HelpCircle },

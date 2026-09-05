@@ -210,6 +210,29 @@ export default function AdminSeoHubPage() {
           </div>
         </div>
 
+        {/* Programmatic SEO Engine Callout Card */}
+        <div className="bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-slate-900 border border-amber-500/30 p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
+          <div className="space-y-1">
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              <Sparkles className="w-3 h-3" />
+              NEW: PROGRAMMATIC SEO ENGINE
+            </span>
+            <h2 className="text-base font-bold text-white">
+              B2B Programmatic Landing Page Generator & Quality Gate
+            </h2>
+            <p className="text-xs text-slate-400">
+              Manage product + location, product + industry, and material landing pages with automatic 12-point quality scoring.
+            </p>
+          </div>
+          <Link
+            href="/admin/programmatic-seo"
+            className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-4 py-2 rounded-xl text-xs shadow-md transition-all shrink-0"
+          >
+            <span>Open Programmatic Engine</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
         {/* Technical SEO Checklist & Tools */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           

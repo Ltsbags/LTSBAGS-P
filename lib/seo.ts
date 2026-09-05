@@ -33,6 +33,7 @@ export function generatePageMetadata({
   path = '',
   lang = 'en',
   image = 'https://images.unsplash.com/photo-1546938576-6e6a64f317cc?auto=format&fit=crop&q=80&w=1200',
+  noIndex = false,
 }: {
   title?: string;
   description?: string;
@@ -40,6 +41,7 @@ export function generatePageMetadata({
   path?: string;
   lang?: string;
   image?: string;
+  noIndex?: boolean;
 }): Metadata {
   const fullTitle = title ? `${title} | LTS BAGS Mumbai` : `${DEFAULT_TITLE} | LTS BAGS Mumbai`;
   const fullDesc = description || DEFAULT_DESC;
@@ -104,7 +106,7 @@ export function generatePageMetadata({
         return process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || process.env.GOOGLE_SITE_VERIFICATION || undefined;
       })(),
     },
-    robots: INDEXING_ENABLED
+    robots: (INDEXING_ENABLED && !noIndex)
       ? {
           index: true,
           follow: true,

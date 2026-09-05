@@ -19,7 +19,8 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
+      <head />
+      <body suppressHydrationWarning className="relative antialiased bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
         {/* Google tag (gtag.js) */}
         <Script
           async
@@ -39,8 +40,6 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
             `,
           }}
         />
-      </head>
-      <body suppressHydrationWarning className="relative antialiased bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
         <ThemeProvider>
           <LanguageProvider>
             {children}
