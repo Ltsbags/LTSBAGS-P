@@ -90,7 +90,8 @@ export default function SmartImageStudio({
   // Update preset defaults on change
   useEffect(() => {
     const config = getPresetConfig(selectedPreset);
-    setFitMode(config.defaultFitMode);
+    // Always default to contain so images are never cut off
+    setFitMode('contain');
     if (config.allowAlpha) {
       setBgMode('transparent');
     } else {
@@ -112,6 +113,11 @@ export default function SmartImageStudio({
     setRotation(0);
     setZoom(1);
     setFocalPoint({ x: 50, y: 50 });
+    setFitMode('contain');
+
+    // Pre-populate with high quality B2B SEO alt text
+    const baseSubject = contextName || categoryName || file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+    setAltText(`${baseSubject} wholesale manufacturer Mumbai India - LTS Bags`);
 
     // Analyze image on server
     const analyze = async () => {
@@ -415,6 +421,15 @@ export default function SmartImageStudio({
                     />
                   </div>
 
+                  {fitMode === 'contain' && (
+                    <div className="absolute top-2.5 left-2.5 pointer-events-none flex items-center gap-1.5 z-10">
+                      <span className="px-2.5 py-1 bg-emerald-950/85 text-emerald-300 text-[10px] font-bold rounded-lg border border-emerald-500/40 backdrop-blur-md flex items-center gap-1 shadow-xs">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>100% Full Uncropped Image</span>
+                      </span>
+                    </div>
+                  )}
+
                   {/* Focal point indicator for Cover mode */}
                   {(fitMode === 'cover' || fitMode === 'smart_crop') && (
                     <div
@@ -510,35 +525,45 @@ export default function SmartImageStudio({
 
               {/* Fit Mode Toggle */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Crop & Framing Mode
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Crop & Framing Mode
+                  </label>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full border border-emerald-300">
+                    {fitMode === 'contain' ? '100% Uncropped Active' : 'Cropped to Frame'}
+                  </span>
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
+                    onClick={() => setFitMode('contain')}
+                    className={`px-3 py-2 text-xs font-semibold rounded-xl border flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                      fitMode === 'contain'
+                        ? 'bg-emerald-50 border-emerald-500 text-emerald-800 ring-2 ring-emerald-400/30 shadow-xs'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Maximize2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Fit Full Image (Uncropped)</span>
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setFitMode('cover')}
-                    className={`px-3 py-2 text-xs font-semibold rounded-xl border flex items-center justify-center gap-2 transition-all ${
+                    className={`px-3 py-2 text-xs font-semibold rounded-xl border flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       fitMode === 'cover'
-                        ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-sm'
+                        ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-xs'
                         : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
                     }`}
                   >
                     <Crop className="w-3.5 h-3.5" />
-                    <span>Smart Crop (Cover)</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFitMode('contain')}
-                    className={`px-3 py-2 text-xs font-semibold rounded-xl border flex items-center justify-center gap-2 transition-all ${
-                      fitMode === 'contain'
-                        ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-sm'
-                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
-                    }`}
-                  >
-                    <Maximize2 className="w-3.5 h-3.5" />
-                    <span>Fit Canvas (Contain)</span>
+                    <span>Smart Crop (Fill Frame)</span>
                   </button>
                 </div>
+                <p className="text-[11px] text-slate-500 mt-1.5">
+                  {fitMode === 'contain'
+                    ? '✓ The complete photo will be kept intact without cutting off any edges or straps.'
+                    : '⚠ Image will be cropped to fill the exact aspect ratio frame.'}
+                </p>
               </div>
 
               {/* Product Background Option (when contain mode or logo) */}
@@ -573,16 +598,33 @@ export default function SmartImageStudio({
               {/* SEO & ALT text */}
               <div className="space-y-3 pt-2 border-t border-slate-200/80">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Image ALT Text (SEO)
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-amber-500" />
+                      <span>Image ALT Text (Auto SEO)</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const base = contextName || categoryName || 'Custom Bag';
+                        setAltText(`${base} wholesale manufacturer Mumbai India - LTS Bags`);
+                      }}
+                      className="text-[10px] font-bold text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded border border-amber-200 transition-colors cursor-pointer"
+                      title="Auto generate SEO Alt Text"
+                    >
+                      ⚡ Auto SEO
+                    </button>
+                  </div>
                   <input
                     type="text"
                     value={altText}
                     onChange={(e) => setAltText(e.target.value)}
-                    placeholder="Describe the bag for search engines & accessibility..."
-                    className="w-full text-xs px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g. Custom Laptop Sleeves manufactured in Mumbai by LTS Bags..."
+                    className="w-full text-xs px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                   />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Google Image Search indexes this text for wholesale B2B ranking.
+                  </p>
                 </div>
               </div>
 

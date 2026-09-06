@@ -23,6 +23,7 @@ import {
   Info
 } from 'lucide-react';
 import { ProcessedProductImage, ImageProcessingStatus } from '@/lib/types';
+import { sanitizeImageUrl } from '@/lib/image-processing/presets';
 
 interface ProductImageStudioProps {
   value?: string;
@@ -98,8 +99,8 @@ export default function ProductImageStudio({
     }
   }, [imageItem]);
 
-  const activeUrl = currentImage?.webUrl || currentImage?.processedUrl || value;
-  const originalUrl = currentImage?.originalUrl || value;
+  const activeUrl = sanitizeImageUrl(currentImage?.webUrl || currentImage?.processedUrl || value);
+  const originalUrl = sanitizeImageUrl(currentImage?.originalUrl || value);
 
   const simulateStepProgress = async () => {
     const steps: ImageProcessingStatus[] = [

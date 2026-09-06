@@ -5,6 +5,7 @@ import Link from 'next/link';
 import AdminHeader from '@/components/AdminHeader';
 import ImageUploader from '@/components/ImageUploader';
 import { Category } from '@/lib/types';
+import { sanitizeImageUrl } from '@/lib/image-processing/presets';
 import { 
   Layers, 
   Plus, 
@@ -104,6 +105,7 @@ export default function AdminCategoriesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCat, setEditingCat] = useState<Partial<Category> | null>(null);
   const [autoSyncSeo, setAutoSyncSeo] = useState<boolean>(true);
+  const [isGeneratingSeo, setIsGeneratingSeo] = useState<boolean>(false);
   const [seoGeneratedNotice, setSeoGeneratedNotice] = useState<string>('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -152,7 +154,7 @@ export default function AdminCategoriesPage() {
       parentSlug: parent ? parent.slug : '',
       level: preselectedParentId ? 'SUB' : 'MAIN',
       description: '',
-      image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800',
+      image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=max&q=80&w=800',
       metaTitle: '',
       metaDescription: '',
       metaKeywords: '',
@@ -259,24 +261,91 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  const handleManualAutoGenerateSeo = () => {
+  const handleAutoGenerateSeo = async (useAi: boolean = false) => {
     if (!editingCat) return;
     if (!editingCat.name) {
       setError('Please enter a Category Name first to auto-generate SEO fields.');
       return;
     }
-    const parent = categories.find((c) => c.id === editingCat.parentId);
-    const seo = buildCategorySeo(editingCat.name, parent?.name, editingCat.description);
-    setEditingCat({
-      ...editingCat,
-      slug: seo.slug,
-      metaTitle: seo.metaTitle,
-      metaDescription: seo.metaDescription,
-      metaKeywords: seo.metaKeywords,
-    });
-    setAutoSyncSeo(true);
-    setSeoGeneratedNotice('Category SEO Fields auto-generated successfully!');
-    setTimeout(() => setSeoGeneratedNotice(''), 3500);
+    setIsGeneratingSeo(true);
+    setError('');
+
+    try {
+      const parent = categories.find((c) => c.id === editingCat.parentId);
+      const res = await fetch('/api/admin/seo/auto-generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'category',
+          name: editingCat.name,
+          parentName: parent?.name,
+          description: editingCat.description,
+          useAi,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setEditingCat((prev) =>
+          prev
+            ? {
+                ...prev,
+                slug: data.slug || prev.slug,
+                metaTitle: data.metaTitle || prev.metaTitle,
+                metaDescription: data.metaDescription || prev.metaDescription,
+                metaKeywords: data.metaKeywords || prev.metaKeywords,
+                imageAlt: data.imageAlt || prev.imageAlt,
+              }
+            : null
+        );
+        setAutoSyncSeo(true);
+        setSeoGeneratedNotice(
+          data.aiEnhanced
+            ? '✨ AI-Powered B2B SEO metadata generated!'
+            : '⚡ B2B Category SEO fields auto-generated successfully!'
+        );
+        setTimeout(() => setSeoGeneratedNotice(''), 4000);
+      } else {
+        // Local fallback
+        const parent = categories.find((c) => c.id === editingCat.parentId);
+        const seo = buildCategorySeo(editingCat.name, parent?.name, editingCat.description);
+        setEditingCat((prev) =>
+          prev
+            ? {
+                ...prev,
+                slug: seo.slug,
+                metaTitle: seo.metaTitle,
+                metaDescription: seo.metaDescription,
+                metaKeywords: seo.metaKeywords,
+                imageAlt: `Custom ${editingCat.name} manufactured in bulk by LTS Bags Mumbai India`,
+              }
+            : null
+        );
+        setAutoSyncSeo(true);
+        setSeoGeneratedNotice('⚡ Category SEO fields auto-generated successfully!');
+        setTimeout(() => setSeoGeneratedNotice(''), 4000);
+      }
+    } catch (err) {
+      const parent = categories.find((c) => c.id === editingCat.parentId);
+      const seo = buildCategorySeo(editingCat.name, parent?.name, editingCat.description);
+      setEditingCat((prev) =>
+        prev
+          ? {
+              ...prev,
+              slug: seo.slug,
+              metaTitle: seo.metaTitle,
+              metaDescription: seo.metaDescription,
+              metaKeywords: seo.metaKeywords,
+              imageAlt: `Custom ${editingCat.name} manufactured in bulk by LTS Bags Mumbai India`,
+            }
+          : null
+      );
+      setAutoSyncSeo(true);
+      setSeoGeneratedNotice('⚡ Category SEO fields auto-generated successfully!');
+      setTimeout(() => setSeoGeneratedNotice(''), 4000);
+    } finally {
+      setIsGeneratingSeo(false);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -448,7 +517,7 @@ export default function AdminCategoriesPage() {
                   <div key={c.id} className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs flex flex-col justify-between space-y-4">
                     <div className="space-y-3">
                       <div className="aspect-16/9 rounded-xl overflow-hidden bg-slate-50 relative flex items-center justify-center p-2 border border-slate-200/60">
-                        <img src={c.image} alt={c.name} referrerPolicy="no-referrer" className="max-w-full max-h-full object-contain object-center" />
+                        <img src={sanitizeImageUrl(c.image)} alt={c.imageAlt || c.name} referrerPolicy="no-referrer" className="max-w-full max-h-full object-contain object-center" />
                         <div className="absolute top-2 left-2">
                           {parent ? (
                             <span className="bg-indigo-900/90 backdrop-blur-xs text-indigo-100 text-[10px] font-bold px-2 py-0.5 rounded-md border border-indigo-700">
@@ -563,7 +632,19 @@ export default function AdminCategoriesPage() {
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Category Name *</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block font-bold text-slate-700">Category Name *</label>
+                  <button
+                    type="button"
+                    onClick={() => handleAutoGenerateSeo(false)}
+                    disabled={isGeneratingSeo}
+                    className="text-[11px] font-bold text-amber-800 hover:text-amber-900 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded-md flex items-center gap-1 transition-colors cursor-pointer border border-amber-300 shadow-xs"
+                    title="Generate SEO Title, Description, Keywords & Image Alt in 1 click"
+                  >
+                    <Sparkles className="w-3 h-3 text-amber-600" />
+                    <span>⚡ 1-Click Auto SEO</span>
+                  </button>
+                </div>
                 <input
                   type="text"
                   required
@@ -574,12 +655,17 @@ export default function AdminCategoriesPage() {
               </div>
 
               <ImageUploader
-                label="Category Banner Image (1200 × 1200 px)"
+                label="Category Banner Image (Full 100% Uncropped View)"
                 value={editingCat.image || ''}
                 onChange={(url) => setEditingCat({ ...editingCat, image: url })}
                 preset="category_banner"
                 contextName={editingCat.name || 'Category Banner'}
-                aspectRatio="square"
+                categoryName={editingCat.name || ''}
+                aspectRatio="auto"
+                altText={editingCat.imageAlt || ''}
+                onAltTextChange={(alt) => setEditingCat({ ...editingCat, imageAlt: alt })}
+                showAltInput={true}
+                helperText="Upload any image size/shape. Automatically displayed in 100% full view without cropping or cutting off edges."
               />
 
               <div>
@@ -617,12 +703,23 @@ export default function AdminCategoriesPage() {
 
                     <button
                       type="button"
-                      onClick={handleManualAutoGenerateSeo}
-                      className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] rounded-lg shadow-xs flex items-center gap-1 transition-colors cursor-pointer"
+                      onClick={() => handleAutoGenerateSeo(false)}
+                      disabled={isGeneratingSeo}
+                      className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-bold text-[11px] rounded-lg shadow-xs flex items-center gap-1 transition-colors cursor-pointer"
                       title="Regenerate all SEO fields from Category Name & Description"
                     >
                       <Sparkles className="w-3 h-3 text-amber-200" />
-                      <span>Auto-Fill SEO</span>
+                      <span>{isGeneratingSeo ? 'Generating...' : '⚡ Auto-Fill SEO'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleAutoGenerateSeo(true)}
+                      disabled={isGeneratingSeo}
+                      className="px-2.5 py-1 bg-purple-700 hover:bg-purple-800 disabled:opacity-50 text-white font-bold text-[11px] rounded-lg shadow-xs flex items-center gap-1 transition-colors cursor-pointer"
+                      title="Enhance SEO metadata with Google Gemini AI"
+                    >
+                      <span>✨ AI SEO</span>
                     </button>
                   </div>
                 </div>

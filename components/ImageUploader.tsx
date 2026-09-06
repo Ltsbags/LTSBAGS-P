@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import SmartImageStudio from './SmartImageStudio';
 import MediaLibraryPickerModal from './MediaLibraryPickerModal';
-import { ImagePresetKey, getPresetConfig } from '@/lib/image-processing/presets';
+import { ImagePresetKey, getPresetConfig, sanitizeImageUrl } from '@/lib/image-processing/presets';
 import { MediaAsset } from '@/lib/types';
 
 export interface ImageUploaderProps {
@@ -32,6 +32,9 @@ export interface ImageUploaderProps {
   aspectRatio?: 'square' | 'video' | 'banner' | 'auto';
   className?: string;
   helperText?: string;
+  altText?: string;
+  onAltTextChange?: (alt: string) => void;
+  showAltInput?: boolean;
 }
 
 export default function ImageUploader({
@@ -44,6 +47,9 @@ export default function ImageUploader({
   aspectRatio = 'auto',
   className = '',
   helperText,
+  altText = '',
+  onAltTextChange,
+  showAltInput = false,
 }: ImageUploaderProps) {
   const [selectedFileForStudio, setSelectedFileForStudio] = useState<File | null>(null);
   const [isStudioOpen, setIsStudioOpen] = useState(false);
@@ -199,18 +205,20 @@ export default function ImageUploader({
             />
 
             <img
-              src={value}
-              alt="Uploaded preview"
+              src={sanitizeImageUrl(value)}
+              alt={altText || contextName || "Full preview"}
               referrerPolicy="no-referrer"
-              className="max-w-full max-h-full transition-all drop-shadow-md select-none cursor-zoom-in"
+              className={`transition-all drop-shadow-md select-none cursor-zoom-in ${
+                previewFit === 'contain'
+                  ? 'max-w-full max-h-[350px] w-auto h-auto object-contain'
+                  : 'w-full h-full object-cover'
+              }`}
               onClick={() => setShowFullscreenModal(true)}
               style={{
-                objectFit: 'contain',
+                objectFit: previewFit === 'contain' ? 'contain' : 'cover',
                 objectPosition: 'center',
-                maxWidth: '100%',
-                maxHeight: '100%',
-                width: 'auto',
-                height: 'auto',
+                maxWidth: previewFit === 'contain' ? '100%' : undefined,
+                maxHeight: previewFit === 'contain' ? '100%' : undefined,
                 display: 'block',
               }}
             />
@@ -234,12 +242,33 @@ export default function ImageUploader({
               ) : null}
             </div>
 
-            {/* Auto-Full indicator and Fullscreen Zoom */}
+            {/* View Mode Toggle and Fullscreen Zoom */}
             <div className="absolute top-2 right-2 flex items-center gap-1.5">
-              <span className="px-2 py-0.5 bg-emerald-950/85 backdrop-blur-md text-emerald-300 text-[10px] font-bold rounded-md flex items-center gap-1 border border-emerald-500/40 shadow-xs">
-                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                <span>Auto-Full (100% Uncropped)</span>
-              </span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPreviewFit(previewFit === 'contain' ? 'cover' : 'contain');
+                }}
+                className={`px-2 py-0.5 backdrop-blur-md text-[10px] font-bold rounded-md flex items-center gap-1 border shadow-xs transition-colors cursor-pointer ${
+                  previewFit === 'contain'
+                    ? 'bg-emerald-950/85 text-emerald-300 border-emerald-500/40 hover:bg-emerald-900/90'
+                    : 'bg-slate-900/85 text-slate-300 border-slate-700/60 hover:bg-slate-800'
+                }`}
+                title="Toggle between 100% Uncropped View and Fill Frame"
+              >
+                {previewFit === 'contain' ? (
+                  <>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                    <span>100% Full Uncropped</span>
+                  </>
+                ) : (
+                  <>
+                    <Crop className="w-3 h-3 text-amber-400" />
+                    <span>Cropped / Fill Frame</span>
+                  </>
+                )}
+              </button>
               <button
                 type="button"
                 onClick={() => setShowFullscreenModal(true)}
@@ -258,7 +287,7 @@ export default function ImageUploader({
                 <button
                   type="button"
                   onClick={triggerSelect}
-                  className="flex-1 py-1.5 px-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 text-xs"
+                  className="flex-1 py-1.5 px-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 text-xs cursor-pointer"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   <span>Replace Photo</span>
@@ -266,7 +295,7 @@ export default function ImageUploader({
                 <button
                   type="button"
                   onClick={() => setIsMediaPickerOpen(true)}
-                  className="py-1.5 px-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg transition-colors flex items-center justify-center gap-1 text-xs"
+                  className="py-1.5 px-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg transition-colors flex items-center justify-center gap-1 text-xs cursor-pointer"
                   title="Pick from existing Media Library"
                 >
                   <FolderOpen className="w-3.5 h-3.5" />
@@ -276,12 +305,43 @@ export default function ImageUploader({
               <button
                 type="button"
                 onClick={handleRemove}
-                className="py-1.5 px-3 bg-red-600/80 hover:bg-red-600 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 text-xs"
+                className="py-1.5 px-3 bg-red-600/80 hover:bg-red-600 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 text-xs cursor-pointer"
                 title="Remove Image"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Remove</span>
               </button>
+            </div>
+          )}
+
+          {/* Auto SEO Alt Text Input Bar */}
+          {(showAltInput || onAltTextChange) && (
+            <div className="p-2.5 bg-amber-50/70 border-t border-amber-200/80">
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-bold text-amber-950 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-amber-600" />
+                  <span>Image ALT Text (Auto SEO)</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const generated = `${contextName || categoryName || 'Custom Bag'} manufactured in Mumbai India - LTS Bags`;
+                    if (onAltTextChange) {
+                      onAltTextChange(generated);
+                    }
+                  }}
+                  className="text-[10px] font-bold text-amber-800 hover:text-amber-900 bg-amber-200/80 hover:bg-amber-300/80 px-2 py-0.5 rounded border border-amber-300 transition-colors cursor-pointer"
+                >
+                  ⚡ Auto SEO Alt
+                </button>
+              </div>
+              <input
+                type="text"
+                value={altText}
+                onChange={(e) => onAltTextChange && onAltTextChange(e.target.value)}
+                placeholder="e.g. Custom Laptop Sleeves manufactured in Mumbai by LTS Bags..."
+                className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs outline-none focus:ring-1 focus:ring-amber-500 font-medium text-slate-800"
+              />
             </div>
           )}
         </div>
@@ -375,7 +435,7 @@ export default function ImageUploader({
           </div>
           <div className="relative w-full max-w-4xl max-h-[82vh] flex items-center justify-center p-4 bg-slate-900/95 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
             <img
-              src={value}
+              src={sanitizeImageUrl(value)}
               alt="Fullscreen uncropped preview"
               referrerPolicy="no-referrer"
               className="max-w-full max-h-[75vh] object-contain object-center rounded-lg"

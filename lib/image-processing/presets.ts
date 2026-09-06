@@ -230,16 +230,30 @@ export const IMAGE_PRESETS: Record<ImagePresetKey, ImagePresetConfig> = {
     label: 'General Website Image',
     description: 'Standard balanced image for custom content and marketing blocks.',
     targetWidth: 1200,
-    targetHeight: 800,
-    aspectRatio: 1.5,
-    aspectRatioLabel: '3:2 Standard (1200 × 800 px)',
-    defaultFitMode: 'cover',
-    quality: 86,
+    targetHeight: 1200,
+    aspectRatio: 1,
+    aspectRatioLabel: '1:1 Square (1200 × 1200 px)',
+    defaultFitMode: 'contain',
+    quality: 88,
     allowAlpha: true,
+    paddingPercent: 4,
+    neverCrop: true,
     responsiveWidths: [1200, 800, 400],
     category: 'GENERAL',
   },
 };
+
+/**
+ * Ensures images from CDNs (like Unsplash) don't have fit=crop query params
+ * which chop off product handles, straps, or edges.
+ */
+export function sanitizeImageUrl(url?: string): string {
+  if (!url) return '';
+  if (url.includes('images.unsplash.com')) {
+    return url.replace(/([?&])fit=crop(&|$)/, '$1fit=max$2');
+  }
+  return url;
+}
 
 export function getPresetConfig(key?: string): ImagePresetConfig {
   if (key && key in IMAGE_PRESETS) {

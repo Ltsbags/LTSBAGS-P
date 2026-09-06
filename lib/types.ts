@@ -443,6 +443,7 @@ export interface Category {
   slug: string;
   description: string;
   image: string;
+  imageAlt?: string;
   bannerImage?: string;
   featuredImage?: string;
   parentId?: string;
