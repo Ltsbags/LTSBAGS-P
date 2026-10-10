@@ -111,7 +111,7 @@ async function generateSitemap() {
     }
 
     urlEntries.push(`  <url>
-    <loc>${escapeXml(`${baseUrl}/category/${cat.slug}`)}</loc>
+    <loc>${escapeXml(`${baseUrl}/products/${cat.slug}`)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>${imageXml}

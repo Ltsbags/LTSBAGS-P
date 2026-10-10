@@ -87,7 +87,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   
   categories.forEach((cat) => {
     categoryEntries.push({
-      url: `${baseUrl}/${cat.slug}`,
+      url: `${baseUrl}/products/${cat.slug}`,
       lastModified: cat.updatedAt ? new Date(cat.updatedAt) : now,
       changeFrequency: 'weekly' as const,
       priority: 0.85,

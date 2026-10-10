@@ -43,7 +43,9 @@ export function generatePageMetadata({
   image?: string;
   noIndex?: boolean;
 }): Metadata {
-  const fullTitle = title ? `${title} | LTS BAGS Mumbai` : `${DEFAULT_TITLE} | LTS BAGS Mumbai`;
+  const fullTitle = title 
+    ? (title.toLowerCase().includes('lts') ? title : `${title} | LTS Bags`) 
+    : `${DEFAULT_TITLE} | LTS Bags`;
   const fullDesc = description || DEFAULT_DESC;
   const langPrefix = lang && lang !== 'en' ? `?lang=${lang}` : '';
   const canonicalUrl = `${SITE_URL}${path}${langPrefix}`;

@@ -19,7 +19,7 @@ import FaqSection from '@/components/FaqSection';
 import FactoryQuoteSection from '@/components/FactoryQuoteSection';
 import SchemaScript from '@/components/SchemaScript';
 import { db } from '@/lib/db';
-import { generatePageMetadata, generateOrganizationSchema, generateWebSiteSchema } from '@/lib/seo';
+import { generatePageMetadata, generateOrganizationSchema, generateWebSiteSchema, generateLocalBusinessSchema } from '@/lib/seo';
 import { 
   ArrowRight, 
   ChevronRight,
@@ -30,8 +30,8 @@ import {
 export const dynamic = 'force-dynamic';
 
 export const metadata = generatePageMetadata({
-  title: 'LTS BAGS PRIVATE LIMITED | Custom Bag Manufacturer in Mumbai, India',
-  description: 'Custom bag manufacturer in Mumbai, India. Manufacturing backpacks, school bags, laptop bags, corporate bags, travel bags, duffle bags, tote bags, jute bags, promotional bags and custom bags for bulk orders with OEM/ODM customization and direct factory pricing.',
+  title: 'Custom Bag Manufacturer in Mumbai, India | LTS Bags',
+  description: 'LTS BAGS PRIVATE LIMITED manufactures custom school, laptop, corporate, travel, jute and promotional bags for bulk orders and B2B clients in India and overseas.',
   path: '/',
 });
 
@@ -42,11 +42,11 @@ export default function HomePage() {
   const settings = db.getSettings();
   const orgSchema = generateOrganizationSchema();
   const webSiteSchema = generateWebSiteSchema();
+  const localBusinessSchema = generateLocalBusinessSchema();
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
-      <SchemaScript schema={orgSchema} />
-      <SchemaScript schema={webSiteSchema} />
+      <SchemaScript schema={[orgSchema, webSiteSchema, localBusinessSchema]} />
       <Navbar />
 
       <main className="flex-1">

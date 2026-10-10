@@ -17,21 +17,47 @@ export default function NotFound() {
           <p className="text-slate-600 text-sm">
             The page or product category you are looking for does not exist or has been relocated.
           </p>
-          <div className="pt-4 flex items-center justify-center gap-3">
+          <div className="pt-4 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/"
-              className="bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold px-5 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-colors"
+              className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-colors shadow-sm"
             >
-              <Home className="w-4 h-4" />
+              <Home className="w-4 h-4 text-[#72AFDB]" />
               <span>Return Home</span>
             </Link>
             <Link
               href="/products"
-              className="bg-white hover:bg-slate-100 text-slate-800 font-bold px-5 py-2.5 rounded-xl text-xs flex items-center gap-2 border border-slate-300 transition-colors"
+              className="bg-[#72AFDB] hover:bg-[#5C9BC7] text-white font-bold px-5 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-colors shadow-sm"
             >
-              <Package className="w-4 h-4 text-amber-600" />
+              <Package className="w-4 h-4 text-white" />
               <span>Browse Catalog</span>
             </Link>
+          </div>
+
+          <div className="pt-6 border-t border-slate-200">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-3">
+              Popular Product Lines
+            </span>
+            <div className="flex flex-wrap justify-center gap-2 text-xs">
+              <Link href="/products/backpacks" className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-[#72AFDB] hover:text-[#72AFDB] transition-colors">
+                Backpacks
+              </Link>
+              <Link href="/products/laptop-office-bags" className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-[#72AFDB] hover:text-[#72AFDB] transition-colors">
+                Laptop Bags
+              </Link>
+              <Link href="/products/school-college-bags" className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-[#72AFDB] hover:text-[#72AFDB] transition-colors">
+                School Bags
+              </Link>
+              <Link href="/products/travel-bags" className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-[#72AFDB] hover:text-[#72AFDB] transition-colors">
+                Travel Bags
+              </Link>
+              <Link href="/products/jute-eco-bags" className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-[#72AFDB] hover:text-[#72AFDB] transition-colors">
+                Jute & Eco Bags
+              </Link>
+              <Link href="/request-a-quote" className="px-3 py-1.5 rounded-lg bg-sky-50 border border-sky-200 text-sky-700 font-bold hover:bg-sky-100 transition-colors">
+                Request a Quote
+              </Link>
+            </div>
           </div>
         </div>
       </main>

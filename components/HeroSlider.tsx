@@ -209,9 +209,15 @@ export default function HeroSlider({
                       )}
 
                       {/* Main Slide Title */}
-                      <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white font-sans leading-[1.12]">
-                        {renderFormattedTitle(slide.title)}
-                      </h2>
+                      {index === 0 ? (
+                        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white font-sans leading-[1.12]">
+                          {renderFormattedTitle(slide.title)}
+                        </h1>
+                      ) : (
+                        <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white font-sans leading-[1.12]">
+                          {renderFormattedTitle(slide.title)}
+                        </h2>
+                      )}
 
                       {/* Description */}
                       {slide.description && (

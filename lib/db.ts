@@ -334,8 +334,8 @@ const INITIAL_SETTINGS: SiteSettings = {
 const INITIAL_SLIDES: HeroSlide[] = [
   {
     id: 'slide-1',
-    title: 'Premium Custom Bag Manufacturing For Corporate Brands',
-    description: 'Direct factory supply of executive laptop bags, corporate tech backpacks, heavy travel duffels, and eco canvas totes.',
+    title: 'Custom Bag Manufacturer in Mumbai, India',
+    description: 'LTS BAGS PRIVATE LIMITED manufactures custom school, laptop, corporate, travel, jute and promotional bags for bulk orders and B2B clients in India and overseas.',
     imageUrl: 'https://images.unsplash.com/photo-1546938576-6e6a64f317cc?auto=format&fit=max&q=80&w=1600',
     buttonText: 'Request Bulk Quote',
     buttonUrl: '/contact',

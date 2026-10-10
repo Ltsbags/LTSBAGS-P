@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: category.metaTitle || `${category.name} Manufacturer in Mumbai | Custom & Wholesale`,
     description: category.metaDescription || `Custom bulk manufacturer of ${category.name} in Mumbai, India. Low MOQ, direct factory wholesale pricing, fast sampling and pan-India delivery.`,
     keywords: category.metaKeywords || `${category.name} manufacturer in Mumbai, ${category.name} wholesale Mumbai, custom ${category.name} India, LTS BAGS PRIVATE LIMITED`,
-    path: `/category/${category.slug}`,
+    path: `/products/${category.slug}`,
     image: category.image,
   });
 }

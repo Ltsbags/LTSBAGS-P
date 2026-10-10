@@ -816,7 +816,7 @@ export default function CategoryLandingView({
               {relatedCategories.map((relCat) => (
                 <Link
                   key={relCat.id}
-                  href={`/category/${relCat.slug}`}
+                  href={`/products/${relCat.slug}`}
                   className="group bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 hover:border-[#72AFDB] hover:shadow-md transition-all text-center flex flex-col items-center justify-between space-y-2"
                 >
                   <div className="w-full aspect-square rounded-lg overflow-hidden relative bg-slate-100 dark:bg-slate-800">
