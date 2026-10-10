@@ -75,6 +75,7 @@ export default function AdminCustomersPage() {
 
   useEffect(() => {
     fetchCustomers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
   const handleSearch = (e: React.FormEvent) => {

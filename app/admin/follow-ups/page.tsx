@@ -61,6 +61,7 @@ export default function AdminFollowUpsPage() {
 
   useEffect(() => {
     fetchFollowUps();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, employeeFilter]);
 
   const handleOpenAddModal = () => {

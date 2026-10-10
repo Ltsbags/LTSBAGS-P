@@ -91,6 +91,7 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetchDashboardStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateFilter]);
 
   const handleApplyCustomFilter = (e: React.FormEvent) => {

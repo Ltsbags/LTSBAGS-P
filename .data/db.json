@@ -1749,6 +1749,23 @@
   ],
   "enquiries": [
     {
+      "id": "enq-1791635603020",
+      "name": "Wholesale Buyer",
+      "company": "Apex Supplies",
+      "email": "buyer@example.com",
+      "mobile": "+919820000000",
+      "whatsapp": "+919820000000",
+      "country": "India",
+      "productRequirement": "500 School Bags",
+      "quantity": 100,
+      "sampleRequired": false,
+      "message": "Direct B2B Request for Quote submitted via web portal.",
+      "source": "FORM",
+      "status": "NEW",
+      "createdAt": "2026-10-10T12:33:23.020Z",
+      "updatedAt": "2026-10-10T12:33:23.020Z"
+    },
+    {
       "country": "India",
       "message": "Please share email address to share requirement details as message sent to info@ltsbags.com returned \"Relay access denied\".\nPlease note that the Indian mobile number provided is currently not active on WhatsApp. Kindly respond to this enquiry by email. A local Mumbai contact number can be provided once discussions progress.\n\nThanks",
       "email": "wamzluxury@gmail.com",
