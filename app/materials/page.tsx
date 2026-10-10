@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Layers, ArrowRight, ShieldCheck } from 'lucide-react';
 import { SEO_MATERIALS } from '@/lib/programmatic-seo/data/materials';
 import { generatePageMetadata } from '@/lib/seo';
+import SchemaScript from '@/components/SchemaScript';
 
 export const metadata = generatePageMetadata({
   title: 'Custom Bag Materials & Fabrics Guide | Manufacturing Specifications | LTS BAGS',
@@ -72,6 +73,27 @@ export default function MaterialsHubPage() {
             </div>
           ))}
         </div>
+
+        <SchemaScript
+          schema={{
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: 'https://ltsbags.com',
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Materials & Fabrics Guide',
+                item: 'https://ltsbags.com/materials',
+              },
+            ],
+          }}
+        />
 
       </div>
     </div>

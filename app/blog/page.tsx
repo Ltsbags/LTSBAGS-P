@@ -5,10 +5,11 @@ import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import { db } from '@/lib/db';
 import { generatePageMetadata } from '@/lib/seo';
+import SchemaScript from '@/components/SchemaScript';
 import { Calendar, User, ArrowRight, BookOpen } from 'lucide-react';
 
 export const metadata = generatePageMetadata({
-  title: 'B2B Custom Bag Manufacturing Blog & Guides | ApexBags',
+  title: 'B2B Custom Bag Manufacturing Blog & Guides | LTS BAGS',
   description: 'Expert guides on corporate bag sourcing, fabric durability (1680D vs 600D), quality control inspection standards, and custom branding trends.',
   path: '/blog',
 });
@@ -91,6 +92,27 @@ export default function BlogListPage() {
             </div>
           </div>
         </section>
+
+        <SchemaScript
+          schema={{
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: 'https://ltsbags.com',
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'B2B Blog & Sourcing Guides',
+                item: 'https://ltsbags.com/blog',
+              },
+            ],
+          }}
+        />
 
       </main>
 

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { MapPin, ArrowRight, ShieldCheck, Factory, Truck } from 'lucide-react';
 import { SEO_LOCATIONS } from '@/lib/programmatic-seo/data/locations';
 import { generatePageMetadata } from '@/lib/seo';
+import SchemaScript from '@/components/SchemaScript';
 
 export const metadata = generatePageMetadata({
   title: 'Custom Bag Manufacturing Locations Served | Direct from Mumbai Factory',
@@ -121,6 +122,27 @@ export default function LocationsHubPage() {
             ))}
           </div>
         </div>
+
+        <SchemaScript
+          schema={{
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: 'https://ltsbags.com',
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Manufacturing & Delivery Locations',
+                item: 'https://ltsbags.com/locations',
+              },
+            ],
+          }}
+        />
 
       </div>
     </div>

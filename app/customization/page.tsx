@@ -37,6 +37,27 @@ export default function CustomizationPage() {
         <CustomizationSection />
       </main>
 
+      <SchemaScript
+        schema={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: 'https://ltsbags.com',
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Customization & OEM',
+              item: 'https://ltsbags.com/customization',
+            },
+          ],
+        }}
+      />
+
       <Footer />
     </div>
   );

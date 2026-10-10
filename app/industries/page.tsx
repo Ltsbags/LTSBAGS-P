@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Briefcase, ArrowRight, ShieldCheck, Factory } from 'lucide-react';
 import { SEO_INDUSTRIES } from '@/lib/programmatic-seo/data/industries';
 import { generatePageMetadata } from '@/lib/seo';
+import SchemaScript from '@/components/SchemaScript';
 
 export const metadata = generatePageMetadata({
   title: 'Industry-Specific Custom Bag Manufacturing | B2B OEM Solutions | LTS BAGS',
@@ -72,6 +73,27 @@ export default function IndustriesHubPage() {
             </div>
           ))}
         </div>
+
+        <SchemaScript
+          schema={{
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: 'https://ltsbags.com',
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Industries Served',
+                item: 'https://ltsbags.com/industries',
+              },
+            ],
+          }}
+        />
 
       </div>
     </div>
