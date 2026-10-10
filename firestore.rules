@@ -80,6 +80,11 @@ service cloud.firestore {
     match /uploaded_images/{imageId} {
       allow read, write: if true;
     }
+
+    // AI Visibility & AEO citation tests
+    match /aeo_tests/{testId} {
+      allow read, write: if true;
+    }
   }
 }
 

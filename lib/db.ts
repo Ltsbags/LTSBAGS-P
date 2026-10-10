@@ -31,6 +31,8 @@ import {
   AdminNotification,
   ManufacturingConfig,
   PdfCatalogue,
+  AeoCitationTest,
+  AeoModelSummary,
   DatabaseSchema
 } from './types';
 import { INITIAL_LANGUAGES } from './i18n/languages';
@@ -4390,6 +4392,46 @@ export const db = {
     });
 
     data.catalogues = catalogues;
+    saveData(data);
+    return true;
+  },
+
+  // AI Visibility & AEO Citation Engine
+  getAeoTests(): AeoCitationTest[] {
+    const data = ensureDataFile();
+    return data.aeoTests || [];
+  },
+
+  saveAeoTest(test: AeoCitationTest): AeoCitationTest {
+    const data = ensureDataFile();
+    if (!data.aeoTests) data.aeoTests = [];
+    const index = data.aeoTests.findIndex((t) => t.id === test.id);
+    if (index >= 0) {
+      data.aeoTests[index] = test;
+    } else {
+      data.aeoTests.unshift(test);
+    }
+    saveData(data);
+    saveDocToFirestore('aeo_tests', test.id, test);
+    return test;
+  },
+
+  deleteAeoTest(id: string): boolean {
+    const data = ensureDataFile();
+    if (!data.aeoTests) return false;
+    const lenBefore = data.aeoTests.length;
+    data.aeoTests = data.aeoTests.filter((t) => t.id !== id);
+    if (data.aeoTests.length !== lenBefore) {
+      saveData(data);
+      deleteDocFromFirestore('aeo_tests', id);
+      return true;
+    }
+    return false;
+  },
+
+  clearAeoTests(): boolean {
+    const data = ensureDataFile();
+    data.aeoTests = [];
     saveData(data);
     return true;
   },

@@ -154,7 +154,7 @@ export function generateOrganizationSchema() {
     url: SITE_URL,
     logo: `${SITE_URL}/logo.png`,
     description: DEFAULT_DESC,
-    telephone: '+91 98335 98338',
+    telephone: '+91 91374 88358',
     email: 'info@ltsbags.com',
     hasMap: 'https://www.google.com/search?kgmid=%2Fg%2F11qpsqysys&hl=en-IN&q=LTS%20BAGS%20PRIVATE%20LIMITED',
     address: {
@@ -180,7 +180,7 @@ export function generateLocalBusinessSchema() {
     alternateName: 'LTS Bags',
     image: `${SITE_URL}/logo.png`,
     url: SITE_URL,
-    telephone: '+91 98335 98338',
+    telephone: '+91 91374 88358',
     email: 'info@ltsbags.com',
     priceRange: '₹₹ - ₹₹₹',
     openingHoursSpecification: [

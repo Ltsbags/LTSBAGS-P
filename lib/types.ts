@@ -890,6 +890,55 @@ export interface ManufacturingConfig {
   updatedAt?: string;
 }
 
+export interface AeoCitationSource {
+  title?: string;
+  url: string;
+  domain?: string;
+  snippet?: string;
+  verifiedOnline: boolean;
+  httpStatus?: number;
+}
+
+export interface AeoCitationTest {
+  id: string;
+  prompt: string;
+  promptCategory: string;
+  provider: 'gemini' | 'openai' | 'perplexity' | 'claude' | 'other';
+  model: string;
+  providerStatus: 'connected' | 'not_connected' | 'error';
+  status: 'tested' | 'not_tested' | 'failed' | 'no_citation_found';
+  testedAt?: string;
+  rawResponse?: string;
+  detectedBrandMention: boolean;
+  detectedLegalNameMention: boolean;
+  entityRecognitionScore: number; // 0 to 100 based on verified NAP & entity details
+  mentionFound: boolean;
+  citations: AeoCitationSource[];
+  citationFound: boolean;
+  verifiedCitationCount: number;
+  hasOfficialDomainCitation: boolean;
+  evidenceSnippets: string[];
+  errorMessage?: string;
+  targetDomain: string;
+}
+
+export interface AeoModelSummary {
+  provider: string;
+  model: string;
+  providerStatus: 'connected' | 'not_connected' | 'error';
+  totalPrompts: number;
+  testedCount: number;
+  untestedCount: number;
+  failedCount: number;
+  mentionCount: number;
+  citationCount: number;
+  verifiedCitationCount: number;
+  mentionRate: number | null; // null if not tested
+  citationRate: number | null; // null if not tested
+  visibilityScore: number | null; // null if not tested, calculated honestly from verified citations & mentions
+  lastTestedAt?: string;
+}
+
 export interface DatabaseSchema {
   categories: Category[];
   products: Product[];
@@ -914,4 +963,5 @@ export interface DatabaseSchema {
   testimonials?: TestimonialItem[];
   navigation?: NavigationMenuConfig;
   catalogues?: PdfCatalogue[];
+  aeoTests?: AeoCitationTest[];
 }

@@ -12,6 +12,25 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: ['/admin/', '/api/'],
       },
+      // Essential search engine crawlers
+      {
+        userAgent: ['Googlebot', 'Bingbot'],
+        allow: '/',
+        disallow: ['/admin/', '/api/'],
+      },
+      // AI Search & AEO Citation crawlers (OpenAI SearchGPT, Perplexity, Anthropic, Apple Intelligence)
+      {
+        userAgent: [
+          'GPTBot',
+          'OAI-SearchBot',
+          'PerplexityBot',
+          'ClaudeBot',
+          'Applebot',
+          'Google-Extended',
+        ],
+        allow: '/',
+        disallow: ['/admin/', '/api/'],
+      },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
   };
