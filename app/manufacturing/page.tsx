@@ -38,6 +38,44 @@ export default function ManufacturingPage() {
         <ManufacturingProcess />
 
         <WhyChooseUs />
+
+        <SchemaScript
+          schema={[
+            {
+              '@context': 'https://schema.org',
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                {
+                  '@type': 'ListItem',
+                  position: 1,
+                  name: 'Home',
+                  item: 'https://ltsbags.com',
+                },
+                {
+                  '@type': 'ListItem',
+                  position: 2,
+                  name: 'Manufacturing Facility',
+                  item: 'https://ltsbags.com/manufacturing',
+                },
+              ],
+            },
+            {
+              '@context': 'https://schema.org',
+              '@type': ['LocalBusiness', 'Manufacturer'],
+              name: 'LTS BAGS PRIVATE LIMITED',
+              url: 'https://ltsbags.com/manufacturing',
+              telephone: '+91 91374 88358',
+              address: {
+                '@type': 'PostalAddress',
+                streetAddress: 'Floor-G, A341/2/3, Ganesh Sai Kripa CHS, Sant Rohidas Marg, Mukund Nagar, Dharavi',
+                addressLocality: 'Mumbai',
+                addressRegion: 'Maharashtra',
+                postalCode: '400017',
+                addressCountry: 'IN',
+              },
+            },
+          ]}
+        />
       </main>
 
       <Footer />

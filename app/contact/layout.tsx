@@ -28,11 +28,11 @@ export default function ContactLayout({
               '@type': 'Organization',
               name: 'LTS BAGS PRIVATE LIMITED',
               url: 'https://ltsbags.com',
-              telephone: '+91 98335 98338',
+              telephone: '+91 91374 88358',
               email: 'info@ltsbags.com',
               address: {
                 '@type': 'PostalAddress',
-                streetAddress: 'FLOOR- G, A341/2/3, GANESH SAI KRIPA CHS SANT ROHIDAS MARG, MUKUND NAGAR, DHARAVI',
+                streetAddress: 'Floor-G, A341/2/3, Ganesh Sai Kripa CHS, Sant Rohidas Marg, Mukund Nagar, Dharavi',
                 addressLocality: 'Mumbai',
                 addressRegion: 'Maharashtra',
                 postalCode: '400017',
